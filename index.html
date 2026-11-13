@@ -105,7 +105,6 @@
           <div class="model" id="model" role="img" aria-label="3D model of the enclosure. Drag to turn it, scroll or pinch to zoom.">
             <div class="model-msg" id="modelMsg">Loading the 3D model…</div>
             <div class="model-tools">
-              <span class="badge" id="modelRev">Shell rev 6 · not yet printed</span>
               <button class="tool" id="modelExplode" type="button" aria-pressed="false" hidden>Exploded</button>
               <button class="tool" id="modelReset" type="button" hidden>Reset view</button>
             </div>
@@ -178,6 +177,18 @@
           <li>An <b>800×480</b> touchscreen</li>
         </ul>
         <p class="muted">The installer adds a small Python service and a full-screen Chromium window. Python standard library only, nothing loaded from the internet.</p>
+        <details class="fresh">
+          <summary>Starting from a fresh Pi?</summary>
+          <ol class="fresh-steps">
+            <li>Flash <b>Raspberry Pi OS (64-bit) with desktop</b> with Raspberry Pi Imager. Set a hostname, user, Wi‑Fi and time zone, and enable SSH.</li>
+            <li>With the Pi unplugged, connect the screen's ribbon to the <b>DISPLAY</b> port, then power on. No driver needed.</li>
+            <li>SSH in, turn on <b>Desktop Autologin</b> in <code>sudo raspi-config</code>, then update: <code>sudo apt update &amp;&amp; sudo apt full-upgrade -y</code>.</li>
+            <li>Reserve the Pi's IP address in your router (DHCP reservation).</li>
+            <li>Install Pi-hole: <code>curl -sSL https://install.pi-hole.net | bash</code>, then <code>pihole setpassword</code>.</li>
+            <li>Set your router's DNS to the Pi. If the Pi is ever off, set it back to Automatic.</li>
+          </ol>
+          <p class="muted small">The full guide, including booting from an SSD, is in the <a href="https://github.com/gsylvest/pihole-dash-themes#start-from-a-fresh-pi">README</a>.</p>
+        </details>
       </div>
       <ol class="steps">
         <li><span>Get the code on the Pi</span><code>git clone https://github.com/gsylvest/pihole-dash-themes.git &amp;&amp; cd pihole-dash-themes</code></li>

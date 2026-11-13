@@ -36,6 +36,27 @@ To run it locally: `python3 -m http.server 8000` in the repo folder, then open <
 - Raspberry Pi OS **with the desktop** (Bookworm or later, Wayland/labwc) and Chromium
 - A touchscreen. The designs are laid out for **800×480**.
 
+## Start from a fresh Pi
+
+Already running Pi-hole on a Pi with the desktop and the screen working? Skip to [Install](#install). Otherwise, about 30 minutes:
+
+1. **Flash the card.** In [Raspberry Pi Imager](https://www.raspberrypi.com/software/), pick *Raspberry Pi 4*, then *Raspberry Pi OS (64-bit)*, the version **with desktop**, then your microSD card. When it offers to customise settings, set:
+   - a hostname, e.g. `pihole`;
+   - a username and password;
+   - your Wi‑Fi (Ethernet is better for a DNS server if you can);
+   - your time zone;
+   - under *Services*, **enable SSH**.
+2. **Connect the screen with the Pi unplugged.** Put the screen's ribbon into the Pi's **DISPLAY** port (not CAMERA), contacts the right way round per the screen's manual. Then insert the card and power on. The desktop appears on the touchscreen; no driver is needed.
+3. **Log in over SSH from your computer:** `ssh <username>@pihole.local`.
+4. **Make sure it boots straight to the desktop:** `sudo raspi-config` → *System Options* → *Boot / Auto Login* → *Desktop Autologin*. The dashboard runs in that desktop session.
+5. **Update:** `sudo apt update && sudo apt full-upgrade -y`, then `sudo reboot`.
+6. **Give the Pi a fixed address.** In your router's settings, reserve its current IP address for the Pi (often called *DHCP reservation*). A DNS server that changes address breaks your internet.
+7. **Install Pi-hole v6:** `curl -sSL https://install.pi-hole.net | bash` and follow the prompts. Set the web admin password with `pihole setpassword`. The admin page is at `http://pihole.local/admin`.
+8. **Point your network at it.** In your router, set the DNS server to the Pi's address, so every device uses Pi-hole. Keep a way back: if the Pi is ever off, set the router's DNS back to *Automatic* and the internet works again.
+9. Carry on with **Install** below.
+
+**Booting from an SSD** (optional, for the NVMe board): once everything works on the card, copy it to the drive with *SD Card Copier* on the desktop (*Accessories*). Set the boot order with `sudo raspi-config` → *Advanced Options* → *Boot Order* → *NVMe/USB Boot*, shut down, remove the card and power on.
+
 ## Install
 
 On the Pi:

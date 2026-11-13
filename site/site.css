@@ -146,6 +146,16 @@ code { font: .88em ui-monospace, Menlo, monospace; }
 .code code { font-size: inherit; }
 p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk); }
 
+.fresh { margin-top: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.fresh summary { cursor: pointer; padding: 12px 14px; font-weight: 650; list-style: none; display: flex; align-items: center; gap: 8px; }
+.fresh summary::-webkit-details-marker { display: none; }
+.fresh summary::before { content: "+"; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: var(--sunk); font-weight: 700; }
+.fresh[open] summary::before { content: "−"; }
+.fresh-steps { margin: 0; padding: 0 16px 6px 36px; }
+.fresh-steps li { margin: 6px 0; font-size: 14.5px; }
+.fresh > p { padding: 0 14px 14px; }
+.band.alt .fresh { background: var(--bg); }
+
 /* ---------- build section ---------- */
 .build-head { max-width: 720px; margin-bottom: 24px; }
 .build-head h2 { margin-bottom: 8px; }
@@ -156,7 +166,7 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
 .model:active { cursor: grabbing; }
 .model canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .model-msg { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 15px; padding: 24px; text-align: center; }
-.model-tools { position: absolute; left: 12px; right: 12px; top: 12px; display: flex; gap: 8px; align-items: center; pointer-events: none; }
+.model-tools { position: absolute; left: 12px; right: 12px; top: 12px; display: flex; gap: 8px; align-items: center; justify-content: flex-end; pointer-events: none; }
 .model-tools > * { pointer-events: auto; }
 .badge { margin-right: auto; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 650; color: #8A4B00; background: #FFE7C2; }
 .badge.ok { color: #1E5B2E; background: #D3F2DB; }

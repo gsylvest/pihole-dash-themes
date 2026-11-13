@@ -70,7 +70,34 @@ async function start() {
   const root = gltf.scene; scene.add(root);
 
   // materials: matte PETG for the printed parts, glossy black glass, metal posts, the design on the screen
-  const petg = new THREE.MeshPhysicalMaterial({ color: 0x2e2c2a, roughness: 0.72, metalness: 0, sheen: 0.4, sheenRoughness: 0.8, sheenColor: 0x6a6660 });
+  // Black PETG with the fine stipple a textured PEI build plate leaves: a small tiling noise texture used as a
+  // bump map and to vary the roughness, mapped by box projection (the model has no UVs of its own).
+  const stipple = (() => {
+    const N = 256, c = document.createElement("canvas"); c.width = c.height = N;
+    const g = c.getContext("2d"), img = g.createImageData(N, N);
+    for (let i = 0; i < N * N; i++) {
+      const v = 128 + (Math.random() - 0.5) * 150 * (Math.random() < 0.55 ? 1 : 0.35);
+      img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v; img.data[i * 4 + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    g.globalAlpha = 0.5; g.filter = "blur(0.6px)"; g.drawImage(c, 0, 0);   // soften the speckle into bumps
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+    return t;
+  })();
+  const boxUV = (geo, mm) => {   // planar UVs on whichever axis each vertex faces; mm = millimetres per texture tile
+    const p = geo.attributes.position, n = geo.attributes.normal, uv = new Float32Array(p.count * 2);
+    for (let i = 0; i < p.count; i++) {
+      const ax = Math.abs(n.getX(i)), ay = Math.abs(n.getY(i)), az = Math.abs(n.getZ(i));
+      let u, v;
+      if (ax >= ay && ax >= az) { u = p.getZ(i); v = p.getY(i); } else if (ay >= az) { u = p.getX(i); v = p.getZ(i); } else { u = p.getX(i); v = p.getY(i); }
+      uv[i * 2] = u / mm; uv[i * 2 + 1] = v / mm;
+    }
+    geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  };
+  const petg = new THREE.MeshPhysicalMaterial({
+    color: 0x121212, roughness: 0.78, metalness: 0, bumpMap: stipple, bumpScale: 0.35, roughnessMap: stipple,
+    sheen: 0.25, sheenRoughness: 0.9, sheenColor: 0x3a3a3a,
+  });
   const MATS = {
     shell: petg, base: petg, retainer: petg,
     screen_glass: new THREE.MeshPhysicalMaterial({ color: 0x050608, roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.03 }),
@@ -81,6 +108,7 @@ async function start() {
     if (!o.isMesh) return;
     o.castShadow = true; o.receiveShadow = true;
     if (MATS[o.name]) o.material = MATS[o.name];
+    if (MATS[o.name] === petg && !o.geometry.attributes.uv) boxUV(o.geometry, 60);
     else if (o.material) { o.material.roughness = Math.max(0.35, o.material.roughness ?? 0.6); o.material.envMapIntensity = 0.8; }
   });
   const pic = root.getObjectByName("screen_picture");
