@@ -102,6 +102,8 @@ async function start() {
     shell: petg, base: petg, retainer: petg,
     screen_glass: new THREE.MeshPhysicalMaterial({ color: 0x050608, roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.03 }),
     screen_corner_posts: new THREE.MeshStandardMaterial({ color: 0xc9ccd1, roughness: 0.25, metalness: 1 }),
+    usb_bridge: new THREE.MeshStandardMaterial({ color: 0x141416, roughness: 0.5, metalness: 0.1 }),
+    usb_bridge_black: new THREE.MeshStandardMaterial({ color: 0x141416, roughness: 0.5, metalness: 0.1 }),
     pi4_metal: new THREE.MeshStandardMaterial({ color: 0xc4c8ce, roughness: 0.28, metalness: 1 }),
     pi4_gold: new THREE.MeshStandardMaterial({ color: 0xd9a845, roughness: 0.3, metalness: 1 }),
     pi4_pcb: new THREE.MeshStandardMaterial({ color: 0x1f6b3a, roughness: 0.45, metalness: 0 }),
