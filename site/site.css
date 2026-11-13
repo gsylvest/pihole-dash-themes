@@ -171,9 +171,11 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
 /* ---------- build section ---------- */
 .build-head { max-width: 720px; margin-bottom: 24px; }
 .build-head h2 { margin-bottom: 8px; }
-.build { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px; align-items: start; }
-.model-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 12px; box-shadow: var(--shadow); }
-.model { position: relative; aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden; cursor: grab;
+.build { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px; align-items: stretch; }
+.model-card { display: flex; flex-direction: column; flex: 1 1 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 16px; box-shadow: var(--shadow); }
+.model-head { margin-top: 2px; }
+/* the viewer takes whatever height is left, so the left column lines up with the parts list */
+.model { position: relative; flex: 1 1 auto; min-height: 380px; border-radius: 12px; overflow: hidden; cursor: grab;
   background: radial-gradient(120% 90% at 50% 30%, var(--surface) 0%, var(--sunk) 70%); }
 .model:active { cursor: grabbing; }
 .model canvas { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -220,8 +222,8 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
 .part-group { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; }
 .part-group h3 { margin: 0 0 8px; font-size: 15px; }
 .why { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.why li { position: relative; padding-left: 22px; color: var(--muted); font-size: 13.5px; line-height: 1.45; }
-.why li::before { content: ""; position: absolute; left: 2px; top: 5px; width: 12px; height: 7px; border-left: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(-45deg); }
+.why li { position: relative; padding-left: 18px; color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.why li::before { content: ""; position: absolute; left: 1px; top: 6px; width: 8px; height: 4px; border-left: 1.75px solid var(--accent); border-bottom: 1.75px solid var(--accent); transform: rotate(-45deg); }
 .why b { color: var(--ink); font-weight: 650; }
 .part-list { list-style: none; margin: 0; padding: 0; }
 .part-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
@@ -284,6 +286,7 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
   .how { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .bar-nav a[href="#how"] { display: none; }
   .build { grid-template-columns: minmax(0, 1fr); }
+  .model { flex: none; aspect-ratio: 4 / 3; min-height: 0; }
   .model-card { padding: 8px; border-radius: 16px; }
 }
 @media (max-width: 420px) { .logo-for { display: none; } }

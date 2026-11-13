@@ -173,7 +173,9 @@ async function start() {
 
   const resize = () => {
     const w = host.clientWidth, h = host.clientHeight;
-    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false); camera.aspect = w / h;
+    camera.zoom = Math.min(1, camera.aspect / 1.3);   // a tall viewer zooms out so the case still fits side to side
+    camera.updateProjectionMatrix();
   };
   new ResizeObserver(resize).observe(host); resize();
 
@@ -201,26 +203,31 @@ const GROUPS = {
   screen: (n) => n.startsWith("screen_"), n02: (n) => n.startsWith("n02_") || n.startsWith("nvme_"),
   pi: (n) => n.startsWith("pi4_") || n.startsWith("armor_lite_") || n === "dsi_ribbon",
   radar: (n) => n.startsWith("radar_"), plug: (n) => n === "usbc_power_plug", bridge: (n) => n.startsWith("usb_bridge"),
+  inserts: (n) => n.startsWith("hw_insert"), m3: (n) => n.startsWith("hw_m3"),
+  m25l: (n) => n.startsWith("hw_m25x25"), m25s: (n) => n.startsWith("hw_m25x10"),
 };
+const STACK = ["screen", "n02", "pi"];
 const ALL = Object.keys(GROUPS);
 const STEPS = [
-  { title: "Fit the threaded inserts", show: ["shell"], hi: ["shell"], cam: [35, -48, 1],
+  { title: "Fit the threaded inserts", show: ["shell", "inserts"], hi: ["inserts"], hw: ["inserts"], cam: [35, -48, 1],
     text: "Turn the shell upside down and press the <b>4 M3 heat-set inserts</b> into the bosses with a soldering iron. Each hole has a small bevel to centre the insert." },
-  { title: "Build the stack", show: ["screen", "n02", "pi"], hi: ["n02", "pi"], off: { n02: [0, 0, -10], pi: [0, 0, -26] }, cam: [150, 18, 1],
+  { title: "Build the stack", show: STACK, hi: ["n02", "pi"], off: { n02: [0, 0, -10], pi: [0, 0, -26] }, cam: [150, 18, 1],
     text: "Fit the <b>N02 board</b> to the back of the screen with the NVMe drive facing the screen, then the <b>Pi</b> on the N02, then the <b>cooler</b>. Connect the display ribbon. Leave the USB bridge off for now." },
   { title: "Seat the radar", show: ["base", "radar"], hi: ["radar"], off: { radar: [0, 16, 0] }, cam: [25, 26, 0.7],
     text: "Push the five jumper wires onto the radar's pins and stand it in the cradle on the base, pin row at the top. Lead the wires back through the slot in the block.",
     warn: "Put a small dab of super glue in the cradle first, so the board can't rattle loose." },
-  { title: "Screw on the retainer", show: ["screen", "n02", "pi", "retainer"], hi: ["retainer"], off: { retainer: [0, 0, -18] }, cam: [205, 22, 1],
+  { title: "Screw on the retainer", show: [...STACK, "retainer", "m25l"], hi: ["retainer", "m25l"], hw: ["m25l"], cam: [205, 22, 1],
     text: "Screw the retainer to the screen with the <b>4 M2.5 × 25</b> screws, through its posts into the screen's corner posts. Don't use longer screws: they can reach the panel." },
-  { title: "Stand it on the base", show: ["screen", "n02", "pi", "retainer", "base", "radar"], hi: ["base"], off: { screen: [0, 22, 0], n02: [0, 22, 0], pi: [0, 22, 0], retainer: [0, 22, 0] }, cam: [150, 20, 1],
+  { title: "Stand it on the base", show: [...STACK, "retainer", "m25l", "base", "radar", "m25s"], hi: ["base", "m25s"], hw: ["m25s"], cam: [150, 20, 1],
     text: "Stand the stack on the base with the retainer's bottom bar against the block, and fix it with the <b>2 M2.5 × 10</b> screws." },
-  { title: "Wire it up", show: ["screen", "n02", "pi", "retainer", "base", "radar", "plug"], hi: ["radar", "plug"], cam: [185, 32, 1],
+  { title: "Wire it up", show: [...STACK, "retainer", "m25l", "m25s", "base", "radar", "plug"], hi: ["radar", "plug"], cam: [185, 32, 1],
     text: "Radar to the Pi's header: <b>5 V → pin 2</b>, <b>GND → 14</b>, <b>RX → 8</b>, <b>TX → 10</b>, <b>OUT → 16</b>. Plug the right-angle USB-C cable into the doorway in the retainer's top bar and run it down the back." },
-  { title: "Lower the shell", show: ["shell", "screen", "n02", "pi", "retainer", "base", "radar", "plug"], hi: ["shell"], off: { shell: [0, 44, 4] }, cam: [35, 20, 1],
+  { title: "Lower the shell", show: ["shell", "inserts", ...STACK, "retainer", "m25l", "m25s", "base", "radar", "plug"], hi: ["shell"], off: { shell: [0, 44, 4], inserts: [0, 44, 4] }, cam: [35, 20, 1],
     text: "Lower the shell over the stack, starting about <b>3 mm forward</b> so the front bosses pass in front of the glass. Once they're below the glass, slide it back and down the rest of the way." },
+  { title: "Screw the base on", show: ["shell", "inserts", ...STACK, "retainer", "base", "radar", "plug", "m3"], hi: ["m3"], hw: ["m3"], cam: [30, -42, 1],
+    text: "Turn it over and fit the <b>4 M3 × 8 countersunk</b> screws through the base into the inserts. Snug, not tight: they're threading into plastic-held brass." },
   { title: "Close it up", show: ALL, hi: ["bridge"], off: { bridge: [22, 0, 0] }, cam: [62, 12, 0.72],
-    text: "Turn it over and fit the <b>4 M3 × 8 countersunk</b> screws through the base. Push the <b>USB bridge</b> into the slot on the right and plug in Ethernet next to it. Done." },
+    text: "Push the <b>USB bridge</b> into the slot on the right and plug in Ethernet next to it. Done: power it up." },
 ];
 
 function initGuide(THREE, source, centre) {
@@ -246,7 +253,9 @@ function initGuide(THREE, source, centre) {
     const mat = new THREE.LineBasicMaterial({ color: C.line, transparent: true, opacity: 0.55 });
     node.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 28), mat));
     scene.add(node);
-    parts.push({ node, group, mat, base: node.position.clone(), from: new THREE.Vector3(), to: new THREE.Vector3() });
+    const ax = o.userData && o.userData.axis, travel = (o.userData && o.userData.travel) || 12;
+    parts.push({ node, group, mat, base: node.position.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
+      out: ax ? new THREE.Vector3(...ax).normalize().multiplyScalar(travel) : null });
   });
   const box = new THREE.Box3(); parts.forEach((p) => box.expandByObject(p.node));
   const radius = box.getSize(new THREE.Vector3()).length() / 2;
@@ -287,6 +296,8 @@ function initGuide(THREE, source, centre) {
       p.mat.color.copy(hi ? C.hi : C.line); p.mat.opacity = hi ? 1 : 0.7;
       p.from.copy(p.node.position);
       p.to.copy(p.base).add(new THREE.Vector3(...((s.off && s.off[p.group]) || [0, 0, 0])));
+      p.drive = !!(s.hw && s.hw.includes(p.group) && p.out);   // screws and inserts slide in along their axis
+      if (p.drive) { p.from.copy(p.to).add(p.out); p.node.position.copy(p.from); }
     });
     const [c, pos] = frame(s);
     camFrom.copy(camera.position); camTo.copy(pos); tgtFrom.copy(tgt); tgtTo.copy(c);
@@ -295,9 +306,10 @@ function initGuide(THREE, source, centre) {
   }
   function tick(now) {
     const k = Math.min(1, (now - t0) / 650), e = 1 - Math.pow(1 - k, 3);
-    parts.forEach((p) => p.node.position.lerpVectors(p.from, p.to, e));
+    const kh = Math.min(1, Math.max(0, (now - t0 - 500) / 900)), eh = kh * kh * (3 - 2 * kh);   // hardware goes in after the camera settles
+    parts.forEach((p) => p.node.position.lerpVectors(p.from, p.to, p.drive ? eh : e));
     camera.position.lerpVectors(camFrom, camTo, e); tgt.lerpVectors(tgtFrom, tgtTo, e); draw();
-    if (k < 1) requestAnimationFrame(tick); else anim = false;
+    if (k < 1 || kh < 1) requestAnimationFrame(tick); else anim = false;
   }
 
   $("guidePrev").addEventListener("click", () => go(step - 1));
