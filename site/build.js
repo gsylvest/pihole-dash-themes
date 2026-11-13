@@ -309,7 +309,7 @@ const STEPS = [
   { title: "N02 onto the screen", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB"], hi: ["n02", "standB"], hi2: ["pogo"], hw: ["standB"], cam: [160, 22, 1],
     text: "Set the <b>N02 board</b> on the standoffs with the drive facing the back of the screen. Then screw the <b>standoffs that came with the N02</b> on top of it, through the board into the ones below. Note the <b>three spring pins</b> (blue): they'll press on the Pi's header in the next step.",
     tip: "Drive side towards the screen, every time: if the N02's chips are facing you, it's upside down. Snug the new standoffs by hand, then a quarter turn more" },
-  { title: "Pi onto the N02", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi"], hi: ["pi"], hi2: ["pogo"], off: { pi: [0, -3.1, -11.6] }, cam: [150, 20, 1],
+  { title: "Pi onto the N02", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi"], hi: ["pi"], hi2: ["pogo"], lower: ["pi"], focus: ["pogo"], cam: [215, -50, 1],
     text: "Lower the <b>Pi</b> onto the N02's standoffs, component side out. Don't screw it down yet: the cooler's screws hold it.",
     tip: "Line up the N02's <b>three spring pins</b> (blue) with the underside of the Pi's header pins 2, 4 and 6 before it touches down. They power the N02; if they miss, the drive won't show up." },
   { title: "Connect the display ribbon", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi", "ribbon"], hi: ["ribbon"], cam: [200, 30, 0.9],
@@ -428,6 +428,15 @@ function initGuide(THREE, source, centre) {
       const a = THREE.MathUtils.degToRad(s.cam[0]), e = THREE.MathUtils.degToRad(s.cam[1]);
       return [c, c.clone().add(new THREE.Vector3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)).multiplyScalar(fit))];
     }
+    if (s.focus) {   // zoom in on a detail (e.g. the spring pins) rather than the whole step
+      const fb = new THREE.Box3();
+      parts.forEach((p) => { if (s.focus.includes(p.group)) fb.expandByObject(p.node); });
+      fb.expandByScalar(16);
+      const c = fb.getCenter(new THREE.Vector3()), r = fb.getSize(new THREE.Vector3()).length() / 2;
+      const fit = r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 0.95 * s.cam[2];
+      const a = THREE.MathUtils.degToRad(s.cam[0]), e = THREE.MathUtils.degToRad(s.cam[1]);
+      return [c, c.clone().add(new THREE.Vector3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)).multiplyScalar(fit))];
+    }
     const b = new THREE.Box3(), keep = [], rot = scene.rotation.x;
     scene.rotation.x = s.flip ? Math.PI : 0; scene.updateMatrixWorld(true);
     parts.forEach((p) => { if (!s.show.includes(p.group)) return; keep.push([p, p.node.position.clone()]); p.node.position.copy(p.to); p.node.updateMatrixWorld(true); b.expandByObject(p.node); });
@@ -468,7 +477,7 @@ function initGuide(THREE, source, centre) {
     const s = STEPS[step];
     $("guideTitle").textContent = s.title;
     $("guideText").innerHTML = s.text +
-      (s.tip ? `<span class="tip"><b>Pro tip</b> ${s.tip}</span>` : "") +
+      (s.tip ? `<span class="tip"><span class="tip-label">Pro tip</span> ${s.tip}</span>` : "") +
       (s.intro ? `<button class="start" type="button" data-start>Start building →</button>` : "");
     $("guideCount").textContent = s.intro ? `${STEPS.length - 1} steps` : `Step ${step} of ${STEPS.length - 1}`;
     [...dots.children].forEach((d, k) => d.setAttribute("aria-selected", k === step ? "true" : "false"));
@@ -492,8 +501,10 @@ function initGuide(THREE, source, centre) {
       p.from.copy(p.node.position);
       p.to.copy(p.base).add(new THREE.Vector3(...((s.off && s.off[p.group]) || [0, 0, 0])));
       p.node.quaternion.copy(p.baseQ);
-      p.drive = !!(s.hw && s.hw.includes(p.group) && p.out);   // screws and inserts slide in along their axis
-      if (p.drive) { p.from.copy(p.to).add(p.out); p.node.position.copy(p.from); }
+      // screws and inserts slide in along their own axis; a board being "lowered" comes straight down onto its standoffs
+      p.slide = s.lower && s.lower.includes(p.group) ? new THREE.Vector3(0, -0.259, -0.966).multiplyScalar(14) : p.out;
+      p.drive = !!((s.hw && s.hw.includes(p.group) && p.out) || (s.lower && s.lower.includes(p.group)));
+      if (p.drive) { p.from.copy(p.to).add(p.slide); p.node.position.copy(p.from); }
       else if (p.state === "enter") { p.from.copy(p.to).add(away); p.node.position.copy(p.from); }
       else if (p.state === "leave") { p.to.copy(p.node.position).add(away); }
       if (p.state === "enter" && p.drive) p.fadeFrom = 0;
