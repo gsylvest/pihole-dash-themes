@@ -127,10 +127,11 @@
   <section class="band" id="build" aria-labelledby="buildTitle">
     <div class="wrap">
       <div class="build-head">
-        <h2 id="buildTitle">Build the screen</h2>
-        <p class="muted">The hardware this runs on: a Raspberry Pi 4 behind a 4.3" touchscreen in a 3D-printed case. About an afternoon to put together, plus a six-hour print in PETG.</p>
+        <h2 id="buildTitle">Build guide</h2>
+        <p class="muted">The hardware this runs on: a Raspberry Pi 4 behind a 4.3" touchscreen in a 3D-printed case. About 30 minutes to put together, plus a six-hour print in PETG.</p>
       </div>
       <div class="build">
+        <div class="build-left">
         <div class="model-card">
           <div class="model" id="model" role="img" aria-label="3D model of the enclosure. Drag to turn it, scroll or pinch to zoom.">
             <div class="model-msg" id="modelMsg">Loading the 3D model…</div>
@@ -144,6 +145,27 @@
             <p class="muted small"><b>Print status:</b> the base and retainer (rev 4) and the rev 5 shell are printed and in use. Rev 6 only raises the bottom edge of the screen window 1 mm to even out the border, and hasn’t been printed yet.</p>
             <div class="downloads" id="downloads"></div>
             <p class="muted small">Enclosure files: <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank">CC BY 4.0</a>, print and remix freely with credit. Print settings and assembly steps are in <code>enclosure/README.md</code>.</p>
+          </div>
+        </div>
+
+          <div class="guide" id="guide" aria-roledescription="carousel" aria-label="Assembly steps">
+            <div class="guide-head">
+              <h3>Put it together</h3>
+              <span class="guide-count" id="guideCount">Step 1 of 8</span>
+            </div>
+            <div class="guide-view">
+              <canvas id="guideCanvas" aria-hidden="true"></canvas>
+              <div class="guide-msg" id="guideMsg">Drawing the steps…</div>
+            </div>
+            <div class="guide-body" aria-live="polite">
+              <h4 id="guideTitle"></h4>
+              <p id="guideText"></p>
+            </div>
+            <div class="guide-nav">
+              <button class="nav-btn" id="guidePrev" type="button" aria-label="Previous step"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>
+              <div class="guide-dots" id="guideDots" role="tablist" aria-label="Choose a step"></div>
+              <button class="nav-btn" id="guideNext" type="button" aria-label="Next step"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
+            </div>
           </div>
         </div>
 
@@ -163,6 +185,7 @@
             <ul class="part-list">
               <li><span class="pn">4 × M3 heat-set inserts, 5.7 mm</span><span class="pd">Pressed into the shell with a soldering iron. The ones used in this build</span><a class="buy" href="https://www.amazon.com/dp/B0CS6VZYL8" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
               <li><span class="pn">4 × M3 × 8 countersunk screws</span><span class="pd">Base into the shell, from underneath (DIN 965)</span><a class="buy" href="https://www.amazon.com/dp/B01E5EOIWW" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">Super glue</span><span class="pd">One small drop to hold the radar board in its cradle</span></li>
               <li><span class="pn">4 × M2.5 × 25 and 2 × M2.5 × 10 screws</span><span class="pd">Pan or cap head. Don’t go longer than 25 mm: it can reach the display panel. The link is the 25 mm socket heads used here</span><a class="buy" href="https://www.amazon.com/dp/B01AXWRQQU" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
             </ul>
           </div>

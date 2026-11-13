@@ -195,6 +195,27 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
 .dl span { display: flex; flex-direction: column; min-width: 0; font-size: 14px; }
 .dl small { color: var(--muted); font-size: 12px; }
 
+.build-left { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.guide { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 16px; box-shadow: var(--shadow); }
+.guide-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 2px 4px 12px; }
+.guide-head h3 { margin: 0; font-size: 17px; }
+.guide-count { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.guide-view { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: var(--sunk);
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 24px 24px; background-position: -1px -1px; touch-action: pan-y; }
+.guide-view canvas { display: block; width: 100%; height: 100%; }
+.guide-msg { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 14px; }
+.guide-body { padding: 14px 4px 4px; min-height: 120px; }
+.guide-body h4 { margin: 0 0 6px; font-size: 16px; }
+.guide-body p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.guide-body b { color: var(--ink); }
+.guide-body .warn { display: inline-block; margin-top: 8px; padding: 6px 10px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); font-size: 13.5px; }
+.guide-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 10px; }
+.guide-dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.guide-dots button { width: 10px; height: 10px; padding: 0; border-radius: 50%; border: 0; cursor: pointer; background: var(--line); }
+.guide-dots button[aria-selected="true"] { background: var(--accent); width: 22px; border-radius: 6px; }
+.guide-dots button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
 .parts { display: flex; flex-direction: column; gap: 14px; }
 .part-group { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; }
 .part-group h3 { margin: 0 0 8px; font-size: 15px; }

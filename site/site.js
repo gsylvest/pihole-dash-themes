@@ -199,6 +199,7 @@
   // ---------- keyboard ----------
   document.addEventListener("keydown", (e) => {
     if (e.altKey || e.ctrlKey || e.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.target.closest && e.target.closest("#guide")) return;   // the assembly guide uses the arrows itself
     if (e.key === "Escape" && open) { e.preventDefault(); collapse(); return; }
     if (open && e.key === "Tab") { e.preventDefault(); closeBtn.focus(); return; }   // only one control in the overlay
     const inList = list.contains(e.target);

@@ -117,7 +117,7 @@ The Pi, the N02 and the screen are joined by the standoffs that come with the sc
 
 1. Press the four M3 inserts into the shell's bosses from underneath with a soldering iron. Each hole has a small bevel to centre the insert.
 2. Build the stack as the screen and the N02 instruct: N02 on the back of the screen with the NVMe drive facing the screen, then the Pi on the N02, then the fan cooler. Connect the display ribbon. Leave the USB bridge off for now.
-3. Radar (optional): push the five jumper wires onto the radar's pins and stand the board in the holder on the base with its pin row at the top and the pins pointing back. Lead the wires back through the slot in the base block.
+3. Radar (optional): push the five jumper wires onto the radar's pins and stand the board in the holder on the base with its pin row at the top and the pins pointing back. Put a small drop of super glue in the holder's grooves first so the board can't rattle loose. Lead the wires back through the slot in the base block.
 4. Screw the retainer to the screen with the four M2.5 x 25 screws, through its posts into the screen's silver corner posts.
 5. Stand the stack on the base with the retainer's bottom bar against the block, and fix it with the two M2.5 x 10 screws.
 6. Connect the radar wires to the Pi's header: 5 V to pin 2, ground to pin 14, the radar's RX to pin 8, its TX to pin 10, and OUT to pin 16.
