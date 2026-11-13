@@ -130,8 +130,7 @@
         <h2 id="buildTitle">Build guide</h2>
         <p class="muted">The hardware this runs on: a Raspberry Pi 4 behind a 4.3" touchscreen in a 3D-printed case. About 30 minutes to put together, plus a six-hour print in PETG.</p>
       </div>
-      <div class="build">
-        <div class="build-left">
+      <div class="build-stack">
         <div class="model-card">
           <div class="guide-head model-head"><h3>The final product</h3></div>
           <div class="model" id="model" role="img" aria-label="3D model of the enclosure. Drag to turn it, scroll or pinch to zoom.">
@@ -149,32 +148,17 @@
           </div>
         </div>
 
-          <div class="guide" id="guide" aria-roledescription="carousel" aria-label="Assembly steps">
-            <div class="guide-head">
-              <h3>Put it together</h3>
-              <span class="guide-count" id="guideCount">Step 1 of 9</span>
-            </div>
-            <div class="guide-view">
-              <canvas id="guideCanvas" aria-hidden="true"></canvas>
-              <svg class="guide-pins" id="guidePins" aria-hidden="true"></svg>
-              <ul class="guide-legend" id="guideLegend" hidden></ul>
-              <div class="guide-msg" id="guideMsg">Drawing the steps…</div>
-            </div>
-            <div class="guide-body" aria-live="polite">
-              <h4 id="guideTitle"></h4>
-              <p id="guideText"></p>
-            </div>
-            <div class="guide-nav">
-              <button class="nav-btn" id="guidePrev" type="button" aria-label="Previous step"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>
-              <div class="guide-dots" id="guideDots" role="tablist" aria-label="Choose a step"></div>
-              <button class="nav-btn" id="guideNext" type="button" aria-label="Next step"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
+        <div class="need" id="need">
+          <div class="need-head">
+            <h3>What you need</h3>
+            <div class="tabs" role="tablist" aria-label="Parts">
+              <button class="tab" role="tab" id="tabReq" aria-selected="true" aria-controls="panelReq" type="button">Required</button>
+              <button class="tab" role="tab" id="tabNice" aria-selected="false" aria-controls="panelNice" tabindex="-1" type="button">Nice to have</button>
             </div>
           </div>
-        </div>
-
-        <div class="parts">
+          <div class="need-panel" id="panelReq" role="tabpanel" aria-labelledby="tabReq">
           <div class="part-group">
-            <h3>You need</h3>
+            <h3>The essentials</h3>
             <ul class="part-list">
               <li><span class="pn">Raspberry Pi 4 Model B</span><span class="pd">2 GB is plenty for Pi-hole and the screen</span><a class="buy" href="https://www.amazon.com/dp/B09TTNPB4J" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
               <li><span class="pn">Waveshare 4.3" DSI touchscreen</span><span class="pd">800×480 capacitive, ribbon to the Pi's DSI port, no driver needed</span><a class="buy" href="https://www.amazon.com/dp/B083Q8YLVP" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
@@ -193,8 +177,10 @@
               <li><span class="pn">4 × M2.5 × 25 and 2 × M2.5 × 10 screws</span><span class="pd">Pan or cap head. Don’t go longer than 25 mm: it can reach the display panel. The link is the 25 mm socket heads used here</span><a class="buy" href="https://www.amazon.com/dp/B01AXWRQQU" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
             </ul>
           </div>
+          </div>
+          <div class="need-panel" id="panelNice" role="tabpanel" aria-labelledby="tabNice" hidden>
           <div class="part-group">
-            <h3>Optional: boot from an SSD</h3>
+            <h3>Boot from an SSD</h3>
             <ul class="why">
               <li><b>Lasts longer.</b> Pi-hole writes its logs all day, and SD cards wear out from constant writes. An SSD is built for it.</li>
               <li><b>Faster.</b> Boots, updates and the web admin all feel quicker.</li>
@@ -206,7 +192,7 @@
             </ul>
           </div>
           <div class="part-group">
-            <h3>Optional: screen sleeps when you walk away</h3>
+            <h3>Screen sleeps when you walk away</h3>
             <ul class="why">
               <li><b>Dark when nobody’s there.</b> No glowing screen in an empty room or at night.</li>
               <li><b>Saves the screen.</b> The backlight only runs when someone’s around, so it lasts longer and uses less power.</li>
@@ -228,8 +214,31 @@
             </table>
             <p class="muted small">Install with <code>sudo PRESENCE=1 ./install.sh</code>. Without a sensor the screen just stays on. Tune the range in Hi-Link’s phone app if it sees too far.</p>
           </div>
+          </div>
           <p class="muted small">Plain Amazon links, no affiliate tags. Listings change, so check the model before you buy.</p>
         </div>
+
+        <div class="guide" id="guide" aria-roledescription="carousel" aria-label="Assembly steps">
+            <div class="guide-head">
+              <h3>Put it together</h3>
+              <span class="guide-count" id="guideCount">Step 1 of 9</span>
+            </div>
+            <div class="guide-view">
+              <canvas id="guideCanvas" aria-hidden="true"></canvas>
+              <svg class="guide-pins" id="guidePins" aria-hidden="true"></svg>
+              <ul class="guide-legend" id="guideLegend" hidden></ul>
+              <div class="guide-msg" id="guideMsg">Drawing the steps…</div>
+            </div>
+            <div class="guide-body" aria-live="polite">
+              <h4 id="guideTitle"></h4>
+              <p id="guideText"></p>
+            </div>
+            <div class="guide-nav">
+              <button class="nav-btn" id="guidePrev" type="button" aria-label="Previous step"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>
+              <div class="guide-dots" id="guideDots" role="tablist" aria-label="Choose a step"></div>
+              <button class="nav-btn" id="guideNext" type="button" aria-label="Next step"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
+            </div>
+          </div>
       </div>
     </div>
   </section>

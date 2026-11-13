@@ -99,6 +99,7 @@ async function start() {
     color: 0x121212, roughness: 0.78, metalness: 0, bumpMap: stipple, bumpScale: 0.35, roughnessMap: stipple,
     sheen: 0.25, sheenRoughness: 0.9, sheenColor: 0x3a3a3a,
   });
+  const blackOxide = new THREE.MeshStandardMaterial({ color: 0x17181a, roughness: 0.38, metalness: 0.85 });
   const MATS = {
     shell: petg, base: petg, retainer: petg,
     screen_glass: new THREE.MeshPhysicalMaterial({ color: 0x050608, roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.03 }),
@@ -120,6 +121,7 @@ async function start() {
     if (!o.isMesh) return;
     o.castShadow = true; o.receiveShadow = true;
     if (MATS[o.name]) o.material = MATS[o.name];
+    else if (/^hw_m(3|25)/.test(o.name)) o.material = blackOxide;   // every screw is black oxide; the inserts stay brass
     if (MATS[o.name] === petg && !o.geometry.attributes.uv) boxUV(o.geometry, 60);
     else if (o.material) { o.material.roughness = Math.max(0.35, o.material.roughness ?? 0.6); o.material.envMapIntensity = 0.8; }
   });
@@ -143,7 +145,7 @@ async function start() {
   const box = new THREE.Box3().setFromObject(root), size = box.getSize(new THREE.Vector3()), centre = box.getCenter(new THREE.Vector3());
   root.position.sub(centre);
   const radius = size.length() / 2;
-  const home = new THREE.Vector3(radius * 1.7, radius * 0.95, radius * 2.15);   // front three-quarter, screen towards you
+  const home = new THREE.Vector3(radius * 1.95, radius * 1.1, radius * 2.5);   // front three-quarter, screen towards you
   camera.position.copy(home); camera.near = radius / 50; camera.far = radius * 20; camera.updateProjectionMatrix();
   controls.target.set(0, 0, 0); controls.minDistance = radius * 1.2; controls.maxDistance = radius * 8;
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(radius * 12, radius * 12), new THREE.ShadowMaterial({ opacity: 0.32 }));

@@ -199,7 +199,7 @@
   // ---------- keyboard ----------
   document.addEventListener("keydown", (e) => {
     if (e.altKey || e.ctrlKey || e.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
-    if (e.target.closest && e.target.closest("#guide")) return;   // the assembly guide uses the arrows itself
+    if (e.target.closest && e.target.closest("#guide, .tabs")) return;   // the assembly guide and the parts tabs use the arrows themselves
     if (e.key === "Escape" && open) { e.preventDefault(); collapse(); return; }
     if (open && e.key === "Tab") { e.preventDefault(); closeBtn.focus(); return; }   // only one control in the overlay
     const inList = list.contains(e.target);
@@ -214,4 +214,19 @@
   setFilter("all");
   show(THEMES.some((t) => t.id === fromHash) ? fromHash : DEFAULT);
   if (!THEMES.some((t) => t.id === fromHash)) { try { history.replaceState(null, "", location.pathname); } catch { /* ignore */ } }
+
+  // ---------- "What you need" tabs ----------
+  const tabs = [...document.querySelectorAll(".need .tab")];
+  const pick = (t, focus) => tabs.forEach((x) => {
+    const on = x === t; x.setAttribute("aria-selected", on ? "true" : "false"); x.tabIndex = on ? 0 : -1;
+    document.getElementById(x.getAttribute("aria-controls")).hidden = !on;
+    if (on && focus) x.focus();
+  });
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => pick(t));
+    t.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      e.preventDefault(); e.stopPropagation(); pick(tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length], true);
+    });
+  });
 })();
