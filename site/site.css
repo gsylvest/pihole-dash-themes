@@ -219,6 +219,10 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
 .parts { display: flex; flex-direction: column; gap: 14px; }
 .part-group { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; }
 .part-group h3 { margin: 0 0 8px; font-size: 15px; }
+.why { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.why li { position: relative; padding-left: 22px; color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.why li::before { content: ""; position: absolute; left: 2px; top: 5px; width: 12px; height: 7px; border-left: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(-45deg); }
+.why b { color: var(--ink); font-weight: 650; }
 .part-list { list-style: none; margin: 0; padding: 0; }
 .part-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
 .part-list li:first-child { border-top: 0; padding-top: 2px; }
