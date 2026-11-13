@@ -3,6 +3,15 @@
   const REPO_URL = "https://github.com/gsylvest/pihole-dash-themes";
 
   const GROUPS = [
+    ["Playful", [
+      ["freighter", "Space Freighter", "Raiders burst on the ship's shield"],
+      ["arcade", "8-bit", "The shield zaps the ads"],
+      ["dungeon", "Dungeon Gate", "Monsters dissolve at the gate"],
+      ["pachinko", "Pachinko", "Queries fall into Allowed or Blocked"],
+      ["ninja", "ASCII Ninja", "A ninja slashes incoming ad packets"],
+      ["whack", "Whack-an-Ad", "A mallet bops ads back down their holes"],
+      ["pinball", "Packet Pinball", "Ads bounce off the bumpers and drain"],
+    ]],
     ["Clean", [
       ["monolith", "Monolith", "One giant number"],
       ["swiss", "Swiss", "Grid, rules, big type"],
@@ -22,17 +31,9 @@
       ["filterops", "Filter Ops", "Split panes: requests, results, activity"],
       ["bonsai", "Bonsai", "Ad leaves fall from a circuit tree"],
     ]],
-    ["Playful", [
-      ["arcade", "8-bit", "The shield zaps the ads"],
-      ["dungeon", "Dungeon Gate", "Monsters dissolve at the gate"],
-      ["freighter", "Space Freighter", "Raiders burst on the ship's shield"],
-      ["pachinko", "Pachinko", "Queries fall into Allowed or Blocked"],
-      ["ninja", "ASCII Ninja", "A ninja slashes incoming ad packets"],
-      ["whack", "Whack-an-Ad", "A mallet bops ads back down their holes"],
-      ["pinball", "Packet Pinball", "Ads bounce off the bumpers and drain"],
-    ]],
   ];
   document.querySelectorAll("[data-count]").forEach((el) => { el.textContent = GROUPS.reduce((n, [, i]) => n + i.length, 0); });
+  const DEFAULT = "freighter";   // shown first when no design is in the URL
   const THEMES = GROUPS.flatMap(([group, items]) => items.map(([id, name, desc]) => ({ id, name, desc, group })));
   const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -60,7 +61,7 @@
       </button>`).join("")}`).join("");
   const items = [...list.querySelectorAll(".item")];
 
-  let filter = "all", current = THEMES[0].id;
+  let filter = "all", current = DEFAULT;
   const visible = () => THEMES.filter((t) => filter === "all" || t.group === filter);
 
   function setFilter(key) {
@@ -96,7 +97,7 @@
   }
 
   function show(id, { focus = false, load = true } = {}) {
-    const t = THEMES.find((x) => x.id === id) || THEMES[0];
+    const t = THEMES.find((x) => x.id === id) || THEMES.find((x) => x.id === DEFAULT);
     current = t.id;
     $("liveName").textContent = t.name; $("liveDesc").textContent = t.desc;
     const url = `app/index.html?demo&theme=${t.id}`;
@@ -210,6 +211,6 @@
   // ---------- start ----------
   const fromHash = location.hash.slice(1);
   setFilter("all");
-  show(THEMES.some((t) => t.id === fromHash) ? fromHash : THEMES[0].id);
+  show(THEMES.some((t) => t.id === fromHash) ? fromHash : DEFAULT);
   if (!THEMES.some((t) => t.id === fromHash)) { try { history.replaceState(null, "", location.pathname); } catch { /* ignore */ } }
 })();

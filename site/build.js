@@ -95,7 +95,7 @@ async function start() {
       if (cache[url]) return apply(cache[url]);
       loader.load(url, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.center.set(0.5, 0.5); t.rotation = Math.PI; t.wrapS = THREE.RepeatWrapping; t.repeat.x = -1;   /* the model's screen UVs run the other way */ t.anisotropy = renderer.capabilities.getMaxAnisotropy(); cache[url] = t; apply(t); });
     };
-    setDesign(window.currentDesign || "monolith");
+    setDesign(window.currentDesign || "freighter");
     addEventListener("design-change", (e) => setDesign(e.detail));
   }
 

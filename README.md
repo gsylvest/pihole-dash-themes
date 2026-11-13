@@ -71,6 +71,28 @@ read -rs -p "Paste app password: " P; echo; printf '%s' "$P" | sudo tee /etc/pih
 
 Check it: `curl -s http://127.0.0.1:8088/api/state | head -c 60` should start with `{"status": "ok"`. If the screen says **App password rejected**, make a new one and save it again.
 
+## Optional: screen sleeps when nobody's there
+
+With an HLK-LD2410C radar sensor wired to the Pi, the screen turns off when the room is empty and wakes when someone walks up (or touches it).
+
+| LD2410C | Pi header pin |
+| --- | --- |
+| VCC | 2 (5 V) |
+| GND | 14 |
+| OUT | 16 (GPIO 23) |
+
+Install with the sensor support switched on:
+
+```bash
+sudo PRESENCE=1 ./install.sh
+```
+
+It fails open: with no sensor, or a loose wire, the screen just stays on. Settings (how long before it sleeps, which pin) are in `/etc/default/pihole-presence`. If it keeps seeing someone in an empty room, lower its range in Hi-Link's phone app.
+
+## Build the case
+
+The [`enclosure/`](enclosure/) folder has a printable desk case for the Pi 4, the 4.3" screen, an optional NVMe board and the radar: print files (Bambu 3MF and STL), print settings, the screws you need and step-by-step assembly. See [enclosure/README.md](enclosure/README.md), and the parts list with a 3D preview at [sinkholescreens.com](https://sinkholescreens.com/#build).
+
 ## Day to day
 
 | Command | What |
@@ -120,7 +142,7 @@ pihole-dash-kiosk off
 ```
 
 ```bash
-sudo systemctl disable --now pihole-dash && sudo rm -f /etc/systemd/system/pihole-dash.service && sudo systemctl daemon-reload
+sudo systemctl disable --now pihole-dash pihole-presence 2>/dev/null; sudo rm -f /etc/systemd/system/pihole-dash.service /etc/systemd/system/pihole-presence.service /etc/default/pihole-presence && sudo systemctl daemon-reload
 ```
 
 ```bash
@@ -131,6 +153,6 @@ Allow entries made from the screen stay in Pi-hole. Remove them in the web admin
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Inter and Inter Tight are under the SIL Open Font License ([app/fonts/OFL.txt](app/fonts/OFL.txt)). PiPixel is an original pixel font made for this project (`dev/gen_pixel_font.py`) and is MIT like the code.
+The code is MIT, see [LICENSE](LICENSE). The enclosure files in `enclosure/` are CC BY 4.0, see [enclosure/LICENSE](enclosure/LICENSE). Inter and Inter Tight are under the SIL Open Font License ([app/fonts/OFL.txt](app/fonts/OFL.txt)). PiPixel is an original pixel font made for this project (`dev/gen_pixel_font.py`) and is MIT like the code.
 
 Sinkhole Screens is an independent project, not affiliated with or endorsed by the Pi-hole project or Raspberry Pi Ltd. Pi-hole is a registered trademark of Pi-hole LLC; Raspberry Pi is a trademark of Raspberry Pi Ltd.
