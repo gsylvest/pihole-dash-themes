@@ -55,7 +55,7 @@ async function start() {
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.add(new THREE.HemisphereLight(0xfff4e6, 0x30302c, 0.35));
-  const key = new THREE.DirectionalLight(0xfff1e0, 2.4); key.position.set(120, 260, 180);
+  const key = new THREE.DirectionalLight(0xfff1e0, 2.4); key.position.set(-170, 230, 150);   // upper left, low enough to throw the shadow onto the floor
   key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 8; key.shadow.bias = -0.0003; key.shadow.normalBias = 0.4;
   scene.add(key, key.target);
   const rim = new THREE.DirectionalLight(0xbcd2ff, 1.1); rim.position.set(-220, 140, -200); scene.add(rim);
@@ -148,16 +148,39 @@ async function start() {
   const home = new THREE.Vector3(radius * 1.95, radius * 1.1, radius * 2.5);   // front three-quarter, screen towards you
   camera.position.copy(home); camera.near = radius / 50; camera.far = radius * 20; camera.updateProjectionMatrix();
   controls.target.set(0, 0, 0); controls.minDistance = radius * 1.2; controls.maxDistance = radius * 8;
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(radius * 12, radius * 12), new THREE.ShadowMaterial({ opacity: 0.26 }));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(radius * 12, radius * 12), new THREE.ShadowMaterial({ opacity: 0.38 }));
   ground.rotation.x = -Math.PI / 2; ground.position.y = -size.y / 2 - 0.01; ground.receiveShadow = true; scene.add(ground);
   // a generous shadow box, so the exploded parts never run off its edge (that's what cut the shadow off square)
   const sc = key.shadow.camera; sc.left = sc.bottom = -radius * 3.2; sc.right = sc.top = radius * 3.2; sc.near = 1; sc.far = 2000; sc.updateProjectionMatrix();
   const groundY = ground.position.y, groundDrop = 0.45 * size.y + 16;   // the base and its screws drop this far when exploded
+  // the floor: the same dot grid as the guide, lying flat in perspective and fading out with distance
+  const floor = (() => {
+    const css = getComputedStyle(document.documentElement);
+    const dot = css.getPropertyValue("--floor-dot").trim() || "rgba(237,235,239,.22)";
+    const line = css.getPropertyValue("--floor-line").trim() || "rgba(237,235,239,.06)";
+    const SIZE = radius * 9, CELL = 12, N = 2048, k = N / SIZE, gap = 2.2 * k, c = document.createElement("canvas");
+    c.width = c.height = N; const g = c.getContext("2d");
+    g.strokeStyle = line; g.lineWidth = Math.max(1, 0.35 * k); g.fillStyle = dot;
+    for (let x = 0; x <= SIZE; x += CELL) for (let y = 0; y <= SIZE; y += CELL) {
+      const px = x * k, py = y * k, step = CELL * k;
+      g.beginPath(); g.moveTo(px + gap, py); g.lineTo(px + step - gap, py); g.moveTo(px, py + gap); g.lineTo(px, py + step - gap); g.stroke();
+      g.beginPath(); g.arc(px, py, Math.max(1.2, 0.45 * k), 0, Math.PI * 2); g.fill();
+    }
+    // fade toward the edges so the floor melts into the background
+    g.globalCompositeOperation = "destination-in";
+    const fade = g.createRadialGradient(N / 2, N / 2, N * 0.12, N / 2, N / 2, N * 0.5);
+    fade.addColorStop(0, "rgba(0,0,0,1)"); fade.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = fade; g.fillRect(0, 0, N, N);
+    const tex = new THREE.CanvasTexture(c); tex.anisotropy = renderer.capabilities.getMaxAnisotropy(); tex.colorSpace = THREE.SRGBColorSpace;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(SIZE, SIZE), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, toneMapped: false }));
+    m.rotation.x = -Math.PI / 2; m.position.y = groundY - 0.05; m.renderOrder = -1; scene.add(m);
+    return m;
+  })();
   controls.maxPolarAngle = Math.PI * 0.49;   // never look from under the floor
   msg.hidden = true;
   initGuide(THREE, pristine, centre);
   $("modelReset").hidden = false;
 
+  const wiring = root.children.filter((o) => o.name.startsWith("wire_") || o.name.startsWith("hw_dupont"));
   // exploded view: the shell lifts straight off, the base (with the radar in its holder) drops away,
   // and the electronics stack stays put. Parts are matched by their names in the GLB.
   const LIFT = { shell: 0.95, base: -0.45, radar_board: -0.45, radar_dupont_plug: -0.45,
@@ -207,6 +230,8 @@ async function start() {
       camera.position.sub(controls.target).multiplyScalar(k).add(controls.target);
       parts.forEach((p) => p.o.position.copy(p.base).addScaledVector(p.off, explode));
       ground.position.y = groundY - groundDrop * explode;   // the floor follows the base down, so the shadow stays whole
+      floor.position.y = ground.position.y - 0.05;
+      wiring.forEach((o) => { o.visible = explode < 0.05; });   // the jumper wires can't follow both ends, so they step out of the way
     }
     controls.update(); renderer.render(scene, camera);
   });
@@ -220,6 +245,7 @@ const GROUPS = {
   radar: (n) => n.startsWith("radar_"), plug: (n) => n === "usbc_power_plug", bridge: (n) => n.startsWith("usb_bridge"),
   inserts: (n) => n.startsWith("hw_insert"), m3: (n) => n.startsWith("hw_m3"),
   m25l: (n) => n.startsWith("hw_m25x25"), m25s: (n) => n.startsWith("hw_m25x10"),
+  wires: (n) => n.startsWith("wire_") || n.startsWith("hw_dupont"),
 };
 const STACK = ["screen", "n02", "pi"];
 const ALL = Object.keys(GROUPS);
@@ -251,13 +277,13 @@ const STEPS = [
   { title: "Stand it on the base", show: [...STACK, "retainer", "m25l", "base", "radar", "m25s"], hi: ["base", "m25s"], hw: ["m25s"], cam: [150, 20, 1],
     text: "Stand the stack on the base with the retainer's bottom bar against the block, and fix it with the <b>2 M2.5 × 10</b> screws.",
     tip: "Check the radar wires before you tighten: they should sit in the slot, not under the bar. A pinched wire is a pain to find later." },
-  { title: "Wire it up", show: [...STACK], hi: [], pins: true, cam: [180, -15, 1],
+  { title: "Wire it up", show: [...STACK, "wires"], hi: ["wires"], pins: true, cam: [180, -15, 1],
     text: "With the power unplugged, push the jumper wires onto the Pi's header. <b>Radar:</b> VCC → 2, GND → 14, RX → 8, TX → 10, OUT → 16. <b>Cooler fan:</b> red → 4, black → 6, blue → 7. Then plug the right-angle USB-C cable into the doorway in the retainer's top bar.",
     tip: "Count from pin 1, the one with the square pad, and double-check RX and TX: they cross over (the radar's RX goes to the Pi's TX). Swapping them won't break anything; the radar just won't talk. The N02's spring pins touch the underside of pins 2, 4 and 6, and wires on top are fine." },
-  { title: "Lower the shell", show: ["shell", "inserts", ...STACK, "retainer", "m25l", "m25s", "base", "radar", "plug"], hi: ["shell"], off: { shell: [0, 44, 4], inserts: [0, 44, 4] }, cam: [35, 20, 1],
+  { title: "Lower the shell", show: ["shell", "inserts", ...STACK, "retainer", "m25l", "m25s", "base", "radar", "plug", "wires"], hi: ["shell"], off: { shell: [0, 44, 4], inserts: [0, 44, 4] }, cam: [35, 20, 1],
     text: "Lower the shell over the stack, starting about <b>3 mm forward</b> so the front bosses pass in front of the glass. Once they're below the glass, slide it back and down the rest of the way.",
     tip: "If it binds, don't force it. Lift it off and start again a little further forward; it should drop the last bit on its own." },
-  { title: "Screw the base on", show: ["shell", "inserts", ...STACK, "retainer", "base", "radar", "plug", "m3"], hi: ["m3"], hw: ["m3"], cam: [30, -42, 1],
+  { title: "Screw the base on", show: ["shell", "inserts", ...STACK, "retainer", "base", "radar", "plug", "m3", "wires"], hi: ["m3"], hw: ["m3"], cam: [30, -42, 1],
     text: "Turn it over and fit the <b>4 M3 × 8 countersunk</b> screws through the base into the inserts.",
     tip: "Snug, not tight. The inserts are only held by plastic, and over-tightening can spin one loose in its boss." },
   { title: "Close it up", show: ALL, hi: ["bridge"], off: { bridge: [22, 0, 0] }, cam: [62, 12, 0.72],
@@ -375,11 +401,14 @@ function initGuide(THREE, source, centre) {
   }
   function tick(now) {
     const k = Math.min(1, (now - t0) / 650), e = 1 - Math.pow(1 - k, 3);
-    const kh = Math.min(1, Math.max(0, (now - t0 - 500) / 900)), eh = kh * kh * (3 - 2 * kh);   // hardware goes in after the camera settles
+    // hardware goes in after the camera settles, three times over (go in, hold, pop back out), then stays in
+    const LOOPS = 3, MOVE = 900, HOLD = 700, el = now - t0 - 500, cyc = Math.floor(el / (MOVE + HOLD));
+    const kh = el <= 0 ? 0 : cyc >= LOOPS ? 1 : Math.min(1, (el - cyc * (MOVE + HOLD)) / MOVE), eh = kh * kh * (3 - 2 * kh);
     parts.forEach((p) => p.node.position.lerpVectors(p.from, p.to, p.drive ? eh : e));
     scene.rotation.x = rotFrom + (rotTo - rotFrom) * e;
     camera.position.lerpVectors(camFrom, camTo, e); tgt.lerpVectors(tgtFrom, tgtTo, e); draw();
-    if (k < 1 || kh < 1) requestAnimationFrame(tick); else { anim = false; draw(); }
+    const looping = parts.some((p) => p.drive) && el < LOOPS * (MOVE + HOLD);
+    if (k < 1 || kh < 1 || looping) requestAnimationFrame(tick); else { anim = false; draw(); }
   }
 
   $("guideText").addEventListener("click", (e) => { if (e.target.closest("[data-start]")) go(1); });
