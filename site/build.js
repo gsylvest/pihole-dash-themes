@@ -28,7 +28,7 @@ const io = new IntersectionObserver((entries) => {
   if (started || !entries.some((e) => e.isIntersecting)) return;
   started = true; io.disconnect(); start();
 }, { rootMargin: "400px" });
-io.observe(host);
+io.observe(host); io.observe($("guide"));   // the guide draws from the same model, so either one starts the load
 
 async function start() {
   let THREE, OrbitControls, GLTFLoader, RoomEnvironment;
@@ -230,26 +230,36 @@ const WIRES = {
 };
 
 const STEPS = [
-  { title: "Fit the threaded inserts", show: ["shell", "inserts"], hi: ["inserts"], hw: ["inserts"], cam: [35, -48, 1],
-    text: "Turn the shell upside down and press the <b>4 M3 heat-set inserts</b> into the bosses with a soldering iron. Each hole has a small bevel to centre the insert." },
+  { title: "Before you start", intro: true, show: ALL, hi: ALL, cam: [35, 18, 1],
+    text: "About 30 minutes, start to finish. You'll need the printed shell, base and retainer, the parts from <i>What you need</i>, a <b>soldering iron with an insert tip</b>, a <b>2 mm hex key</b> for the M2.5 socket screws and a <b>screwdriver</b> to match your M3 countersunk screws.",
+    tip: "Pull the support material out of the shell first, while you've got good access. PETG supports come off easiest with pliers and a twist." },
+  { title: "Fit the threaded inserts", flip: true, show: ["shell", "inserts"], hi: ["inserts"], hw: ["inserts"], cam: [30, 42, 1],
+    text: "Stand the shell <b>upside down</b> so the four bosses face up. Set an insert on each hole and press it in with the hot iron. Each hole has a small bevel that centres the insert.",
+    tip: "Keep them flat. Let the heat do the work and push gently; stop when the insert is just flush. While it's still warm, press something flat and metal on top, like the side of a screwdriver, to square it up." },
   { title: "Build the stack", show: STACK, hi: ["n02", "pi"], off: { n02: [0, 0, -10], pi: [0, 0, -26] }, cam: [150, 18, 1],
-    text: "Fit the <b>N02 board</b> to the back of the screen with the NVMe drive facing the screen, then the <b>Pi</b> on the N02, then the <b>cooler</b>. Connect the display ribbon. Leave the USB bridge off for now." },
+    text: "Fit the <b>N02 board</b> to the back of the screen on the brass standoffs, NVMe drive facing the screen. Then the <b>Pi</b> on the N02, then the <b>cooler</b> on the Pi. Leave the USB bridge off for now.",
+    tip: "Connect the display ribbon before the Pi goes on, while you can see the latch. Lift the latch, slide the ribbon in fully, press the latch down, then give it a gentle tug to check." },
   { title: "Seat the radar", show: ["base", "radar"], hi: ["radar"], off: { radar: [0, 16, 0] }, cam: [25, 26, 0.7],
-    text: "Push the five jumper wires onto the radar's pins and stand it in the cradle on the base, pin row at the top. Lead the wires back through the slot in the block.",
-    warn: "Put a small dab of super glue in the cradle first, so the board can't rattle loose." },
+    text: "Push the five jumper wires onto the radar's pins, then stand the board in the cradle on the base, pin row at the top. Lead the wires back through the slot in the block.",
+    tip: "Dry-fit it first, then a tiny dab of super glue in the grooves. Less is more: too much wicks onto the board, and you might want it out one day." },
   { title: "Screw on the retainer", show: [...STACK, "retainer", "m25l"], hi: ["retainer", "m25l"], hw: ["m25l"], cam: [205, 22, 1],
-    text: "Screw the retainer to the screen with the <b>4 M2.5 × 25</b> screws, through its posts into the screen's corner posts. Don't use longer screws: they can reach the panel." },
+    text: "Screw the retainer to the screen with the <b>4 M2.5 × 25</b> screws, through its posts into the screen's corner posts.",
+    tip: "Start all four by hand, then tighten in a criss-cross so the frame pulls down evenly. Stop as soon as they're snug: the posts are small, and longer screws can reach the panel." },
   { title: "Stand it on the base", show: [...STACK, "retainer", "m25l", "base", "radar", "m25s"], hi: ["base", "m25s"], hw: ["m25s"], cam: [150, 20, 1],
-    text: "Stand the stack on the base with the retainer's bottom bar against the block, and fix it with the <b>2 M2.5 × 10</b> screws." },
+    text: "Stand the stack on the base with the retainer's bottom bar against the block, and fix it with the <b>2 M2.5 × 10</b> screws.",
+    tip: "Check the radar wires before you tighten: they should sit in the slot, not under the bar. A pinched wire is a pain to find later." },
   { title: "Wire it up", show: [...STACK], hi: [], pins: true, cam: [180, -15, 1],
-    text: "With the power unplugged, push the jumper wires onto the Pi's header. <b>Radar:</b> VCC → 2, GND → 14, RX → 8, TX → 10, OUT → 16 (RX and TX cross over: the radar's RX goes to the Pi's TX). <b>Cooler fan:</b> red → 4, black → 6, blue → 7. Then plug the right-angle USB-C cable into the doorway in the retainer's top bar.",
-    warn: "The N02 board's spring pins touch the underside of pins 2, 4 and 6. Wires on top of those pins are fine." },
+    text: "With the power unplugged, push the jumper wires onto the Pi's header. <b>Radar:</b> VCC → 2, GND → 14, RX → 8, TX → 10, OUT → 16. <b>Cooler fan:</b> red → 4, black → 6, blue → 7. Then plug the right-angle USB-C cable into the doorway in the retainer's top bar.",
+    tip: "Count from pin 1, the one with the square pad, and double-check RX and TX: they cross over (the radar's RX goes to the Pi's TX). Swapping them won't break anything; the radar just won't talk. The N02's spring pins touch the underside of pins 2, 4 and 6, and wires on top are fine." },
   { title: "Lower the shell", show: ["shell", "inserts", ...STACK, "retainer", "m25l", "m25s", "base", "radar", "plug"], hi: ["shell"], off: { shell: [0, 44, 4], inserts: [0, 44, 4] }, cam: [35, 20, 1],
-    text: "Lower the shell over the stack, starting about <b>3 mm forward</b> so the front bosses pass in front of the glass. Once they're below the glass, slide it back and down the rest of the way." },
+    text: "Lower the shell over the stack, starting about <b>3 mm forward</b> so the front bosses pass in front of the glass. Once they're below the glass, slide it back and down the rest of the way.",
+    tip: "If it binds, don't force it. Lift it off and start again a little further forward; it should drop the last bit on its own." },
   { title: "Screw the base on", show: ["shell", "inserts", ...STACK, "retainer", "base", "radar", "plug", "m3"], hi: ["m3"], hw: ["m3"], cam: [30, -42, 1],
-    text: "Turn it over and fit the <b>4 M3 × 8 countersunk</b> screws through the base into the inserts. Snug, not tight: they're threading into plastic-held brass." },
+    text: "Turn it over and fit the <b>4 M3 × 8 countersunk</b> screws through the base into the inserts.",
+    tip: "Snug, not tight. The inserts are only held by plastic, and over-tightening can spin one loose in its boss." },
   { title: "Close it up", show: ALL, hi: ["bridge"], off: { bridge: [22, 0, 0] }, cam: [62, 12, 0.72],
-    text: "Push the <b>USB bridge</b> into the slot on the right and plug in Ethernet next to it. Done: power it up." },
+    text: "Push the <b>USB bridge</b> into the slot on the right and plug in Ethernet next to it. Done.",
+    tip: "Power it up before it goes on the shelf: the desktop and then the dashboard should appear within a minute or two. If the screen stays black, reseat the display ribbon first." },
 ];
 
 function initGuide(THREE, source, centre) {
@@ -299,9 +309,11 @@ function initGuide(THREE, source, centre) {
       const a = THREE.MathUtils.degToRad(s.cam[0]), e = THREE.MathUtils.degToRad(s.cam[1]);
       return [c, c.clone().add(new THREE.Vector3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)).multiplyScalar(fit))];
     }
-    const b = new THREE.Box3(), keep = [];
-    parts.forEach((p) => { if (!s.show.includes(p.group)) return; keep.push([p, p.node.position.clone()]); p.node.position.copy(p.to); b.expandByObject(p.node); });
+    const b = new THREE.Box3(), keep = [], rot = scene.rotation.x;
+    scene.rotation.x = s.flip ? Math.PI : 0; scene.updateMatrixWorld(true);
+    parts.forEach((p) => { if (!s.show.includes(p.group)) return; keep.push([p, p.node.position.clone()]); p.node.position.copy(p.to); p.node.updateMatrixWorld(true); b.expandByObject(p.node); });
     keep.forEach(([p, pos]) => p.node.position.copy(pos));
+    scene.rotation.x = rot; scene.updateMatrixWorld(true);
     const c = b.getCenter(new THREE.Vector3()), r = b.getSize(new THREE.Vector3()).length() / 2;
     const fit = r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * (camera.aspect < 1.3 ? 1.25 : 0.95) * s.cam[2];
     const a = THREE.MathUtils.degToRad(s.cam[0]), e = THREE.MathUtils.degToRad(s.cam[1]);
@@ -329,15 +341,17 @@ function initGuide(THREE, source, centre) {
       return `<rect x="${x - k * 0.75}" y="${y - k * 0.75}" width="${k * 1.5}" height="${k * 1.5}" rx="2" fill="none" stroke="var(--ink)" stroke-width="1.5"/><text x="${x}" y="${y - k * 1.2}" text-anchor="middle" font-size="${k * 0.85}" font-family="Inter, sans-serif" font-weight="700" fill="var(--ink)">pin 1</text>`; })();
   };
 
-  let step = 0, t0 = 0, anim = false;
+  let step = 0, t0 = 0, anim = false, rotFrom = 0, rotTo = 0;
   const dots = $("guideDots");
   dots.innerHTML = STEPS.map((s, i) => `<button type="button" role="tab" aria-label="Step ${i + 1}: ${s.title}"></button>`).join("");
   function go(i, instant) {
     step = (i + STEPS.length) % STEPS.length;
     const s = STEPS[step];
-    $("guideCount").textContent = `Step ${step + 1} of ${STEPS.length}`;
     $("guideTitle").textContent = s.title;
-    $("guideText").innerHTML = s.text + (s.warn ? `<br><span class="warn">${s.warn}</span>` : "");
+    $("guideText").innerHTML = s.text +
+      (s.tip ? `<span class="tip"><b>Pro tip</b> ${s.tip}</span>` : "") +
+      (s.intro ? `<button class="start" type="button" data-start>Start building →</button>` : "");
+    $("guideCount").textContent = s.intro ? `${STEPS.length - 1} steps` : `Step ${step} of ${STEPS.length - 1}`;
     [...dots.children].forEach((d, k) => d.setAttribute("aria-selected", k === step ? "true" : "false"));
     $("guideLegend").hidden = !s.pins;
     if (s.pins) $("guideLegend").innerHTML = Object.entries(WIRES).map(([n, w]) => `<li><i style="background:${w[2]}"></i><b>${n}</b>${w[0]} · ${w[1]}</li>`).join("");
@@ -350,19 +364,22 @@ function initGuide(THREE, source, centre) {
       p.drive = !!(s.hw && s.hw.includes(p.group) && p.out);   // screws and inserts slide in along their axis
       if (p.drive) { p.from.copy(p.to).add(p.out); p.node.position.copy(p.from); }
     });
+    rotFrom = scene.rotation.x; rotTo = s.flip ? Math.PI : 0;
     const [c, pos] = frame(s);
     camFrom.copy(camera.position); camTo.copy(pos); tgtFrom.copy(tgt); tgtTo.copy(c);
-    if (instant || reduceMotion) { parts.forEach((p) => p.node.position.copy(p.to)); camera.position.copy(camTo); tgt.copy(tgtTo); draw(); return; }
+    if (instant || reduceMotion) { parts.forEach((p) => p.node.position.copy(p.to)); scene.rotation.x = rotTo; camera.position.copy(camTo); tgt.copy(tgtTo); draw(); return; }
     t0 = performance.now(); if (!anim) { anim = true; requestAnimationFrame(tick); }
   }
   function tick(now) {
     const k = Math.min(1, (now - t0) / 650), e = 1 - Math.pow(1 - k, 3);
     const kh = Math.min(1, Math.max(0, (now - t0 - 500) / 900)), eh = kh * kh * (3 - 2 * kh);   // hardware goes in after the camera settles
     parts.forEach((p) => p.node.position.lerpVectors(p.from, p.to, p.drive ? eh : e));
+    scene.rotation.x = rotFrom + (rotTo - rotFrom) * e;
     camera.position.lerpVectors(camFrom, camTo, e); tgt.lerpVectors(tgtFrom, tgtTo, e); draw();
     if (k < 1 || kh < 1) requestAnimationFrame(tick); else { anim = false; draw(); }
   }
 
+  $("guideText").addEventListener("click", (e) => { if (e.target.closest("[data-start]")) go(1); });
   $("guidePrev").addEventListener("click", () => go(step - 1));
   $("guideNext").addEventListener("click", () => go(step + 1));
   dots.addEventListener("click", (e) => { const i = [...dots.children].indexOf(e.target); if (i >= 0) go(i); });
