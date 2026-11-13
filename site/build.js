@@ -56,7 +56,7 @@ async function start() {
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.add(new THREE.HemisphereLight(0xfff4e6, 0x30302c, 0.35));
   const key = new THREE.DirectionalLight(0xfff1e0, 2.4); key.position.set(120, 260, 180);
-  key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.radius = 6; key.shadow.bias = -0.0004;
+  key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 8; key.shadow.bias = -0.0003; key.shadow.normalBias = 0.4;
   scene.add(key, key.target);
   const rim = new THREE.DirectionalLight(0xbcd2ff, 1.1); rim.position.set(-220, 140, -200); scene.add(rim);
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -148,9 +148,11 @@ async function start() {
   const home = new THREE.Vector3(radius * 1.95, radius * 1.1, radius * 2.5);   // front three-quarter, screen towards you
   camera.position.copy(home); camera.near = radius / 50; camera.far = radius * 20; camera.updateProjectionMatrix();
   controls.target.set(0, 0, 0); controls.minDistance = radius * 1.2; controls.maxDistance = radius * 8;
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(radius * 12, radius * 12), new THREE.ShadowMaterial({ opacity: 0.32 }));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(radius * 12, radius * 12), new THREE.ShadowMaterial({ opacity: 0.26 }));
   ground.rotation.x = -Math.PI / 2; ground.position.y = -size.y / 2 - 0.01; ground.receiveShadow = true; scene.add(ground);
-  const sc = key.shadow.camera; sc.left = sc.bottom = -radius * 1.6; sc.right = sc.top = radius * 1.6; sc.near = 1; sc.far = 1200; sc.updateProjectionMatrix();
+  // a generous shadow box, so the exploded parts never run off its edge (that's what cut the shadow off square)
+  const sc = key.shadow.camera; sc.left = sc.bottom = -radius * 3.2; sc.right = sc.top = radius * 3.2; sc.near = 1; sc.far = 2000; sc.updateProjectionMatrix();
+  const groundY = ground.position.y, groundDrop = 0.45 * size.y + 16;   // the base and its screws drop this far when exploded
   controls.maxPolarAngle = Math.PI * 0.49;   // never look from under the floor
   msg.hidden = true;
   initGuide(THREE, pristine, centre);
@@ -204,6 +206,7 @@ async function start() {
       const k = (1 + 0.8 * explode) / (1 + 0.8 * was);
       camera.position.sub(controls.target).multiplyScalar(k).add(controls.target);
       parts.forEach((p) => p.o.position.copy(p.base).addScaledVector(p.off, explode));
+      ground.position.y = groundY - groundDrop * explode;   // the floor follows the base down, so the shadow stays whole
     }
     controls.update(); renderer.render(scene, camera);
   });
