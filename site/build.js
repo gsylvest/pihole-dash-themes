@@ -515,7 +515,7 @@ function initGuide(THREE, source, centre) {
     const s = STEPS[step];
     $("guideTitle").textContent = s.title;
     $("guideText").innerHTML = s.text +
-      (s.tip ? `<span class="tip"><span class="tip-label">${s.important ? "Important" : "Pro tip"}</span> ${s.tip}</span>` : "") +
+      (s.tip ? `<span class="tip${s.important ? " important" : ""}"><span class="tip-label">${s.important ? "Important" : "Pro tip"}</span> ${s.tip}</span>` : "") +
       (s.intro ? `<button class="start" type="button" data-start>Start building →</button>` : "");
     $("guideCount").textContent = s.intro ? `${STEPS.length - 1} steps` : `Step ${step} of ${STEPS.length - 1}`;
     [...dots.children].forEach((d, k) => d.setAttribute("aria-selected", k === step ? "true" : "false"));

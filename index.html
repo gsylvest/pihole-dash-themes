@@ -29,7 +29,6 @@
     <a class="logo" href="#top" aria-label="Sinkhole Screens, top of page"><span class="logo-mark" aria-hidden="true"></span>Sinkhole Screens <span class="logo-for">for Pi-hole</span></a>
     <nav class="bar-nav" aria-label="Page">
       <a href="#how">How it works</a>
-      <a href="#features">Features</a>
       <a href="#build">Build</a>
       <a href="#install">Install</a>
       <a href="#make">Make your own</a>
@@ -41,8 +40,8 @@
 <main id="top">
   <section class="studio" aria-label="Try the designs">
     <div class="intro">
-      <h1>A touchscreen dashboard for your Pi-hole</h1>
-      <p><span data-count>22</span> designs, free and open source. Pick one and try it right here: it runs live, on made-up numbers.</p>
+      <h1>A little screen that shows what your Pi-hole is blocking.</h1>
+      <p>I put a 4.3-inch touchscreen on my Pi-hole and kept drawing dashboards for it. There are <span data-count>22</span> now, from one giant number to a pinball table, all free. The one below is running live on made-up numbers, so go ahead and poke it.</p>
     </div>
 
     <div class="stage">
@@ -84,51 +83,38 @@
   <div class="scrim" id="scrim" hidden></div>
 
   <section class="band" id="how" aria-labelledby="howTitle">
-    <div class="wrap">
-      <h2 id="howTitle">New to this? How it works</h2>
-      <div class="how">
-        <div class="how-card">
-          <h3>What’s a DNS sinkhole?</h3>
-          <p>Every time a phone, laptop or TV loads something, it first asks a <b>DNS server</b> to turn a name like <code>ads.example.com</code> into an address. A DNS sinkhole is a DNS server with a long list of ad and tracking names. When a device asks for one of those, it answers “nowhere”, so the ad never loads.</p>
-          <p>Because it works at the network level, it covers <b>every device in the house</b>, including apps and smart TVs that ad blockers can’t reach.</p>
-        </div>
-        <div class="how-card">
-          <h3>What does the Pi do?</h3>
-          <p><a href="https://pi-hole.net" target="_blank" rel="noopener">Pi-hole</a> is free software that runs a DNS sinkhole. It runs happily on a <b>Raspberry Pi</b>, a credit-card-sized computer that uses about as much power as a phone charger and sits quietly on a shelf.</p>
-          <p>Sinkhole Screens adds a small touchscreen to that Pi, so you can <b>see what’s being blocked</b> as it happens, pause blocking for 5 minutes, or let a site through when something breaks.</p>
-        </div>
-        <div class="how-card how-router">
-          <h3>Point your network at it</h3>
-          <p>Pi-hole only works once your devices use it as their DNS server. The usual way:</p>
-          <ol>
-            <li>Give the Pi a fixed address: in your router, reserve its IP (often called <i>DHCP reservation</i>).</li>
-            <li>In the router’s internet or DHCP settings, set the <b>DNS server</b> to the Pi’s address. Every device picks it up the next time it reconnects.</li>
-            <li>If your router won’t let you change DNS, turn on Pi-hole’s own DHCP server instead and switch off the router’s.</li>
-          </ol>
-          <p class="tip"><b>Keep a way back:</b> if the Pi is ever off, set the router’s DNS back to Automatic and the internet works again.</p>
-          <p><a class="ext" href="https://docs.pi-hole.net/main/post-install/#making-your-network-take-advantage-of-pi-hole" target="_blank" rel="noopener">Pi-hole’s guide for routers and devices ↗</a></p>
-        </div>
+    <div class="wrap explain">
+      <div class="prose">
+        <h2 id="howTitle">If you’ve never run a Pi-hole</h2>
+        <p class="lede">Every time a phone, laptop or TV loads something, it first asks a <b>DNS server</b> to turn a name like <code>ads.example.com</code> into an address. A DNS sinkhole is a DNS server that keeps a long list of ad and tracking names and answers “nowhere” for every one of them. The ad never loads.</p>
+        <p>It works for the whole network at once, so it covers every device in the house, including the apps and smart TVs a browser ad blocker can’t reach.</p>
+        <p><a href="https://pi-hole.net" target="_blank" rel="noopener">Pi-hole</a> is the free software that does this. It runs happily on a <b>Raspberry Pi</b>, a credit-card-sized computer that draws about as much power as a phone charger and sits quietly on a shelf.</p>
+        <p>Sinkhole Screens puts a small touchscreen on that Pi. You watch things get blocked as it happens, and when a site breaks you fix it from the screen instead of logging in to an admin page.</p>
+        <dl class="does" id="features">
+          <dt>Pause for five minutes</dt><dd>One tap, with a countdown and a Resume button.</dd>
+          <dt>Let one site through</dt><dd>Tap a blocked domain to see which list caught it, then allow it for an hour or for good. It’s press and hold, with Undo, so a stray tap does nothing.</dd>
+          <dt>Nothing to leak</dt><dd>The Pi-hole password never reaches the browser. The service listens on the Pi only and never changes Pi-hole’s settings.</dd>
+        </dl>
       </div>
-    </div>
-  </section>
-
-  <section class="band" id="features" aria-labelledby="featTitle">
-    <div class="wrap">
-      <h2 id="featTitle">What it does</h2>
-      <ul class="feats">
-        <li><b>The numbers at a glance</b><span>Blocked in the last 24 h, the blocked share, total queries and the domains just blocked.</span></li>
-        <li><b>Pause with one tap</b><span>Blocking pauses for 5 minutes, with a countdown and Resume.</span></li>
-        <li><b>Let a site through</b><span>Tap a blocked domain to see which list caught it. Allow it for an hour or for good, with press and hold and Undo.</span></li>
-        <li><b>Safe by design</b><span>The Pi-hole password never reaches the browser. The service listens on the Pi only and never changes Pi-hole’s settings.</span></li>
-      </ul>
+      <aside class="aside" aria-labelledby="routerTitle">
+        <h3 id="routerTitle">Point your network at it</h3>
+        <p>Pi-hole does nothing until your devices use it as their DNS server. The usual way:</p>
+        <ol>
+          <li>Give the Pi a fixed address: in your router, reserve its IP (often called <i>DHCP reservation</i>).</li>
+          <li>In the router’s internet or DHCP settings, set the <b>DNS server</b> to the Pi’s address. Every device picks it up the next time it reconnects.</li>
+          <li>If your router won’t let you change DNS, turn on Pi-hole’s own DHCP server instead and switch off the router’s.</li>
+        </ol>
+        <p><b>Keep a way back.</b> If the Pi is ever off, set the router’s DNS back to Automatic and the internet works again.</p>
+        <p><a href="https://docs.pi-hole.net/main/post-install/#making-your-network-take-advantage-of-pi-hole" target="_blank" rel="noopener">Pi-hole’s guide for routers and devices ↗</a></p>
+      </aside>
     </div>
   </section>
 
   <section class="band" id="build" aria-labelledby="buildTitle">
     <div class="wrap">
       <div class="build-head">
-        <h2 id="buildTitle">Build guide</h2>
-        <p class="muted">The hardware this runs on: a Raspberry Pi 4 behind a 4.3" touchscreen in a 3D-printed case. About 30 minutes to put together, plus a six-hour print in PETG.</p>
+        <h2 id="buildTitle">Build one</h2>
+        <p class="muted">It’s a Raspberry Pi 4 behind a 4.3" touchscreen in a case you print yourself. The print takes about six hours in PETG; putting it together takes about thirty minutes.</p>
       </div>
       <div class="build-stack">
         <div class="model-card">
@@ -158,56 +144,45 @@
             </div>
           </div>
           <div class="need-panel" id="panelReq" role="tabpanel" aria-labelledby="tabReq">
-          <div class="part-group">
-            <h3>The essentials</h3>
-            <ul class="part-list">
-              <li><span class="pn">Raspberry Pi 4 Model B</span><span class="pd">2 GB is plenty for Pi-hole and the screen</span><a class="buy" href="https://www.amazon.com/dp/B09TTNPB4J" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">Waveshare 4.3" DSI touchscreen</span><span class="pd">800×480 capacitive, ribbon to the Pi's DSI port, no driver needed</span><a class="buy" href="https://www.amazon.com/dp/B083Q8YLVP" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">GeeekPi Armor Lite cooler</span><span class="pd">Heatsink with a built-in fan; wires to pins 4, 6 and 7. The case is sized for it</span><a class="buy" href="https://www.amazon.com/dp/B091L1XKL6" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">USB-C power supply, 5.1 V 3 A, right-angle plug</span><span class="pd">The socket sits just under the case roof, so a straight plug won’t fit. The official supply works with a 90° USB-C adapter</span><a class="buy" href="https://www.amazon.com/dp/B07Z8P61DQ" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">Ethernet cable</span><span class="pd">Any patch cable long enough to reach your router. Wi‑Fi works too, but a DNS server is happiest on a wire</span></li>
-              <li><span class="pn">microSD card, 16 GB or more</span><span class="pd">To install Raspberry Pi OS (and to keep as a spare if you boot from SSD)</span><a class="buy" href="https://www.amazon.com/dp/B08TJRVWV1" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-            </ul>
+            <table class="parts">
+              <thead class="sr"><tr><th>Part</th><th>What it’s for</th><th>Where to buy</th></tr></thead>
+              <tbody>
+              <tr class="grp"><th colspan="3" scope="colgroup">The essentials</th></tr>
+              <tr><th scope="row">Raspberry Pi 4 Model B</th><td>2 GB is plenty for Pi-hole and the screen</td><td><a class="buy" href="https://www.amazon.com/dp/B09TTNPB4J" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">Waveshare 4.3" DSI touchscreen</th><td>800×480 capacitive, ribbon to the Pi's DSI port, no driver needed</td><td><a class="buy" href="https://www.amazon.com/dp/B083Q8YLVP" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">GeeekPi Armor Lite cooler</th><td>Heatsink with a built-in fan; wires to pins 4, 6 and 7. The case is sized for it</td><td><a class="buy" href="https://www.amazon.com/dp/B091L1XKL6" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">USB-C power supply, 5.1 V 3 A, right-angle plug</th><td>The socket sits just under the case roof, so a straight plug won’t fit. The official supply works with a 90° USB-C adapter</td><td><a class="buy" href="https://www.amazon.com/dp/B07Z8P61DQ" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">Ethernet cable</th><td>Any patch cable long enough to reach your router. Wi‑Fi works too, but a DNS server is happiest on a wire</td><td></td></tr>
+              <tr><th scope="row">microSD card, 16 GB or more</th><td>To install Raspberry Pi OS (and to keep as a spare if you boot from SSD)</td><td><a class="buy" href="https://www.amazon.com/dp/B08TJRVWV1" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr class="grp"><th colspan="3" scope="colgroup">To assemble the case</th></tr>
+              <tr><th scope="row">Soldering iron with insert tips</th><td>To press the heat-set inserts in. Any iron works with the right tip; this kit has both. The one used in this build</td><td><a class="buy" href="https://www.amazon.com/dp/B0D2KB8743" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">4 × M3 heat-set inserts, 5.7 mm</th><td>Pressed into the shell with a soldering iron. The ones used in this build</td><td><a class="buy" href="https://www.amazon.com/dp/B0CS6VZYL8" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">4 × M3 × 8 countersunk screws</th><td>Hex socket (2 mm key), base into the shell from underneath</td><td><a class="buy" href="https://www.amazon.com/dp/B01E5EOIWW" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">M2.5 brass standoff kit</th><td>Standoffs between the screen and the NVMe board. The kit used in this build</td><td><a class="buy" href="https://www.amazon.com/dp/B07KM5B3PT" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">Super glue</th><td>One small drop to hold the radar board in its cradle. The one used in this build</td><td><a class="buy" href="https://www.amazon.com/dp/B0CBSFMLCF" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">4 × M2.5 × 25 socket screws</th><td>Retainer to the screen's corner posts. Don't go longer: 25 mm can already reach close to the panel</td><td><a class="buy" href="https://www.amazon.com/dp/B01AXWRQQU" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">4 × M2.5 × 10 socket screws</th><td>Two hold the retainer to the base; two go through the cooler's thicker corners into the N02's standoffs</td><td><a class="buy" href="https://www.amazon.com/dp/B0GM84MV9Q" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">2 × M2.5 × 6 socket screws</th><td>Through the cooler's two thin corners into the N02's standoffs</td><td><a class="buy" href="https://www.amazon.com/dp/B0GM7Y5X4N" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              </tbody>
+            </table>
           </div>
-          <div class="part-group">
-            <h3>To assemble the case</h3>
-            <ul class="part-list">
-              <li><span class="pn">Soldering iron with insert tips</span><span class="pd">To press the heat-set inserts in. Any iron works with the right tip; this kit has both. The one used in this build</span><a class="buy" href="https://www.amazon.com/dp/B0D2KB8743" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">4 × M3 heat-set inserts, 5.7 mm</span><span class="pd">Pressed into the shell with a soldering iron. The ones used in this build</span><a class="buy" href="https://www.amazon.com/dp/B0CS6VZYL8" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">4 × M3 × 8 countersunk screws</span><span class="pd">Hex socket (2 mm key), base into the shell from underneath</span><a class="buy" href="https://www.amazon.com/dp/B01E5EOIWW" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">M2.5 brass standoff kit</span><span class="pd">Standoffs between the screen and the NVMe board. The kit used in this build</span><a class="buy" href="https://www.amazon.com/dp/B07KM5B3PT" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">Super glue</span><span class="pd">One small drop to hold the radar board in its cradle. The one used in this build</span><a class="buy" href="https://www.amazon.com/dp/B0CBSFMLCF" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">4 × M2.5 × 25 socket screws</span><span class="pd">Retainer to the screen's corner posts. Don't go longer: 25 mm can already reach close to the panel</span><a class="buy" href="https://www.amazon.com/dp/B01AXWRQQU" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">4 × M2.5 × 10 socket screws</span><span class="pd">Two hold the retainer to the base; two go through the cooler's thicker corners into the N02's standoffs</span><a class="buy" href="https://www.amazon.com/dp/B0GM84MV9Q" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">2 × M2.5 × 6 socket screws</span><span class="pd">Through the cooler's two thin corners into the N02's standoffs</span><a class="buy" href="https://www.amazon.com/dp/B0GM7Y5X4N" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-            </ul>
-          </div>
-          </div>
-          <div class="need-panel" id="panelNice" role="tabpanel" aria-labelledby="tabNice" hidden>
+          <div class="need-panel addons" id="panelNice" role="tabpanel" aria-labelledby="tabNice" hidden>
           <div class="part-group">
             <h3>Boot from an SSD</h3>
-            <ul class="why">
-              <li><b>Lasts longer.</b> Pi-hole writes its logs all day, and SD cards wear out from constant writes. An SSD is built for it.</li>
-              <li><b>Faster.</b> Boots, updates and the web admin all feel quicker.</li>
-              <li><b>Fewer surprises.</b> A worn-out SD card is the most common way a Pi-hole dies, usually without warning.</li>
-            </ul>
-            <ul class="part-list">
-              <li><span class="pn">52Pi / GeeekPi N02 NVMe board for Pi 4</span><span class="pd">Mounts under the Pi, powered by pogo pins on the header</span><a class="buy" href="https://www.amazon.com/dp/B0CBJYWKJ1" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">NVMe thermal pad (optional)</span><span class="pd">A small pad on the drive's controller chip helps it stay cool inside the case</span></li>
-              <li><span class="pn">M.2 2280 NVMe SSD, 256 GB</span><span class="pd">A low-power drive such as the Patriot P300</span><a class="buy" href="https://www.amazon.com/dp/B082BWY2C2" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-            </ul>
+            <p class="why"><b>Lasts longer.</b> Pi-hole writes its logs all day, and SD cards wear out from constant writes. An SSD is built for it. <b>Faster.</b> Boots, updates and the web admin all feel quicker. <b>Fewer surprises.</b> A worn-out SD card is the most common way a Pi-hole dies, usually without warning.</p>
+            <table class="parts"><tbody>
+              <tr><th scope="row">52Pi / GeeekPi N02 NVMe board for Pi 4</th><td>Mounts under the Pi, powered by pogo pins on the header</td><td><a class="buy" href="https://www.amazon.com/dp/B0CBJYWKJ1" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">NVMe thermal pad (optional)</th><td>A small pad on the drive's controller chip helps it stay cool inside the case</td><td></td></tr>
+              <tr><th scope="row">M.2 2280 NVMe SSD, 256 GB</th><td>A low-power drive such as the Patriot P300</td><td><a class="buy" href="https://www.amazon.com/dp/B082BWY2C2" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+            </tbody></table>
           </div>
           <div class="part-group">
             <h3>Screen sleeps when you walk away</h3>
-            <ul class="why">
-              <li><b>Dark when nobody’s there.</b> No glowing screen in an empty room or at night.</li>
-              <li><b>Saves the screen.</b> The backlight only runs when someone’s around, so it lasts longer and uses less power.</li>
-              <li><b>Wakes on its own.</b> Walk up and it’s on, no tap needed. It sees people sitting still too, not just moving.</li>
-            </ul>
-            <ul class="part-list">
-              <li><span class="pn">HLK-LD2410C radar sensor</span><span class="pd">Sees people even sitting still</span><a class="buy" href="https://www.amazon.com/dp/B0CLRNCBF7" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">Female-to-female jumper wires</span><span class="pd">Five of them, from the radar to the Pi's header. The ones used in this build</span><a class="buy" href="https://www.amazon.com/dp/B09FP1WF8Q" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-            </ul>
+            <p class="why"><b>Dark when nobody’s there.</b> No glowing screen in an empty room or at night. <b>Saves the screen.</b> The backlight only runs when someone’s around, so it lasts longer and uses less power. <b>Wakes on its own.</b> Walk up and it’s on, no tap needed. It sees people sitting still too, not just moving.</p>
+            <table class="parts"><tbody>
+              <tr><th scope="row">HLK-LD2410C radar sensor</th><td>Sees people even sitting still</td><td><a class="buy" href="https://www.amazon.com/dp/B0CLRNCBF7" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+              <tr><th scope="row">Female-to-female jumper wires</th><td>Five of them, from the radar to the Pi's header. The ones used in this build</td><td><a class="buy" href="https://www.amazon.com/dp/B09FP1WF8Q" target="_blank" rel="noopener nofollow">Amazon ↗</a></td></tr>
+            </tbody></table>
             <table class="pins">
               <caption>Radar wiring (Pi header pins)</caption>
               <thead><tr><th>LD2410C</th><th>Pi pin</th><th></th></tr></thead>
@@ -252,7 +227,7 @@
   <section class="band alt" id="install" aria-labelledby="installTitle">
     <div class="wrap two">
       <div>
-        <h2 id="installTitle">Install on your Pi</h2>
+        <h2 id="installTitle">Install it on your Pi</h2>
         <h3>You need</h3>
         <ul class="plain">
           <li>A Raspberry Pi running <b>Pi-hole v6</b></li>
@@ -260,7 +235,7 @@
           <li>An <b>800×480</b> touchscreen</li>
         </ul>
         <p class="muted">The installer adds a small Python service and a full-screen Chromium window. Python standard library only, nothing loaded from the internet.</p>
-        <p class="note-box"><b>Building the case?</b> Do all of this on the bench, at step 6 of <a href="#guide">Put it together</a>, before the Pi goes in. The shell seals in the microSD slot.</p>
+        <p class="note-box"><b>Building the case?</b> Do all of this on the bench, at the “Set it up on the bench” step of <a href="#guide">Put it together</a>, before the stack goes in the case. The shell seals in the microSD slot.</p>
         <details class="fresh">
           <summary>Starting from a fresh Pi?</summary>
           <ol class="fresh-steps">
@@ -301,9 +276,13 @@
 </main>
 
 <footer class="foot">
-  <div class="wrap">
-    <p>MIT licensed. Fonts: Inter (SIL Open Font License) and an original pixel font.</p>
-    <p>Sinkhole Screens is an independent project, not affiliated with or endorsed by the Pi-hole project or Raspberry Pi Ltd. Pi-hole is a registered trademark of Pi-hole LLC; Raspberry Pi is a trademark of Raspberry Pi Ltd.</p>
+  <div class="wrap foot-in">
+    <div>
+      <p class="foot-by"><b>Sinkhole Screens</b> is made by Gary Sylvester.</p>
+      <p>Code: MIT. Enclosure files: <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank">CC BY 4.0</a>. Fonts: Inter (SIL Open Font License) and an original pixel font.</p>
+      <p class="foot-links"><a href="https://github.com/gsylvest/pihole-dash-themes">Source on GitHub</a><a href="https://github.com/gsylvest/pihole-dash-themes#readme">Read the README</a><a href="https://github.com/gsylvest/pihole-dash-themes/issues">Report a problem</a></p>
+    </div>
+    <p class="foot-legal">An independent project, not affiliated with or endorsed by the Pi-hole project or Raspberry Pi Ltd. Pi-hole is a registered trademark of Pi-hole LLC; Raspberry Pi is a trademark of Raspberry Pi Ltd.</p>
   </div>
 </footer>
 <script src="site/site.js"></script>
