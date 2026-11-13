@@ -217,9 +217,11 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
 
 /* ---------- redesign: type on the page, cards only for real objects (the demo, the 3D views) ---------- */
 .studio { max-width: 1200px; margin: 0 auto; padding: 56px 24px 64px; }
-.intro { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 20px 56px; align-items: end; margin-bottom: 32px; }
-.intro h1 { margin: 0; font-size: clamp(34px, 5.2vw, 66px); line-height: 1; letter-spacing: -.04em; font-weight: 800; text-wrap: balance; }
-.intro p { margin: 0 0 6px; color: var(--muted); font-size: 17px; line-height: 1.55; max-width: 46ch; }
+.intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 56px; align-items: center; margin-bottom: 40px; }
+.intro h1 { margin: 0; font-size: clamp(34px, 4.6vw, 60px); line-height: 1.02; letter-spacing: -.04em; font-weight: 800; text-wrap: balance; }
+.intro p { margin: 20px 0 0; color: var(--muted); font-size: 17px; line-height: 1.55; max-width: 46ch; }
+.intro-photo { margin: 0; }
+.intro-photo img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 16px; background: var(--sunk); }
 .band h2 { margin: 0 0 20px; font-size: clamp(26px, 2.8vw, 36px); letter-spacing: -.03em; line-height: 1.1; }
 
 /* explainer: a reading column with the router steps as a side note */
