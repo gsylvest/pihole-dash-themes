@@ -261,9 +261,11 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
 .part-list li:first-child { border-top: 0; padding-top: 2px; }
 .pn { font-weight: 650; font-size: 15px; grid-column: 1; }
 .pd { grid-column: 1; color: var(--muted); font-size: 13.5px; line-height: 1.4; }
-.buy { grid-column: 2; grid-row: 1 / span 2; align-self: center; white-space: nowrap; font-size: 13.5px; font-weight: 650; color: var(--accent); text-decoration: none;
-  padding: 7px 10px; border-radius: 9px; background: var(--accent-soft); }
-.buy:hover { text-decoration: underline; }
+.buy { grid-column: 2; grid-row: 1 / span 2; align-self: center; display: inline-flex; align-items: center; height: 34px; padding: 0 12px;
+  white-space: nowrap; font-size: 13.5px; font-weight: 650; color: var(--ink); text-decoration: none;
+  border-radius: 9px; background: var(--sunk); border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.18); transition: background .15s, border-color .15s, color .15s; }
+.buy:hover { background: var(--accent); border-color: var(--accent); color: #160604; }
+.buy:active { transform: translateY(1px); }
 .pins { width: 100%; margin: 10px 0 8px; border-collapse: collapse; font-size: 14px; }
 .pins caption { text-align: left; font-size: 13px; color: var(--muted); padding-bottom: 6px; }
 .pins th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600; padding: 4px 0; border-bottom: 1px solid var(--line); }

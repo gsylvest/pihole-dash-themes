@@ -125,6 +125,10 @@ async function start() {
     armor_lite_heatsink: new THREE.MeshStandardMaterial({ color: 0x1a1b1e, roughness: 0.42, metalness: 0.7 }),
     eth_cable: new THREE.MeshStandardMaterial({ color: 0x101012, roughness: 0.6, metalness: 0 }),   // black patch lead, gold-plated plug
     eth_plug: ethPlug,
+    usbc_cable: new THREE.MeshStandardMaterial({ color: 0x101012, roughness: 0.6, metalness: 0 }),   // black USB-C extension, bare metal ends
+    usbc_socket_black: new THREE.MeshStandardMaterial({ color: 0x101012, roughness: 0.6, metalness: 0 }),
+    usbc_plug_metal: new THREE.MeshStandardMaterial({ color: 0xc4c8ce, roughness: 0.28, metalness: 1 }),
+    usbc_socket_metal: new THREE.MeshStandardMaterial({ color: 0xc4c8ce, roughness: 0.28, metalness: 1 }),
     dsi_ribbon: new THREE.MeshStandardMaterial({ color: 0xc87a2a, roughness: 0.55, metalness: 0, side: THREE.DoubleSide }),
   };
   root.traverse((o) => {
@@ -323,6 +327,9 @@ const STEPS = [
   { title: "Pi onto the N02", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi"], hi: ["pi"], hi2: ["pogo"], lower: ["pi"], focus: ["pogo"], cam: [215, -50, 1],
     text: "Lower the <b>Pi</b> onto the N02's standoffs, component side out. Don't screw it down yet: the cooler's screws hold it.",
     tip: "Line up the N02's <b>three spring pins</b> (blue) with the underside of the Pi's header pins 2, 4 and 6 before it touches down. They power the N02; if they miss, the drive won't show up." },
+  { title: "Check the three spring pins", important: true, show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi"], hi: ["pi"], hi2: ["pogo"], focus: ["pogo"], cam: [20, -35, 0.62],
+    text: "Before going any further, look into the gap between the two boards. The N02's <b>three spring pins</b> (blue) must each be pressing on a solder bump on the <b>underside of the Pi</b>, directly beneath header pins 2, 4 and 6 at the pin-1 corner.",
+    tip: "These three pins are the N02's only power. If one sits beside its bump instead of on it, the drive won't show up later and you'd have to strip the stack down to fix it. Lift the Pi and reseat it until all three land." },
   { title: "Connect the display ribbon", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi", "ribbon"], hi: ["ribbon"], cam: [200, 30, 0.9],
     text: "Plug the screen's <b>ribbon cable</b> into the Pi's <b>DISPLAY</b> port (not CAMERA): lift the latch, slide the ribbon in fully, press the latch down.",
     tip: "Do this now, before the cooler goes on. With the cooler in place the latch is almost impossible to reach. Give the ribbon a gentle tug afterwards: it shouldn't move." },
@@ -380,7 +387,8 @@ function initGuide(THREE, source, centre) {
     if (!o.isMesh) return;
     const group = ALL.find((g) => GROUPS[g](o.name)); if (!group) return;
     const node = new THREE.Group(); node.applyMatrix4(o.matrixWorld);
-    const fill = fillMat.clone(), fillMesh = new THREE.Mesh(o.geometry, fill); node.add(fillMesh);   // its own copy, so the part can fade
+    const fill = fillMat.clone(), fillMesh = new THREE.Mesh(o.geometry, fill); node.add(fillMesh);
+    fill.transparent = true; fillMesh.renderOrder = -1;   // always blended (switching it on later wouldn't take effect), drawn before any line   // its own copy, so the part can fade
     const mat = new THREE.LineBasicMaterial({ color: C.line, transparent: true, opacity: 0.55 });
     const line = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 28), mat); node.add(line);
     // silhouette: a slightly inflated back-face copy in the line colour. Edge detection only finds sharp creases,
@@ -489,7 +497,7 @@ function initGuide(THREE, source, centre) {
     const s = STEPS[step];
     $("guideTitle").textContent = s.title;
     $("guideText").innerHTML = s.text +
-      (s.tip ? `<span class="tip"><span class="tip-label">Pro tip</span> ${s.tip}</span>` : "") +
+      (s.tip ? `<span class="tip"><span class="tip-label">${s.important ? "Important" : "Pro tip"}</span> ${s.tip}</span>` : "") +
       (s.intro ? `<button class="start" type="button" data-start>Start building →</button>` : "");
     $("guideCount").textContent = s.intro ? `${STEPS.length - 1} steps` : `Step ${step} of ${STEPS.length - 1}`;
     [...dots.children].forEach((d, k) => d.setAttribute("aria-selected", k === step ? "true" : "false"));
@@ -499,7 +507,11 @@ function initGuide(THREE, source, centre) {
     parts.forEach((p) => p.to.copy(p.base).add(new THREE.Vector3(...((s.off && s.off[p.group]) || [0, 0, 0]))));   // where this step wants things
     const [c, pos] = frame(s);
     // Parts that leave drift back and fade out; parts that arrive come forward out of the background and fade in.
-    const away = c.clone().sub(pos).normalize().multiplyScalar(36);   // away from the camera, at the new view
+    // The drift only reads as "into the background" when the view barely changes. If the camera swings round or the
+    // model flips over, the same drift would carry parts across the picture, so it shrinks to nothing and they just fade.
+    const newDir = c.clone().sub(pos).normalize(), oldDir = tgt.clone().sub(camera.position).normalize();
+    const same = rotFrom === rotTo ? Math.max(0, (newDir.dot(oldDir) - 0.6) / 0.4) : 0;
+    const away = newDir.multiplyScalar(36 * same);
     parts.forEach((p) => {
       const was = p.node.visible && p.fade > 0.01, will = s.show.includes(p.group);
       p.state = was && will ? "stay" : will ? "enter" : was ? "leave" : "off";
@@ -528,8 +540,8 @@ function initGuide(THREE, source, centre) {
       // A fading part draws after everything solid: its fill dims the lines behind it, then its own lines go on top.
       // (Without this order, lines behind a half-faded part flicker through it as the draw order shuffles.)
       const fading = f < 0.999;
-      p.fill.transparent = fading; p.fill.opacity = f;
-      p.fillMesh.renderOrder = fading ? 1 : 0; p.hullMesh.renderOrder = fading ? 2 : 0; p.line.renderOrder = p.hi2 ? 10 : fading ? 2 : 0;
+      p.fill.opacity = f;
+      p.fillMesh.renderOrder = fading ? 1 : -1; p.hullMesh.renderOrder = fading ? 2 : 0; p.line.renderOrder = p.hi2 ? 10 : fading ? 2 : 0;
       if (f <= 0.001 && p.fadeTo === 0) p.node.visible = false;
     });
     fadeStep = applyFade;
