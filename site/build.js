@@ -327,7 +327,7 @@ const STEPS = [
   { title: "Pi onto the N02", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi"], hi: ["pi"], hi2: ["pogo"], lower: ["pi"], focus: ["pogo"], cam: [215, -50, 1],
     text: "Lower the <b>Pi</b> onto the N02's standoffs, component side out. Don't screw it down yet: the cooler's screws hold it.",
     tip: "Line up the N02's <b>three spring pins</b> (blue) with the underside of the Pi's header pins 2, 4 and 6 before it touches down. They power the N02; if they miss, the drive won't show up." },
-  { title: "Check the three spring pins", important: true, show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi"], hi: ["pi"], hi2: ["pogo"], focus: ["pogo"], cam: [20, -35, 0.62],
+  { title: "Check the three spring pins", important: true, show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi", "bumps"], hi: ["pi", "bumps"], hi2: ["pogo"], focus: ["pogo"], cam: [320, -45, 0.62],
     text: "Before going any further, look into the gap between the two boards. The N02's <b>three spring pins</b> (blue) must each be pressing on a solder bump on the <b>underside of the Pi</b>, directly beneath header pins 2, 4 and 6 at the pin-1 corner.",
     tip: "These three pins are the N02's only power. If one sits beside its bump instead of on it, the drive won't show up later and you'd have to strip the stack down to fix it. Lift the Pi and reseat it until all three land." },
   { title: "Connect the display ribbon", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi", "ribbon"], hi: ["ribbon"], cam: [200, 30, 0.9],
@@ -383,10 +383,9 @@ function initGuide(THREE, source, centre) {
   const fillMat = new THREE.MeshBasicMaterial({ color: C.fill, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
   const parts = [];
   source.updateMatrixWorld(true);
-  source.traverse((o) => {
-    if (!o.isMesh) return;
-    const group = ALL.find((g) => GROUPS[g](o.name)); if (!group) return;
-    const node = new THREE.Group(); node.applyMatrix4(o.matrixWorld);
+  const addPart = (geometry, matrix, group, userData) => {
+    const o = { geometry, userData };
+    const node = new THREE.Group(); node.applyMatrix4(matrix);
     const fill = fillMat.clone(), fillMesh = new THREE.Mesh(o.geometry, fill); node.add(fillMesh);
     fill.transparent = true; fillMesh.renderOrder = -1;   // always blended (switching it on later wouldn't take effect), drawn before any line   // its own copy, so the part can fade
     const mat = new THREE.LineBasicMaterial({ color: C.line, transparent: true, opacity: 0.55 });
@@ -400,12 +399,31 @@ function initGuide(THREE, source, centre) {
     const ax = o.userData && o.userData.axis, travel = (o.userData && o.userData.travel) || 12;
     parts.push({ node, group, mat, hull, line, hullMesh, fill, fillMesh, start: new THREE.Vector3(), fade: 1, fadeFrom: 1, fadeTo: 1, baseOp: 0.7, base: node.position.clone(), baseQ: node.quaternion.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
       out: ax ? new THREE.Vector3(...ax).normalize().multiplyScalar(travel) : null });
-  });
+  };
+  source.traverse((o) => { if (!o.isMesh) return; const group = ALL.find((g) => GROUPS[g](o.name)); if (group) addPart(o.geometry, o.matrixWorld, group, o.userData); });
   // header pin tips in guide space (the copy is centred, so subtract the same centre)
   const pinPos = (n) => {
     const base = new THREE.Vector3(...(n % 2 ? HEADER.pin1 : HEADER.pin2)).sub(centre);
     return base.addScaledVector(new THREE.Vector3(...HEADER.col), Math.floor((n - 1) / 2));
   };
+  // Solder bumps on the underside of the Pi, one under each header pin: what the N02's spring pins press on.
+  // The model doesn't have them, so they're drawn here, on the plane the spring pins reach up to.
+  {
+    const BACK = new THREE.Vector3(0, -0.259, -0.966), v = new THREE.Vector3(); let reach = -Infinity;
+    parts.forEach((p) => { if (p.group !== "pogo") return; const m = p.fillMesh, a = m.geometry.attributes.position; m.updateWorldMatrix(true, false);
+      for (let i = 0; i < a.count; i++) reach = Math.max(reach, v.fromBufferAttribute(a, i).applyMatrix4(m.matrixWorld).dot(BACK)); });
+    if (reach > -Infinity) {
+      const one = new THREE.SphereGeometry(0.62, 16, 8).toNonIndexed(), pos = [], nrm = [];
+      for (let n = 1; n <= 40; n++) {
+        const c = pinPos(n); c.addScaledVector(BACK, reach - c.dot(BACK) - 0.15);   // slide the pin's position down onto that plane
+        const a = one.attributes.position, b = one.attributes.normal;
+        for (let i = 0; i < a.count; i++) { pos.push(a.getX(i) + c.x, a.getY(i) + c.y, a.getZ(i) + c.z); nrm.push(b.getX(i), b.getY(i), b.getZ(i)); }
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute("normal", new THREE.Float32BufferAttribute(nrm, 3));
+      addPart(geo, new THREE.Matrix4(), "bumps", null);
+    }
+  }
   // NVMe insertion, like the real thing: in at ~20°, pivot down flat on the gold fingers, then the screw.
   const rig = (() => {
     const pick = (re) => { let o = null; source.traverse((m) => { if (m.isMesh && re.test(m.name)) o = m; }); return o; };
