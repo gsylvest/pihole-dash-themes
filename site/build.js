@@ -366,6 +366,8 @@ const STEPS = [
   { title: "Power it up", show: ALL, hi: ["plug"], cam: [200, 18, 0.9],
     text: "Plug a <b>5.1 V 3 A USB-C supply</b> into the socket at the back. Done.",
     tip: "The desktop and then the dashboard should appear within a minute or two. If the screen stays black, unplug, reseat the display ribbon and try again." },
+  { title: "Wow. Nerd alert.", party: true, show: ["shell", ...CASE, "bridge", "eth", "plug"], hi: [], cam: [22, 10, 0.85],
+    text: "You printed a case, pressed in threaded inserts, lined up three spring pins and wired a radar, all so a tiny screen can tell you how many ads you didn’t see. Respect. Now tap <b>Style</b>, pick a design, and go show someone who didn’t ask." },
 ];
 
 function initGuide(THREE, source, centre) {
@@ -401,6 +403,26 @@ function initGuide(THREE, source, centre) {
       out: ax ? new THREE.Vector3(...ax).normalize().multiplyScalar(travel) : null });
   };
   source.traverse((o) => { if (!o.isMesh) return; const group = ALL.find((g) => GROUPS[g](o.name)); if (group) addPart(o.geometry, o.matrixWorld, group, o.userData); });
+  // The last step is a little celebration: the case turns to face you and its screen lights up with a clip.
+  // The clip is a real mesh on the screen's picture area, loaded only when that step is first reached.
+  let partyScreen = null, partyVideo = null;
+  source.traverse((o) => {
+    if (!o.isMesh || o.name !== "screen_picture") return;
+    partyScreen = new THREE.Mesh(o.geometry, new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }));
+    partyScreen.applyMatrix4(o.matrixWorld); partyScreen.renderOrder = 20; partyScreen.visible = false; scene.add(partyScreen);
+  });
+  const startParty = () => {
+    if (!partyScreen) return;
+    if (!partyVideo) {
+      partyVideo = document.createElement("video");
+      Object.assign(partyVideo, { src: "site/media/done.mp4", muted: true, loop: true, playsInline: true, preload: "auto" });
+      const t = new THREE.VideoTexture(partyVideo); t.colorSpace = THREE.SRGBColorSpace;
+      t.center.set(0.5, 0.5); t.rotation = Math.PI; t.wrapS = THREE.RepeatWrapping; t.repeat.x = -1;   // same flip as the screenshot in the 3D viewer
+      partyVideo.addEventListener("playing", () => { partyScreen.material.map = t; partyScreen.material.color.set(0xffffff); partyScreen.material.needsUpdate = true; }, { once: true });
+    }
+    partyVideo.currentTime = 0; partyVideo.play().catch(() => {});
+  };
+  const stopParty = () => { if (partyVideo) partyVideo.pause(); if (partyScreen) { partyScreen.visible = false; partyScreen.material.opacity = 0; } };
   // header pin tips in guide space (the copy is centred, so subtract the same centre)
   const pinPos = (n) => {
     const base = new THREE.Vector3(...(n % 2 ? HEADER.pin1 : HEADER.pin2)).sub(centre);
@@ -492,7 +514,9 @@ function initGuide(THREE, source, centre) {
   };
   const pinsSvg = $("guidePins");
   const draw = () => {
-    camera.lookAt(tgt); renderer.render(scene, camera);
+    camera.lookAt(tgt);
+    if (partyScreen && STEPS[step] && STEPS[step].party) { partyScreen.visible = true; partyScreen.material.opacity = Math.min(1, Math.max(0, (performance.now() - t0 - 550) / 450)); }
+    renderer.render(scene, camera);
     // pin markers follow the drawing: project each used pin onto the canvas
     if (!STEPS[step] || !STEPS[step].pins || anim) { pinsSvg.innerHTML = ""; return; }
     const w = view.clientWidth, h = view.clientHeight;
@@ -517,7 +541,8 @@ function initGuide(THREE, source, centre) {
     $("guideText").innerHTML = s.text +
       (s.tip ? `<span class="tip${s.important ? " important" : ""}"><span class="tip-label">${s.important ? "Important" : "Pro tip"}</span> ${s.tip}</span>` : "") +
       (s.intro ? `<button class="start" type="button" data-start>Start building →</button>` : "");
-    $("guideCount").textContent = s.intro ? `${STEPS.length - 1} steps` : `Step ${step} of ${STEPS.length - 1}`;
+    $("guideCount").textContent = s.intro ? `${STEPS.length - 2} steps` : s.party ? "Done" : `Step ${step} of ${STEPS.length - 2}`;
+    if (s.party) startParty(); else stopParty();
     [...dots.children].forEach((d, k) => d.setAttribute("aria-selected", k === step ? "true" : "false"));
     $("guideLegend").hidden = !s.pins;
     if (s.pins) $("guideLegend").innerHTML = Object.entries(WIRES).map(([n, w]) => `<li><i style="background:${w[2]}"></i><b>${n}</b>${w[0]} · ${w[1]}</li>`).join("");
@@ -594,7 +619,7 @@ function initGuide(THREE, source, centre) {
       camera.position.set(Math.sin(az) * Math.cos(el2), Math.sin(el2), Math.cos(az) * Math.cos(el2)).multiplyScalar(r).add(tgt); }
     draw();
     const looping = (parts.some((p) => p.drive) && el < LOOPS * (MOVE + HOLD)) || (STEPS[step].insert && rig && el < LOOPS * 2800);
-    if (k < 1 || kh < 1 || looping) requestAnimationFrame(tick); else { anim = false; draw(); }
+    if (k < 1 || kh < 1 || looping || STEPS[step].party) requestAnimationFrame(tick); else { anim = false; draw(); }   // the last step keeps drawing: its screen is a playing clip
   }
 
   $("guideText").addEventListener("click", (e) => { if (e.target.closest("[data-start]")) go(1); });
