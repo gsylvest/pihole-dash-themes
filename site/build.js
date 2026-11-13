@@ -303,11 +303,11 @@ const STEPS = [
   { title: "Standoffs on the screen", show: ["screen", "standA"], hi: ["standA"], hw: ["standA"], cam: [170, 28, 1],
     text: "Lay the screen face down on something soft and screw <b>four M2.5 brass standoffs</b> into the Pi mounting posts on the back of the display.",
     tip: "Finger-tight is plenty. They're brass into small posts, and you'll be pushing a board onto them, not hanging weight off them." },
-  { title: "Fit the NVMe drive", show: ["n02", "nvme", "pad", "nvmeScrew"], hi: ["nvme", "nvmeScrew"], hi2: ["pad"], insert: true, cam: [25, 32, 0.85],
+  { title: "Fit the NVMe drive", show: ["n02", "nvme", "pad", "nvmeScrew"], hi: ["nvme", "nvmeScrew"], hi2: ["pad"], insert: true, cam: [72, 18, 0.8],
     text: "Slide the <b>NVMe drive</b> into the N02's M.2 slot at a slight angle, press it flat and fix it with the little screw at the end. <i>Optional:</i> stick a <b>thermal pad</b> on the drive's controller chip first.",
     tip: "The drive only goes in one way: the notch in its gold fingers lines up with the key in the slot. If it won't seat, flip it rather than push harder." },
-  { title: "N02 onto the screen", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "standB"], hi: ["n02", "standB"], hw: ["standB"], cam: [160, 22, 1],
-    text: "Set the <b>N02 board</b> on the standoffs with the drive facing the back of the screen. Then screw the <b>standoffs that came with the N02</b> on top of it, through the board into the ones below.",
+  { title: "N02 onto the screen", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB"], hi: ["n02", "standB"], hi2: ["pogo"], hw: ["standB"], cam: [160, 22, 1],
+    text: "Set the <b>N02 board</b> on the standoffs with the drive facing the back of the screen. Then screw the <b>standoffs that came with the N02</b> on top of it, through the board into the ones below. Note the <b>three spring pins</b> (blue): they'll press on the Pi's header in the next step.",
     tip: "Drive side towards the screen, every time: if the N02's chips are facing you, it's upside down. Snug the new standoffs by hand, then a quarter turn more" },
   { title: "Pi onto the N02", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi"], hi: ["pi"], hi2: ["pogo"], off: { pi: [0, -3.1, -11.6] }, cam: [150, 20, 1],
     text: "Lower the <b>Pi</b> onto the N02's standoffs, component side out. Don't screw it down yet: the cooler's screws hold it.",
@@ -392,10 +392,19 @@ function initGuide(THREE, source, centre) {
     const pick = (re) => { let o = null; source.traverse((m) => { if (m.isMesh && re.test(m.name)) o = m; }); return o; };
     const goldMesh = pick(/^nvme_gold$/), pcbMesh = pick(/^nvme_pcb$/);
     if (!goldMesh || !pcbMesh) return null;
-    const ctr = (m) => new THREE.Box3().setFromObject(m).getCenter(new THREE.Vector3());
-    const pivot = ctr(goldMesh), along = ctr(pcbMesh).sub(pivot).normalize();      // from the slot out along the drive
-    const lift = new THREE.Vector3(0, 0.259, 0.966);                                  // off the N02, toward the screen
-    const axis = new THREE.Vector3().crossVectors(along, lift).normalize();
+    // The drive lies in the boards' plane (normal NRM). Its long axis is that plane's horizontal. The slot end is the
+    // end where its gold is densest (the edge fingers); hinge there, tilting up away from the N02.
+    const NRM = new THREE.Vector3(0, 0.259, 0.966);                                     // off the N02, toward the screen
+    let along = new THREE.Vector3(1, 0, 0); along.addScaledVector(NRM, -along.dot(NRM)).normalize();
+    const world = (m) => { const a = m.geometry.attributes.position, out = []; const v = new THREE.Vector3();
+      for (let i = 0; i < a.count; i += 3) out.push(v.fromBufferAttribute(a, i).applyMatrix4(m.matrixWorld).clone()); return out; };
+    const pcb = world(pcbMesh), gold = world(goldMesh), proj = (v) => v.dot(along);
+    const lo = Math.min(...pcb.map(proj)), hi = Math.max(...pcb.map(proj));
+    const nearLo = gold.filter((v) => proj(v) < lo + 6), nearHi = gold.filter((v) => proj(v) > hi - 6);
+    const fingers = nearLo.length >= nearHi.length ? nearLo : nearHi;
+    if (fingers === nearHi) along.negate();                                              // point from the slot out along the drive
+    const pivot = fingers.reduce((a, v) => a.add(v), new THREE.Vector3()).multiplyScalar(1 / Math.max(1, fingers.length));
+    const lift = NRM, axis = new THREE.Vector3().crossVectors(along, lift).normalize();
     return { pivot, along, axis, angle: THREE.MathUtils.degToRad(20), back: 7 };
   })();
   const insertPose = (p, slide, tilt) => {   // slide: mm still out of the slot; tilt: 0..1 of the start angle
