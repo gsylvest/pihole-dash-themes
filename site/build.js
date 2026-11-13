@@ -369,7 +369,7 @@ function initGuide(THREE, source, centre) {
     if (!o.isMesh) return;
     const group = ALL.find((g) => GROUPS[g](o.name)); if (!group) return;
     const node = new THREE.Group(); node.applyMatrix4(o.matrixWorld);
-    node.add(new THREE.Mesh(o.geometry, fillMat));
+    const fill = fillMat.clone(); node.add(new THREE.Mesh(o.geometry, fill));   // its own copy, so the part can fade
     const mat = new THREE.LineBasicMaterial({ color: C.line, transparent: true, opacity: 0.55 });
     const line = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 28), mat); node.add(line);
     // silhouette: a slightly inflated back-face copy in the line colour. Edge detection only finds sharp creases,
@@ -379,7 +379,7 @@ function initGuide(THREE, source, centre) {
     const hullMesh = new THREE.Mesh(o.geometry, hull); node.add(hullMesh);
     scene.add(node);
     const ax = o.userData && o.userData.axis, travel = (o.userData && o.userData.travel) || 12;
-    parts.push({ node, group, mat, hull, line, hullMesh, base: node.position.clone(), baseQ: node.quaternion.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
+    parts.push({ node, group, mat, hull, line, hullMesh, fill, fade: 1, fadeFrom: 1, fadeTo: 1, baseOp: 0.7, base: node.position.clone(), baseQ: node.quaternion.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
       out: ax ? new THREE.Vector3(...ax).normalize().multiplyScalar(travel) : null });
   });
   // header pin tips in guide space (the copy is centred, so subtract the same centre)
@@ -460,7 +460,7 @@ function initGuide(THREE, source, centre) {
       return `<rect x="${x - k * 0.75}" y="${y - k * 0.75}" width="${k * 1.5}" height="${k * 1.5}" rx="2" fill="none" stroke="var(--ink)" stroke-width="1.5"/><text x="${x}" y="${y - k * 1.2}" text-anchor="middle" font-size="${k * 0.85}" font-family="Inter, sans-serif" font-weight="700" fill="var(--ink)">pin 1</text>`; })();
   };
 
-  let step = 0, t0 = 0, anim = false, rotFrom = 0, rotTo = 0;
+  let step = 0, t0 = 0, anim = false, rotFrom = 0, rotTo = 0, fadeStep = () => {};
   const dots = $("guideDots");
   dots.innerHTML = STEPS.map((s, i) => `<button type="button" role="tab" aria-label="Step ${i + 1}: ${s.title}"></button>`).join("");
   function go(i, instant) {
@@ -474,11 +474,19 @@ function initGuide(THREE, source, centre) {
     [...dots.children].forEach((d, k) => d.setAttribute("aria-selected", k === step ? "true" : "false"));
     $("guideLegend").hidden = !s.pins;
     if (s.pins) $("guideLegend").innerHTML = Object.entries(WIRES).map(([n, w]) => `<li><i style="background:${w[2]}"></i><b>${n}</b>${w[0]} · ${w[1]}</li>`).join("");
+    rotFrom = scene.rotation.x; rotTo = s.flip ? Math.PI : 0;
+    parts.forEach((p) => p.to.copy(p.base).add(new THREE.Vector3(...((s.off && s.off[p.group]) || [0, 0, 0]))));   // where this step wants things
+    const [c, pos] = frame(s);
+    // Parts that leave drift back and fade out; parts that arrive come forward out of the background and fade in.
+    const away = c.clone().sub(pos).normalize().multiplyScalar(36);   // away from the camera, at the new view
     parts.forEach((p) => {
-      p.node.visible = s.show.includes(p.group);
+      const was = p.node.visible && p.fade > 0.01, will = s.show.includes(p.group);
+      p.state = was && will ? "stay" : will ? "enter" : was ? "leave" : "off";
+      if (p.state !== "off") p.node.visible = true;
+      p.fadeFrom = p.fade; p.fadeTo = will ? 1 : 0;
       const hi2 = !!(s.hi2 && s.hi2.includes(p.group)), hi = hi2 || s.hi.includes(p.group);
-      p.mat.color.copy(hi2 ? C.hi2 : hi ? C.hi : C.line); p.mat.opacity = hi ? 1 : 0.7;
-      p.hull.color.copy(p.mat.color); p.hull.opacity = p.mat.opacity;
+      p.mat.color.copy(hi2 ? C.hi2 : hi ? C.hi : C.line); p.baseOp = hi ? 1 : 0.7;
+      p.hull.color.copy(p.mat.color);
       // blue means "look here": draw it on top of everything, so a glue ridge or spring pin shows through what's in front
       p.mat.depthTest = !hi2; p.line.renderOrder = hi2 ? 10 : 0;
       p.from.copy(p.node.position);
@@ -486,15 +494,23 @@ function initGuide(THREE, source, centre) {
       p.node.quaternion.copy(p.baseQ);
       p.drive = !!(s.hw && s.hw.includes(p.group) && p.out);   // screws and inserts slide in along their axis
       if (p.drive) { p.from.copy(p.to).add(p.out); p.node.position.copy(p.from); }
+      else if (p.state === "enter") { p.from.copy(p.to).add(away); p.node.position.copy(p.from); }
+      else if (p.state === "leave") { p.to.copy(p.node.position).add(away); }
+      if (p.state === "enter" && p.drive) p.fadeFrom = 0;
     });
-    rotFrom = scene.rotation.x; rotTo = s.flip ? Math.PI : 0;
-    const [c, pos] = frame(s);
+    const applyFade = () => parts.forEach((p) => {
+      const f = p.fade; p.mat.opacity = p.baseOp * f; p.hull.opacity = p.baseOp * f;
+      p.fill.transparent = f < 0.999; p.fill.opacity = f; p.fill.depthWrite = f >= 0.999;
+      if (f <= 0.001 && p.fadeTo === 0) p.node.visible = false;
+    });
+    fadeStep = applyFade;
     camFrom.copy(camera.position); camTo.copy(pos); tgtFrom.copy(tgt); tgtTo.copy(c);
-    if (instant || reduceMotion) { parts.forEach((p) => p.node.position.copy(p.to)); scene.rotation.x = rotTo; camera.position.copy(camTo); tgt.copy(tgtTo); draw(); return; }
+    if (instant || reduceMotion) { parts.forEach((p) => { p.node.position.copy(p.to); p.fade = p.fadeTo; }); applyFade(); scene.rotation.x = rotTo; camera.position.copy(camTo); tgt.copy(tgtTo); draw(); return; }
     t0 = performance.now(); if (!anim) { anim = true; requestAnimationFrame(tick); }
   }
   function tick(now) {
     const k = Math.min(1, (now - t0) / 650), e = 1 - Math.pow(1 - k, 3);
+    parts.forEach((p) => { p.fade = p.fadeFrom + (p.fadeTo - p.fadeFrom) * e; }); fadeStep();
     // hardware goes in after the camera settles, three times over (go in, hold, pop back out), then stays in
     const LOOPS = 3, MOVE = 900, HOLD = 700, el = now - t0 - 500, cyc = Math.floor(el / (MOVE + HOLD));
     const kh = el <= 0 ? 0 : cyc >= LOOPS ? 1 : Math.min(1, (el - cyc * (MOVE + HOLD)) / MOVE), eh = kh * kh * (3 - 2 * kh);
