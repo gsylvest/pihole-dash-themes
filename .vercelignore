@@ -1,0 +1,7 @@
+# The website is index.html, site/, app/ and enclosure/. The rest is for installing on a Pi.
+backend
+systemd
+kiosk
+presence
+dev
+install.sh
