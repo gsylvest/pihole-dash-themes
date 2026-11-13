@@ -28,6 +28,7 @@
   <div class="bar-in">
     <a class="logo" href="#top" aria-label="Sinkhole Screens, top of page"><span class="logo-mark" aria-hidden="true"></span>Sinkhole Screens <span class="logo-for">for Pi-hole</span></a>
     <nav class="bar-nav" aria-label="Page">
+      <a href="#how">How it works</a>
       <a href="#features">Features</a>
       <a href="#build">Build</a>
       <a href="#install">Install</a>
@@ -81,6 +82,35 @@
   </section>
 
   <div class="scrim" id="scrim" hidden></div>
+
+  <section class="band" id="how" aria-labelledby="howTitle">
+    <div class="wrap">
+      <h2 id="howTitle">New to this? How it works</h2>
+      <div class="how">
+        <div class="how-card">
+          <h3>What’s a DNS sinkhole?</h3>
+          <p>Every time a phone, laptop or TV loads something, it first asks a <b>DNS server</b> to turn a name like <code>ads.example.com</code> into an address. A DNS sinkhole is a DNS server with a long list of ad and tracking names. When a device asks for one of those, it answers “nowhere”, so the ad never loads.</p>
+          <p>Because it works at the network level, it covers <b>every device in the house</b>, including apps and smart TVs that ad blockers can’t reach.</p>
+        </div>
+        <div class="how-card">
+          <h3>What does the Pi do?</h3>
+          <p><a href="https://pi-hole.net" target="_blank" rel="noopener">Pi-hole</a> is free software that runs a DNS sinkhole. It runs happily on a <b>Raspberry Pi</b>, a credit-card-sized computer that uses about as much power as a phone charger and sits quietly on a shelf.</p>
+          <p>Sinkhole Screens adds a small touchscreen to that Pi, so you can <b>see what’s being blocked</b> as it happens, pause blocking for 5 minutes, or let a site through when something breaks.</p>
+        </div>
+        <div class="how-card how-router">
+          <h3>Point your network at it</h3>
+          <p>Pi-hole only works once your devices use it as their DNS server. The usual way:</p>
+          <ol>
+            <li>Give the Pi a fixed address: in your router, reserve its IP (often called <i>DHCP reservation</i>).</li>
+            <li>In the router’s internet or DHCP settings, set the <b>DNS server</b> to the Pi’s address. Every device picks it up the next time it reconnects.</li>
+            <li>If your router won’t let you change DNS, turn on Pi-hole’s own DHCP server instead and switch off the router’s.</li>
+          </ol>
+          <p class="tip"><b>Keep a way back:</b> if the Pi is ever off, set the router’s DNS back to Automatic and the internet works again.</p>
+          <p><a class="ext" href="https://docs.pi-hole.net/main/post-install/#making-your-network-take-advantage-of-pi-hole" target="_blank" rel="noopener">Pi-hole’s guide for routers and devices ↗</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <section class="band" id="features" aria-labelledby="featTitle">
     <div class="wrap">

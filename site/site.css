@@ -126,6 +126,18 @@ code { font: .88em ui-monospace, Menlo, monospace; }
 .band h2 { margin: 0 0 20px; font-size: 28px; letter-spacing: -.02em; line-height: 1.15; }
 .band h3 { margin: 18px 0 6px; font-size: 15px; }
 .two { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: start; }
+.how { display: grid; grid-template-columns: 1fr 1fr 1.15fr; gap: 20px; align-items: start; }
+.how-card { padding: 22px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); }
+.how-card h3 { margin: 0 0 10px; font-size: 18px; }
+.how-card p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+.how-card p:last-child { margin-bottom: 0; }
+.how-card b { color: var(--ink); font-weight: 650; }
+.how-card a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.how-card a:hover { text-decoration: underline; }
+.how-card ol { margin: 0 0 12px; padding-left: 20px; color: var(--muted); font-size: 15px; }
+.how-card ol li { margin: 6px 0; }
+.how-router { border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+.how .tip { padding: 10px 12px; border-radius: 10px; background: var(--sunk); }
 .feats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .feats li { display: flex; flex-direction: column; gap: 6px; padding: 20px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
 .feats b { font-size: 16px; }
@@ -208,6 +220,8 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
   .stage { grid-template-columns: minmax(0, 1fr) 290px; gap: 16px; }
   .item img { width: 84px; }
   .feats { grid-template-columns: repeat(2, 1fr); }
+  .how { grid-template-columns: 1fr 1fr; }
+  .how-router { grid-column: 1 / -1; }
 }
 /* tablet & phone: card on top, chips + a swipeable strip of designs under it */
 @media (max-width: 820px) {
@@ -242,6 +256,8 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
   .band { padding: 44px 0; }
   .two { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .feats { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .how { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .bar-nav a[href="#how"] { display: none; }
   .build { grid-template-columns: minmax(0, 1fr); }
   .model-card { padding: 8px; border-radius: 16px; }
 }

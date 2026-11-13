@@ -2,6 +2,8 @@
 
 Touchscreen dashboards for a Raspberry Pi running [Pi-hole](https://pi-hole.net) v6: 22 designs to pick from on the screen, and a printable case to put it in.
 
+New to Pi-hole? It's free software that blocks ads and trackers for every device in your home by acting as a *DNS sinkhole*: when a device looks up an ad or tracking address, it gets told "nowhere". It runs well on a Raspberry Pi. Sinkhole Screens adds a touchscreen so you can see it working.
+
 **[Try every design live at sinkholescreens.com →](https://sinkholescreens.com)** (made-up numbers, no Pi-hole needed)
 
 | | | | |
@@ -52,7 +54,7 @@ Already running Pi-hole on a Pi with the desktop and the screen working? Skip to
 5. **Update:** `sudo apt update && sudo apt full-upgrade -y`, then `sudo reboot`.
 6. **Give the Pi a fixed address.** In your router's settings, reserve its current IP address for the Pi (often called *DHCP reservation*). A DNS server that changes address breaks your internet.
 7. **Install Pi-hole v6:** `curl -sSL https://install.pi-hole.net | bash` and follow the prompts. Set the web admin password with `pihole setpassword`. The admin page is at `http://pihole.local/admin`.
-8. **Point your network at it.** In your router, set the DNS server to the Pi's address, so every device uses Pi-hole. Keep a way back: if the Pi is ever off, set the router's DNS back to *Automatic* and the internet works again.
+8. **Point your network at it.** In your router, set the DNS server to the Pi's address, so every device uses Pi-hole (if your router can't, use Pi-hole's own DHCP server instead). Pi-hole's guide covers the options: [Making your network take advantage of Pi-hole](https://docs.pi-hole.net/main/post-install/#making-your-network-take-advantage-of-pi-hole). Keep a way back: if the Pi is ever off, set the router's DNS back to *Automatic* and the internet works again.
 9. Carry on with **Install** below.
 
 **Booting from an SSD** (optional, for the NVMe board): once everything works on the card, copy it to the drive with *SD Card Copier* on the desktop (*Accessories*). Set the boot order with `sudo raspi-config` → *Advanced Options* → *Boot Order* → *NVMe/USB Boot*, shut down, remove the card and power on.
