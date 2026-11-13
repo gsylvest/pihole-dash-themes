@@ -316,7 +316,7 @@ const STEPS = [
     text: "Plug the screen's <b>ribbon cable</b> into the Pi's <b>DISPLAY</b> port (not CAMERA): lift the latch, slide the ribbon in fully, press the latch down.",
     tip: "Do this now, before the cooler goes on. With the cooler in place the latch is almost impossible to reach. Give the ribbon a gentle tug afterwards: it shouldn't move." },
   { title: "Pads and cooler on", show: STACK, hi: ["cooler", "piScrews"], hw: ["piScrews"], off: { cooler: [0, -2.6, -9.7] }, cam: [150, 20, 1],
-    text: "Stick the cooler's <b>thermal pads</b> on the Pi's chips, set the <b>cooler</b> on top, and screw it down through the Pi into the N02's standoffs with the <b>four M2.5 screws</b>.",
+    text: "Stick the cooler's <b>thermal pads</b> on the Pi's chips, set the <b>cooler</b> on top, and screw it down through the Pi into the N02's standoffs: <b>2 × M2.5 × 10</b> through the cooler's two thicker corners, <b>2 × M2.5 × 6</b> through the thin ones.",
     tip: "Peel both sides of each pad's film, and check every pad lands on its chip before the cooler goes down. Tighten the four screws a little at a time, corner to corner, so the cooler sits flat and doesn't rock." },
   { title: "Set it up on the bench", show: STACK, hi: STACK, cam: [150, 20, 1],
     text: "Before anything goes in the case, do the software. With the stack on the bench, plug in Ethernet and power, then follow <a href=\"#install\">Start from a fresh Pi and Install</a>: flash the card, install Pi-hole and the dashboard and, if you added the SSD, copy the card to it and set it to boot from NVMe. You're done when the dashboard is showing on the screen.",
