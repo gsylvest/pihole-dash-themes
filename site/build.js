@@ -179,7 +179,7 @@ async function start() {
   initGuide(THREE, pristine, centre);
   $("modelReset").hidden = false;
 
-  const wiring = root.children.filter((o) => o.name.startsWith("wire_") || o.name.startsWith("hw_dupont") || o.name.startsWith("usbc_"));   // cables span parts that come apart
+  const wiring = root.children.filter((o) => o.name.startsWith("wire_") || o.name.startsWith("hw_dupont") || o.name.startsWith("usbc_") || o.name.startsWith("eth_"));   // cables span parts that come apart
   // exploded view: the shell lifts straight off, the base (with the radar in its holder) drops away,
   // and the electronics stack stays put. Parts are matched by their names in the GLB.
   // Two-stage exploded view. Stage 1 opens the case: shell up, base (with the radar and its screws) down, the
@@ -191,11 +191,13 @@ async function start() {
     // [name test, stage-1 offset, stage-2 layer (how many LAYERs back), axis-travel factor for fasteners]
     [(n) => n === "shell", [0, 1.15 * H, 0], 0],
     [(n) => n.startsWith("hw_insert"), [0, 1.15 * H, 0], 0, 0.6],
-    [(n) => n === "base" || n.startsWith("radar_"), [0, -0.55 * H, 0], 0],
+    [(n) => n === "base" || n === "base_glue" || n.startsWith("radar_"), [0, -0.55 * H, 0], 0],
     [(n) => n.startsWith("hw_m3"), [0, -0.55 * H, 0], 0, 0.9],
     [(n) => n.startsWith("usb_bridge"), [32, STACK_DROP, 0], 2],
     [(n) => n.startsWith("screen_"), [0, STACK_DROP, 0], 0],
-    [(n) => n.startsWith("nvme_"), [0, STACK_DROP, 0], 1],
+    [(n) => n.startsWith("nvme_") || n.startsWith("hw_standoff_a") || n === "hw_nvme_screw", [0, STACK_DROP, 0], 1],
+    [(n) => n.startsWith("hw_standoff_b"), [0, STACK_DROP, 0], 2],
+    [(n) => n.startsWith("hw_m25_pi"), [0, STACK_DROP, 0], 3],
     [(n) => n.startsWith("n02_"), [0, STACK_DROP, 0], 2],
     [(n) => n.startsWith("pi4_") || n === "dsi_ribbon", [0, STACK_DROP, 0], 3],
     [(n) => n.startsWith("armor_lite"), [0, STACK_DROP, 0], 4],
@@ -268,14 +270,18 @@ async function start() {
 // ---------- assembly guide: line drawings of the real model, one step per slide ----------
 const GROUPS = {
   shell: (n) => n === "shell", base: (n) => n === "base", retainer: (n) => n === "retainer",
-  screen: (n) => n.startsWith("screen_"), n02: (n) => n.startsWith("n02_") || n.startsWith("nvme_"),
-  pi: (n) => n.startsWith("pi4_") || n.startsWith("armor_lite_") || n === "dsi_ribbon",
-  radar: (n) => n.startsWith("radar_"), plug: (n) => n.startsWith("usbc_"), bridge: (n) => n.startsWith("usb_bridge"),
+  screen: (n) => n.startsWith("screen_"), n02: (n) => n.startsWith("n02_") && n !== "n02_pogo",
+  nvme: (n) => n.startsWith("nvme_") && n !== "nvme_thermal_pad", pad: (n) => n === "nvme_thermal_pad", pogo: (n) => n === "n02_pogo",
+  pi: (n) => n.startsWith("pi4_"), ribbon: (n) => n === "dsi_ribbon", cooler: (n) => n.startsWith("armor_lite_"),
+  radar: (n) => n.startsWith("radar_"), glue: (n) => n === "base_glue",
+  plug: (n) => n.startsWith("usbc_"), bridge: (n) => n.startsWith("usb_bridge"), eth: (n) => n.startsWith("eth_"),
   inserts: (n) => n.startsWith("hw_insert"), m3: (n) => n.startsWith("hw_m3"),
   m25l: (n) => n.startsWith("hw_m25x25"), m25s: (n) => n.startsWith("hw_m25x10"),
+  standA: (n) => n.startsWith("hw_standoff_a"), standB: (n) => n.startsWith("hw_standoff_b"),
+  piScrews: (n) => n.startsWith("hw_m25_pi"), nvmeScrew: (n) => n === "hw_nvme_screw",
   wires: (n) => n.startsWith("wire_") || n.startsWith("hw_dupont"),
 };
-const STACK = ["screen", "n02", "pi"];
+const STACK = ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi", "ribbon", "cooler", "piScrews"];   // the screen-to-Pi stack, built
 const ALL = Object.keys(GROUPS);
 // Pi 4 GPIO header in model space (mm, Y-up), measured from the model's header pins (their tips):
 // pin 1 on the inner row at the end away from the USB ports; pin 2 beside it on the edge row; columns step along +X.
@@ -286,44 +292,69 @@ const WIRES = {
   14: ["Radar GND", "GND", "#9AA0A6"], 16: ["Radar OUT", "GPIO 23", "#B57BFF"],
 };
 
+const CASE = [...STACK, "retainer", "m25l", "m25s", "base", "radar", "glue"];
 const STEPS = [
   { title: "Before you start", intro: true, show: ALL, hi: ALL, cam: [35, 18, 1],
-    text: "About 30 minutes, start to finish. You'll need the printed shell, base and retainer, the parts from <i>What you need</i>, a <b>soldering iron with an insert tip</b>, a <b>2 mm hex key</b> for the M2.5 socket screws and a <b>screwdriver</b> to match your M3 countersunk screws.",
+    text: "About 30 minutes of building, plus the software setup halfway through. You'll need the printed shell, base and retainer, the parts from <i>What you need</i>, a <b>soldering iron with an insert tip</b>, a <b>2 mm hex key</b> (it fits every screw in the build) and a small Phillips screwdriver for the NVMe screw.",
     tip: "Pull the support material out of the shell first, while you've got good access. PETG supports come off easiest with pliers and a twist." },
   { title: "Fit the threaded inserts", flip: true, show: ["shell", "inserts"], hi: ["inserts"], hw: ["inserts"], cam: [30, 42, 1],
     text: "Stand the shell <b>upside down</b> so the four bosses face up. Set an insert on each hole and press it in with the hot iron. Each hole has a small bevel that centres the insert.",
     tip: "Keep them flat. Let the heat do the work and push gently; stop when the insert is just flush. While it's still warm, press something flat and metal on top, like the side of a screwdriver, to square it up." },
-  { title: "Build the stack", show: STACK, hi: ["n02", "pi"], off: { n02: [0, 0, -10], pi: [0, 0, -26] }, cam: [150, 18, 1],
-    text: "Fit the <b>N02 board</b> to the back of the screen on the brass standoffs, NVMe drive facing the screen. Then the <b>Pi</b> on the N02, then the <b>cooler</b> on the Pi. Leave the USB bridge off for now.",
-    tip: "Connect the display ribbon before the Pi goes on, while you can see the latch. Lift the latch, slide the ribbon in fully, press the latch down, then give it a gentle tug to check." },
-  { title: "Seat the radar", show: ["base", "radar"], hi: ["radar"], off: { radar: [0, 16, 0] }, cam: [25, 26, 0.7],
+  { title: "Standoffs on the screen", show: ["screen", "standA"], hi: ["standA"], hw: ["standA"], cam: [170, 28, 1],
+    text: "Lay the screen face down on something soft and screw <b>four M2.5 brass standoffs</b> into the Pi mounting posts on the back of the display.",
+    tip: "Finger-tight is plenty. They're brass into small posts, and you'll be pushing a board onto them, not hanging weight off them." },
+  { title: "Fit the NVMe drive", show: ["n02", "nvme", "pad", "nvmeScrew"], hi: ["nvme", "nvmeScrew"], hi2: ["pad"], hw: ["nvmeScrew"], cam: [200, 38, 0.85],
+    text: "Slide the <b>NVMe drive</b> into the N02's M.2 slot at a slight angle, press it flat and fix it with the little screw at the end. <i>Optional:</i> stick a <b>thermal pad</b> on the drive's controller chip first.",
+    tip: "The drive only goes in one way: the notch in its gold fingers lines up with the key in the slot. If it won't seat, flip it rather than push harder." },
+  { title: "N02 onto the screen", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "standB"], hi: ["n02", "standB"], hw: ["standB"], cam: [160, 22, 1],
+    text: "Set the <b>N02 board</b> on the standoffs with the drive facing the back of the screen. Then screw the <b>standoffs that came with the N02</b> on top of it, through the board into the ones below.",
+    tip: "Drive side towards the screen, every time: if the N02's chips are facing you, it's upside down. Snug the new standoffs by hand, then a quarter turn more" },
+  { title: "Pi onto the N02", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi"], hi: ["pi"], hi2: ["pogo"], off: { pi: [0, -3.1, -11.6] }, cam: [150, 20, 1],
+    text: "Lower the <b>Pi</b> onto the N02's standoffs, component side out. Don't screw it down yet: the cooler's screws hold it.",
+    tip: "Line up the N02's <b>three spring pins</b> (blue) with the underside of the Pi's header pins 2, 4 and 6 before it touches down. They power the N02; if they miss, the drive won't show up." },
+  { title: "Connect the display ribbon", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi", "ribbon"], hi: ["ribbon"], cam: [200, 30, 0.9],
+    text: "Plug the screen's <b>ribbon cable</b> into the Pi's <b>DISPLAY</b> port (not CAMERA): lift the latch, slide the ribbon in fully, press the latch down.",
+    tip: "Do this now, before the cooler goes on. With the cooler in place the latch is almost impossible to reach. Give the ribbon a gentle tug afterwards: it shouldn't move." },
+  { title: "Pads and cooler on", show: STACK, hi: ["cooler", "piScrews"], hw: ["piScrews"], off: { cooler: [0, -2.6, -9.7] }, cam: [150, 20, 1],
+    text: "Stick the cooler's <b>thermal pads</b> on the Pi's chips, set the <b>cooler</b> on top, and screw it down through the Pi into the N02's standoffs with the <b>four M2.5 screws</b>.",
+    tip: "Peel both sides of each pad's film, and check every pad lands on its chip before the cooler goes down. Tighten the four screws a little at a time, corner to corner, so the cooler sits flat and doesn't rock." },
+  { title: "Set it up on the bench", show: STACK, hi: STACK, cam: [150, 20, 1],
+    text: "Before anything goes in the case, do the software. With the stack on the bench, plug in Ethernet and power, then follow <a href=\"#install\">Start from a fresh Pi and Install</a>: flash the card, install Pi-hole and the dashboard and, if you added the SSD, copy the card to it and set it to boot from NVMe. You're done when the dashboard is showing on the screen.",
+    tip: "Don't skip this one. Once the shell is on, the microSD slot and HDMI ports are sealed in, so flashing and the SD-to-SSD copy have to happen now. It's also far easier to reseat a ribbon or a missed spring pin out here than inside the case. Unplug everything before you carry on." },
+  { title: "Seat the radar", show: ["base", "radar", "glue"], hi: ["radar"], hi2: ["glue"], off: { radar: [0, 16, 0] }, cam: [25, 26, 0.7],
     text: "Push the five jumper wires onto the radar's pins, then stand the board in the cradle on the base, pin row at the top. Lead the wires back through the slot in the block.",
-    tip: "Dry-fit it first, then a tiny dab of super glue in the grooves. Less is more: too much wicks onto the board, and you might want it out one day." },
+    tip: "Glue goes on the <b>ridges of the cradle</b> (blue), a tiny dab on each. Dry-fit first; less is more, because too much wicks onto the board and you might want it out one day." },
   { title: "Screw on the retainer", show: [...STACK, "retainer", "m25l"], hi: ["retainer", "m25l"], hw: ["m25l"], cam: [205, 22, 1],
     text: "Screw the retainer to the screen with the <b>4 M2.5 × 25</b> screws, through its posts into the screen's corner posts.",
-    tip: "Start all four by hand, then tighten in a criss-cross so the frame pulls down evenly. Stop as soon as they're snug: the posts are small, and longer screws can reach the panel." },
-  { title: "Stand it on the base", show: [...STACK, "retainer", "m25l", "base", "radar", "m25s"], hi: ["base", "m25s"], hw: ["m25s"], cam: [150, 20, 1],
+    tip: "Start all four by hand, then tighten in a criss-cross so the frame pulls down evenly. Stop as soon as they're snug: longer screws can reach the panel. Struggling to reach the next step's screws with all this attached? Swap the order: screw the retainer to the base first, then bring the screen stack to it." },
+  { title: "Stand it on the base", show: [...STACK, "retainer", "m25l", "base", "radar", "glue", "m25s"], hi: ["base", "m25s"], hw: ["m25s"], cam: [150, 20, 1],
     text: "Stand the stack on the base with the retainer's bottom bar against the block, and fix it with the <b>2 M2.5 × 10</b> screws.",
     tip: "Check the radar wires before you tighten: they should sit in the slot, not under the bar. A pinched wire is a pain to find later." },
   { title: "Wire it up", show: [...STACK, "wires"], hi: ["wires"], pins: true, cam: [180, -15, 1],
-    text: "With the power unplugged, push the jumper wires onto the Pi's header. <b>Radar:</b> VCC → 2, GND → 14, RX → 8, TX → 10, OUT → 16. <b>Cooler fan:</b> red → 4, black → 6, blue → 7. Then plug the right-angle USB-C cable into the doorway in the retainer's top bar.",
-    tip: "Count from pin 1, the one with the square pad, and double-check RX and TX: they cross over (the radar's RX goes to the Pi's TX). Swapping them won't break anything; the radar just won't talk. The N02's spring pins touch the underside of pins 2, 4 and 6, and wires on top are fine." },
-  { title: "Lower the shell", show: ["shell", "inserts", ...STACK, "retainer", "m25l", "m25s", "base", "radar", "plug", "wires"], hi: ["shell"], off: { shell: [0, 44, 4], inserts: [0, 44, 4] }, cam: [35, 20, 1],
+    text: "With the power unplugged, push the jumper wires onto the Pi's header. <b>Radar:</b> VCC → 2, GND → 14, RX → 8, TX → 10, OUT → 16. <b>Cooler fan:</b> red → 4, black → 6, blue → 7.",
+    tip: "Count from pin 1, the one with the square pad, and double-check RX and TX: they cross over (the radar's RX goes to the Pi's TX). Swapping them won't break anything; the radar just won't talk." },
+  { title: "Lower the shell", show: ["shell", "inserts", ...CASE, "wires"], hi: ["shell"], off: { shell: [0, 44, 4], inserts: [0, 44, 4] }, cam: [35, 20, 1],
     text: "Lower the shell over the stack, starting about <b>3 mm forward</b> so the front bosses pass in front of the glass. Once they're below the glass, slide it back and down the rest of the way.",
     tip: "If it binds, don't force it. Lift it off and start again a little further forward; it should drop the last bit on its own." },
-  { title: "Screw the base on", show: ["shell", "inserts", ...STACK, "retainer", "base", "radar", "plug", "m3", "wires"], hi: ["m3"], hw: ["m3"], cam: [30, -42, 1],
-    text: "Turn it over and fit the <b>4 M3 × 8 countersunk</b> screws through the base into the inserts.",
+  { title: "Screw the shell on", show: ["shell", "inserts", ...CASE, "wires", "m3"], hi: ["m3"], hw: ["m3"], cam: [30, -42, 1],
+    text: "Turn it over and fit the <b>4 M3 × 8 countersunk</b> screws through the base into the inserts, with the 2 mm hex key.",
     tip: "Snug, not tight. The inserts are only held by plastic, and over-tightening can spin one loose in its boss." },
-  { title: "Close it up", show: ALL, hi: ["bridge"], off: { bridge: [22, 0, 0] }, cam: [62, 12, 0.72],
-    text: "Push the <b>USB bridge</b> into the slot on the right and plug in Ethernet next to it. Done.",
-    tip: "Power it up before it goes on the shelf: the desktop and then the dashboard should appear within a minute or two. If the screen stays black, reseat the display ribbon first." },
+  { title: "Plug in the USB bridge", show: ["shell", ...CASE, "wires", "bridge"], hi: ["bridge"], off: { bridge: [22, 0, 0] }, cam: [62, 12, 0.72],
+    text: "Push the N02's <b>USB bridge</b> through the slot in the right side, into the Pi's lower blue USB port.",
+    tip: "It's a firm push. If it stops short, wiggle it slightly up and down rather than forcing it straight." },
+  { title: "Plug in the network", show: ["shell", ...CASE, "wires", "bridge", "eth"], hi: ["eth"], hw: ["eth"], cam: [62, 12, 0.72],
+    text: "Plug an <b>Ethernet cable</b> into the port next to the bridge. Wi‑Fi works too, but a DNS server is happiest on a wire.",
+    tip: "Listen for the click; a half-seated plug is the classic reason a Pi-hole 'randomly' drops off the network." },
+  { title: "Power it up", show: ALL, hi: ["plug"], cam: [200, 18, 0.9],
+    text: "Plug a <b>5.1 V 3 A USB-C supply</b> into the socket at the back. Done.",
+    tip: "The desktop and then the dashboard should appear within a minute or two. If the screen stays black, unplug, reseat the display ribbon and try again." },
 ];
 
 function initGuide(THREE, source, centre) {
   const canvas = $("guideCanvas"), view = canvas.parentElement, gmsg = $("guideMsg");
   const css = getComputedStyle(document.documentElement);
   const col = (v, f) => new THREE.Color((css.getPropertyValue(v) || f).trim() || f);
-  const C = { line: col("--muted", "#888"), hi: col("--accent", "#E0523A"), fill: col("--sunk", "#141418") };
+  const C = { line: col("--muted", "#888"), hi: col("--accent", "#E0523A"), hi2: new THREE.Color("#3B9BFF"), fill: col("--sunk", "#141418") };
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -340,15 +371,15 @@ function initGuide(THREE, source, centre) {
     const node = new THREE.Group(); node.applyMatrix4(o.matrixWorld);
     node.add(new THREE.Mesh(o.geometry, fillMat));
     const mat = new THREE.LineBasicMaterial({ color: C.line, transparent: true, opacity: 0.55 });
-    node.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 28), mat));
+    const line = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 28), mat); node.add(line);
     // silhouette: a slightly inflated back-face copy in the line colour. Edge detection only finds sharp creases,
     // so without this the shell's smooth rounded sides and top would vanish from the drawing.
     const hull = new THREE.MeshBasicMaterial({ color: C.line, side: THREE.BackSide, transparent: true, opacity: 0.55 });
     hull.onBeforeCompile = (sh) => { sh.vertexShader = sh.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\n  transformed += normalize(normal) * 0.32;"); };
-    node.add(new THREE.Mesh(o.geometry, hull));
+    const hullMesh = new THREE.Mesh(o.geometry, hull); node.add(hullMesh);
     scene.add(node);
     const ax = o.userData && o.userData.axis, travel = (o.userData && o.userData.travel) || 12;
-    parts.push({ node, group, mat, hull, base: node.position.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
+    parts.push({ node, group, mat, hull, line, hullMesh, base: node.position.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
       out: ax ? new THREE.Vector3(...ax).normalize().multiplyScalar(travel) : null });
   });
   // header pin tips in guide space (the copy is centred, so subtract the same centre)
@@ -419,9 +450,11 @@ function initGuide(THREE, source, centre) {
     if (s.pins) $("guideLegend").innerHTML = Object.entries(WIRES).map(([n, w]) => `<li><i style="background:${w[2]}"></i><b>${n}</b>${w[0]} · ${w[1]}</li>`).join("");
     parts.forEach((p) => {
       p.node.visible = s.show.includes(p.group);
-      const hi = s.hi.includes(p.group);
-      p.mat.color.copy(hi ? C.hi : C.line); p.mat.opacity = hi ? 1 : 0.7;
+      const hi2 = !!(s.hi2 && s.hi2.includes(p.group)), hi = hi2 || s.hi.includes(p.group);
+      p.mat.color.copy(hi2 ? C.hi2 : hi ? C.hi : C.line); p.mat.opacity = hi ? 1 : 0.7;
       p.hull.color.copy(p.mat.color); p.hull.opacity = p.mat.opacity;
+      // blue means "look here": draw it on top of everything, so a glue ridge or spring pin shows through what's in front
+      p.mat.depthTest = p.hull.depthTest = !hi2; p.line.renderOrder = p.hullMesh.renderOrder = hi2 ? 10 : 0;
       p.from.copy(p.node.position);
       p.to.copy(p.base).add(new THREE.Vector3(...((s.off && s.off[p.group]) || [0, 0, 0])));
       p.drive = !!(s.hw && s.hw.includes(p.group) && p.out);   // screws and inserts slide in along their axis

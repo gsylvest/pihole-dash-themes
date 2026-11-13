@@ -164,6 +164,7 @@
               <li><span class="pn">Waveshare 4.3" DSI touchscreen</span><span class="pd">800×480 capacitive, ribbon to the Pi's DSI port, no driver needed</span><a class="buy" href="https://www.amazon.com/dp/B083Q8YLVP" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
               <li><span class="pn">GeeekPi Armor Lite cooler</span><span class="pd">Heatsink with a built-in fan; wires to pins 4, 6 and 7. The case is sized for it</span><a class="buy" href="https://www.amazon.com/dp/B091L1XKL6" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
               <li><span class="pn">USB-C power supply, 5.1 V 3 A, right-angle plug</span><span class="pd">The socket sits just under the case roof, so a straight plug won’t fit. The official supply works with a 90° USB-C adapter</span><a class="buy" href="https://www.amazon.com/dp/B07Z8P61DQ" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">Ethernet cable</span><span class="pd">Any patch cable long enough to reach your router. Wi‑Fi works too, but a DNS server is happiest on a wire</span></li>
               <li><span class="pn">microSD card, 16 GB or more</span><span class="pd">To install Raspberry Pi OS (and to keep as a spare if you boot from SSD)</span><a class="buy" href="https://www.amazon.com/dp/B08TJRVWV1" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
             </ul>
           </div>
@@ -172,8 +173,9 @@
             <ul class="part-list">
               <li><span class="pn">Soldering iron with insert tips</span><span class="pd">To press the heat-set inserts in. Any iron works with the right tip; this kit has both. The one used in this build</span><a class="buy" href="https://www.amazon.com/dp/B0D2KB8743" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
               <li><span class="pn">4 × M3 heat-set inserts, 5.7 mm</span><span class="pd">Pressed into the shell with a soldering iron. The ones used in this build</span><a class="buy" href="https://www.amazon.com/dp/B0CS6VZYL8" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
-              <li><span class="pn">4 × M3 × 8 countersunk screws</span><span class="pd">Base into the shell, from underneath (DIN 965)</span><a class="buy" href="https://www.amazon.com/dp/B01E5EOIWW" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">4 × M3 × 8 countersunk screws</span><span class="pd">Hex socket (2 mm key), base into the shell from underneath</span><a class="buy" href="https://www.amazon.com/dp/B01E5EOIWW" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
               <li><span class="pn">M2.5 brass standoff kit</span><span class="pd">Standoffs between the screen and the NVMe board. The kit used in this build</span><a class="buy" href="https://www.amazon.com/dp/B07KM5B3PT" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">4 × M2.5 cooler screws</span><span class="pd">Through the cooler and the Pi into the N02's standoffs. The cooler comes with screws for this; if yours didn't, the standoff kit has ones that fit</span></li>
               <li><span class="pn">Super glue</span><span class="pd">One small drop to hold the radar board in its cradle. The one used in this build</span><a class="buy" href="https://www.amazon.com/dp/B0CBSFMLCF" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
               <li><span class="pn">4 × M2.5 × 25 and 2 × M2.5 × 10 screws</span><span class="pd">Pan or cap head. Don’t go longer than 25 mm: it can reach the display panel. The link is the 25 mm socket heads used here</span><a class="buy" href="https://www.amazon.com/dp/B01AXWRQQU" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
             </ul>
@@ -189,6 +191,7 @@
             </ul>
             <ul class="part-list">
               <li><span class="pn">52Pi / GeeekPi N02 NVMe board for Pi 4</span><span class="pd">Mounts under the Pi, powered by pogo pins on the header</span><a class="buy" href="https://www.amazon.com/dp/B0CBJYWKJ1" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">NVMe thermal pad (optional)</span><span class="pd">A small pad on the drive's controller chip helps it stay cool inside the case</span></li>
               <li><span class="pn">M.2 2280 NVMe SSD, 256 GB</span><span class="pd">A low-power drive such as the Patriot P300</span><a class="buy" href="https://www.amazon.com/dp/B082BWY2C2" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
             </ul>
           </div>
@@ -222,7 +225,7 @@
         <div class="guide" id="guide" aria-roledescription="carousel" aria-label="Assembly steps">
             <div class="guide-head">
               <h3>Put it together</h3>
-              <span class="guide-count" id="guideCount">9 steps</span>
+              <span class="guide-count" id="guideCount">17 steps</span>
             </div>
             <div class="guide-view">
               <canvas id="guideCanvas" aria-hidden="true"></canvas>
@@ -255,6 +258,7 @@
           <li>An <b>800×480</b> touchscreen</li>
         </ul>
         <p class="muted">The installer adds a small Python service and a full-screen Chromium window. Python standard library only, nothing loaded from the internet.</p>
+        <p class="note-box"><b>Building the case?</b> Do all of this on the bench, at step 6 of <a href="#guide">Put it together</a>, before the Pi goes in. The shell seals in the microSD slot.</p>
         <details class="fresh">
           <summary>Starting from a fresh Pi?</summary>
           <ol class="fresh-steps">

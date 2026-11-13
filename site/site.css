@@ -232,6 +232,9 @@ p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--sunk);
 .guide-body p { margin: 0; color: var(--muted); font-size: 14.5px; }
 .guide-body b { color: var(--ink); }
 .guide-body .warn { display: inline-block; margin-top: 8px; padding: 6px 10px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); font-size: 13.5px; }
+.guide-body a { color: var(--accent); font-weight: 600; }
+.note-box { margin: 14px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); font-size: 14px; color: var(--ink); }
+.note-box a { color: var(--accent); font-weight: 600; }
 .guide-body .tip { display: block; margin-top: 10px; padding: 10px 12px 10px 14px; border-radius: 10px; background: var(--accent-soft);
   border-left: 3px solid var(--accent); color: var(--ink); font-size: 14px; line-height: 1.5; }
 .guide-body .tip b { display: block; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 2px; }

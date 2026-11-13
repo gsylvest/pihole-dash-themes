@@ -61,6 +61,8 @@ Already running Pi-hole on a Pi with the desktop and the screen working? Skip to
 
 ## Install
 
+> **Building the case?** Do the software on the bench first, before the Pi goes into the shell: the shell seals in the microSD slot and HDMI ports. The website's assembly guide has this as its step 6.
+
 On the Pi:
 
 ```bash
