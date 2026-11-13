@@ -1,15 +1,17 @@
-# Screen themes for Pi-hole
+# Sinkhole Screens
 
-A touchscreen dashboard for a Raspberry Pi running [Pi-hole](https://pi-hole.net) v6, with 16 designs to pick from on the screen.
+Touchscreen dashboards for a Raspberry Pi running [Pi-hole](https://pi-hole.net) v6: 22 designs to pick from on the screen, and a printable case to put it in.
 
-**[Try every design live in your browser →](#live-demo)** (made-up numbers, no Pi-hole needed)
+**[Try every design live at sinkholescreens.com →](https://sinkholescreens.com)** (made-up numbers, no Pi-hole needed)
 
 | | | | |
 | --- | --- | --- | --- |
-| ![Monolith](site/shots/monolith.png) Monolith | ![Swiss](site/shots/swiss.png) Swiss | ![Bauhaus](site/shots/bauhaus.png) Bauhaus | ![8-bit](site/shots/arcade.png) 8-bit |
-| ![Flow](site/shots/flow.png) Flow | ![Terminal](site/shots/terminal.png) Terminal | ![Hi-Fi](site/shots/hifi.png) Hi-Fi | ![Mission Control](site/shots/mission.png) Mission Control |
-| ![Sonar](site/shots/sonar.png) Sonar | ![Signal Box](site/shots/signalbox.png) Signal Box | ![Network Express](site/shots/subway.png) Network Express | ![Dungeon Gate](site/shots/dungeon.png) Dungeon Gate |
-| ![Space Freighter](site/shots/freighter.png) Space Freighter | ![Airport Departures](site/shots/departures.png) Airport Departures | ![Echo](site/shots/echo.png) Echo | ![Pachinko](site/shots/pachinko.png) Pachinko |
+| ![Monolith](site/shots/monolith.png) Monolith | ![Swiss](site/shots/swiss.png) Swiss | ![Bauhaus](site/shots/bauhaus.png) Bauhaus | ![Hi-Fi](site/shots/hifi.png) Hi-Fi |
+| ![Mission Control](site/shots/mission.png) Mission Control | ![Terminal](site/shots/terminal.png) Terminal | ![Flow](site/shots/flow.png) Flow | ![Sonar](site/shots/sonar.png) Sonar |
+| ![Echo](site/shots/echo.png) Echo | ![Airport Departures](site/shots/departures.png) Airport Departures | ![Network Express](site/shots/subway.png) Network Express | ![Signal Box](site/shots/signalbox.png) Signal Box |
+| ![Live Terminal](site/shots/watch.png) Live Terminal | ![Filter Ops](site/shots/filterops.png) Filter Ops | ![Bonsai](site/shots/bonsai.png) Bonsai | ![8-bit](site/shots/arcade.png) 8-bit |
+| ![Dungeon Gate](site/shots/dungeon.png) Dungeon Gate | ![Space Freighter](site/shots/freighter.png) Space Freighter | ![Pachinko](site/shots/pachinko.png) Pachinko | ![ASCII Ninja](site/shots/ninja.png) ASCII Ninja |
+| ![Whack-an-Ad](site/shots/whack.png) Whack-an-Ad | ![Packet Pinball](site/shots/pinball.png) Packet Pinball |  |  |
 
 ## What it does
 
@@ -17,14 +19,14 @@ A touchscreen dashboard for a Raspberry Pi running [Pi-hole](https://pi-hole.net
 - **Pause** blocking for 5 minutes with one tap, and resume early.
 - Tap a blocked domain to see why it was blocked (which list, exact or wildcard) and how often today. Then **allow it for 1 hour** or **always**, with a press and hold so it can't happen by accident, and an 8-second Undo.
 - **Allowed** lists what you let through from the screen, with countdowns, and lets you remove entries.
-- **Style** picks one of the 16 designs. The choice is saved on the Pi.
+- **Style** picks one of the 22 designs. The choice is saved on the Pi.
 - Keeps showing the last numbers (dimmed, with their age) if Pi-hole stops answering.
 
 It never changes Pi-hole's own settings or restarts it. The only things it writes are allow-list entries you ask for, each tagged `pihole-dash` so you can see them in the web admin.
 
 ## Live demo
 
-The repo is also a static website: `index.html` shows all 16 designs and runs one live. Open `app/index.html?demo` and the dashboard answers its own API calls in the browser with made-up numbers (`app/demo.js`). Pause, Allow and Undo all work on that fake data. The kiosk never uses `?demo`.
+The repo is also a static website: `index.html` shows all 22 designs and runs one live. Open `app/index.html?demo` and the dashboard answers its own API calls in the browser with made-up numbers (`app/demo.js`). Pause, Allow and Undo all work on that fake data. The kiosk never uses `?demo`.
 
 To run it locally: `python3 -m http.server 8000` in the repo folder, then open <http://localhost:8000/>.
 
@@ -131,4 +133,4 @@ Allow entries made from the screen stay in Pi-hole. Remove them in the web admin
 
 MIT, see [LICENSE](LICENSE). Inter and Inter Tight are under the SIL Open Font License ([app/fonts/OFL.txt](app/fonts/OFL.txt)). PiPixel is an original pixel font made for this project (`dev/gen_pixel_font.py`) and is MIT like the code.
 
-Not affiliated with or endorsed by the Pi-hole project. Pi-hole is a registered trademark of Pi-hole LLC.
+Sinkhole Screens is an independent project, not affiliated with or endorsed by the Pi-hole project or Raspberry Pi Ltd. Pi-hole is a registered trademark of Pi-hole LLC; Raspberry Pi is a trademark of Raspberry Pi Ltd.
