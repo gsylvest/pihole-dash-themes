@@ -62,7 +62,7 @@ async function start() {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false;
   controls.autoRotate = !reduceMotion; controls.autoRotateSpeed = 0.8;
-  renderer.domElement.addEventListener("pointerdown", () => { controls.autoRotate = false; });
+  renderer.domElement.addEventListener("pointerdown", () => { controls.autoRotate = false; swing = null; });
 
   let gltf;
   try { gltf = await new GLTFLoader().loadAsync(MODEL_URL); }
@@ -152,7 +152,7 @@ async function start() {
   ground.rotation.x = -Math.PI / 2; ground.position.y = -size.y / 2 - 0.01; ground.receiveShadow = true; scene.add(ground);
   // a generous shadow box, so the exploded parts never run off its edge (that's what cut the shadow off square)
   const sc = key.shadow.camera; sc.left = sc.bottom = -radius * 3.2; sc.right = sc.top = radius * 3.2; sc.near = 1; sc.far = 2000; sc.updateProjectionMatrix();
-  const groundY = ground.position.y, groundDrop = 0.45 * size.y + 16;   // the base and its screws drop this far when exploded
+  const groundY = ground.position.y, groundDrop = 0.55 * size.y + 16;   // the base and its screws drop this far when exploded
   // the floor: the same dot grid as the guide, lying flat in perspective and fading out with distance
   const floor = (() => {
     const css = getComputedStyle(document.documentElement);
@@ -183,29 +183,48 @@ async function start() {
   const wiring = root.children.filter((o) => o.name.startsWith("wire_") || o.name.startsWith("hw_dupont"));
   // exploded view: the shell lifts straight off, the base (with the radar in its holder) drops away,
   // and the electronics stack stays put. Parts are matched by their names in the GLB.
-  const LIFT = { shell: 0.95, base: -0.45, radar_board: -0.45, radar_dupont_plug: -0.45,
-    radar_pcb: -0.45, radar_laminate: -0.45, radar_antenna: -0.45, radar_chips: -0.45, radar_gold: -0.45 };   // the radar stands in the base
-  // Fasteners ride with the part they hold, then back a little way out of their hole along their own axis,
-  // so you can see where each one goes: inserts below the shell's bosses, base screws below the base,
-  // retainer screws just behind their posts.
-  const HW = [["hw_insert", "shell", 0.6], ["hw_m3", "base", 0.9], ["hw_m25x25", null, 0.45], ["hw_m25x10", null, 0.6]];
+  // Two-stage exploded view. Stage 1 opens the case: shell up, base (with the radar and its screws) down, the
+  // screen-and-Pi stack drops a little so it sits between them, and the USB bridge slides out to the side.
+  // Stage 2 fans the stack out backwards along the boards' axis: screen, NVMe, N02, Pi, cooler, retainer.
+  const H = size.y, BACK = new THREE.Vector3(0, -0.259, -0.966);   // out of the back of the screen (it leans back 15°)
+  const STACK_DROP = -0.12 * H, LAYER = 20;
+  const rules = [
+    // [name test, stage-1 offset, stage-2 layer (how many LAYERs back), axis-travel factor for fasteners]
+    [(n) => n === "shell", [0, 1.15 * H, 0], 0],
+    [(n) => n.startsWith("hw_insert"), [0, 1.15 * H, 0], 0, 0.6],
+    [(n) => n === "base" || n.startsWith("radar_"), [0, -0.55 * H, 0], 0],
+    [(n) => n.startsWith("hw_m3"), [0, -0.55 * H, 0], 0, 0.9],
+    [(n) => n.startsWith("usb_bridge"), [32, STACK_DROP, 0], 2],
+    [(n) => n.startsWith("screen_"), [0, STACK_DROP, 0], 0],
+    [(n) => n.startsWith("nvme_"), [0, STACK_DROP, 0], 1],
+    [(n) => n.startsWith("n02_"), [0, STACK_DROP, 0], 2],
+    [(n) => n.startsWith("pi4_") || n === "dsi_ribbon" || n === "usbc_power_plug", [0, STACK_DROP, 0], 3],
+    [(n) => n.startsWith("armor_lite"), [0, STACK_DROP, 0], 4],
+    [(n) => n === "retainer", [0, STACK_DROP, 0], 5],
+    [(n) => n.startsWith("hw_m25x25"), [0, STACK_DROP, 0], 5, 0.45],
+    [(n) => n.startsWith("hw_m25x10"), [0, STACK_DROP, 0], 5, 0.6],
+  ];
   const parts = root.children.map((o) => {
-    if (o.name in LIFT) return { o, base: o.position.clone(), off: new THREE.Vector3(0, LIFT[o.name] * size.y, 0) };
-    const hw = HW.find(([pre]) => o.name.startsWith(pre)), ax = o.userData && o.userData.axis;
-    if (!hw || !ax) return null;
-    const off = new THREE.Vector3(...ax).normalize().multiplyScalar((o.userData.travel || 10) * hw[2]);
-    if (hw[1]) off.y += LIFT[hw[1]] * size.y;
-    return { o, base: o.position.clone(), off };
+    const r = rules.find(([test]) => test(o.name)); if (!r) return null;
+    const off1 = new THREE.Vector3(...r[1]), ax = o.userData && o.userData.axis;
+    if (r[3] && ax) off1.addScaledVector(new THREE.Vector3(...ax).normalize(), (o.userData.travel || 10) * r[3]);
+    return { o, base: o.position.clone(), off1, off2: BACK.clone().multiplyScalar(r[2] * LAYER) };
   }).filter(Boolean);
-  let explode = 0, explodeTo = 0;
+  let e1 = 0, e2 = 0, stage = 0;
   const explodeBtn = $("modelExplode");
   explodeBtn.hidden = parts.length < 2;
+  const LABELS = ["Explode", "Explode the insides", "Put it back together"];
+  explodeBtn.textContent = LABELS[0];
+  let swing = null;   // camera direction to glide to (the insides fan out backwards, so look from the side)
   explodeBtn.addEventListener("click", () => {
-    explodeTo = explodeTo ? 0 : 1;
-    explodeBtn.setAttribute("aria-pressed", explodeTo ? "true" : "false");
+    stage = (stage + 1) % 3;
+    explodeBtn.textContent = LABELS[stage];
+    explodeBtn.setAttribute("aria-pressed", stage ? "true" : "false");
+    controls.autoRotate = false;
+    swing = stage === 2 ? new THREE.Vector3(1, 0.32, -0.15).normalize() : stage === 0 ? home.clone().normalize() : null;
   });
   $("modelReset").addEventListener("click", () => {
-    camera.position.copy(home).multiplyScalar(1 + 0.8 * explode); controls.target.set(0, 0, 0); controls.update();
+    camera.position.copy(home).multiplyScalar(1 + 0.75 * e1 + 0.45 * e2); controls.target.set(0, 0, 0); controls.update();
   });
 
   const resize = () => {
@@ -221,17 +240,27 @@ async function start() {
   new IntersectionObserver((e) => { visible = e[0].isIntersecting; }).observe(host);
   renderer.setAnimationLoop(() => {
     if (!visible) return;
-    if (explode !== explodeTo) {
-      const was0 = explode; explode += Math.sign(explodeTo - explode) * (reduceMotion ? 1 : 0.06);
-      const was = was0;
-      explode = Math.min(1, Math.max(0, explode));
+    const t1 = stage >= 1 ? 1 : 0, t2 = stage >= 2 ? 1 : 0;
+    if (e1 !== t1 || e2 !== t2) {
+      const sp = reduceMotion ? 1 : 0.06, was = 1 + 0.75 * e1 + 0.45 * e2;
+      // put things back in reverse order: the insides close up before the case does
+      if (t2 < e2) e2 = Math.max(0, e2 - sp);                       // closing: the insides first
+      else if (e1 !== t1) e1 = Math.min(1, Math.max(0, e1 + Math.sign(t1 - e1) * sp));   // then the case
+      else e2 = Math.min(1, e2 + sp);                                  // opening the insides, once the case is open
       // pull the camera back as the parts separate, so everything stays in frame
-      const k = (1 + 0.8 * explode) / (1 + 0.8 * was);
+      const k = (1 + 0.75 * e1 + 0.45 * e2) / was;
       camera.position.sub(controls.target).multiplyScalar(k).add(controls.target);
-      parts.forEach((p) => p.o.position.copy(p.base).addScaledVector(p.off, explode));
-      ground.position.y = groundY - groundDrop * explode;   // the floor follows the base down, so the shadow stays whole
+      const ease = (x) => x * x * (3 - 2 * x), a1 = ease(e1), a2 = ease(e2);
+      parts.forEach((p) => p.o.position.copy(p.base).addScaledVector(p.off1, a1).addScaledVector(p.off2, a2));
+      ground.position.y = groundY - groundDrop * a1;   // the floor follows the base down, so the shadow stays whole
       floor.position.y = ground.position.y - 0.05;
-      wiring.forEach((o) => { o.visible = explode < 0.05; });   // the jumper wires can't follow both ends, so they step out of the way
+      wiring.forEach((o) => { o.visible = e1 < 0.05; });   // the jumper wires can't follow both ends, so they step out of the way
+    }
+    if (swing) {   // glide the camera round, keeping its distance
+      const off = camera.position.clone().sub(controls.target), d = off.length();
+      off.normalize().lerp(swing, reduceMotion ? 1 : 0.07).normalize();
+      camera.position.copy(controls.target).addScaledVector(off, d);
+      if (off.distanceTo(swing) < 0.002) swing = null;
     }
     controls.update(); renderer.render(scene, camera);
   });
@@ -313,9 +342,14 @@ function initGuide(THREE, source, centre) {
     node.add(new THREE.Mesh(o.geometry, fillMat));
     const mat = new THREE.LineBasicMaterial({ color: C.line, transparent: true, opacity: 0.55 });
     node.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 28), mat));
+    // silhouette: a slightly inflated back-face copy in the line colour. Edge detection only finds sharp creases,
+    // so without this the shell's smooth rounded sides and top would vanish from the drawing.
+    const hull = new THREE.MeshBasicMaterial({ color: C.line, side: THREE.BackSide, transparent: true, opacity: 0.55 });
+    hull.onBeforeCompile = (sh) => { sh.vertexShader = sh.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\n  transformed += normalize(normal) * 0.32;"); };
+    node.add(new THREE.Mesh(o.geometry, hull));
     scene.add(node);
     const ax = o.userData && o.userData.axis, travel = (o.userData && o.userData.travel) || 12;
-    parts.push({ node, group, mat, base: node.position.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
+    parts.push({ node, group, mat, hull, base: node.position.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
       out: ax ? new THREE.Vector3(...ax).normalize().multiplyScalar(travel) : null });
   });
   // header pin tips in guide space (the copy is centred, so subtract the same centre)
@@ -388,6 +422,7 @@ function initGuide(THREE, source, centre) {
       p.node.visible = s.show.includes(p.group);
       const hi = s.hi.includes(p.group);
       p.mat.color.copy(hi ? C.hi : C.line); p.mat.opacity = hi ? 1 : 0.7;
+      p.hull.color.copy(p.mat.color); p.hull.opacity = p.mat.opacity;
       p.from.copy(p.node.position);
       p.to.copy(p.base).add(new THREE.Vector3(...((s.off && s.off[p.group]) || [0, 0, 0])));
       p.drive = !!(s.hw && s.hw.includes(p.group) && p.out);   // screws and inserts slide in along their axis
