@@ -315,7 +315,7 @@ const STEPS = [
   { title: "Connect the display ribbon", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "pogo", "standB", "pi", "ribbon"], hi: ["ribbon"], cam: [200, 30, 0.9],
     text: "Plug the screen's <b>ribbon cable</b> into the Pi's <b>DISPLAY</b> port (not CAMERA): lift the latch, slide the ribbon in fully, press the latch down.",
     tip: "Do this now, before the cooler goes on. With the cooler in place the latch is almost impossible to reach. Give the ribbon a gentle tug afterwards: it shouldn't move." },
-  { title: "Pads and cooler on", show: STACK, hi: ["cooler", "piScrews"], hw: ["piScrews"], off: { cooler: [0, -2.6, -9.7] }, cam: [150, 20, 1],
+  { title: "Pads and cooler on", show: STACK, hi: ["cooler", "piScrews"], hw: ["piScrews"], lower: ["cooler"], cam: [150, 20, 1],
     text: "Stick the cooler's <b>thermal pads</b> on the Pi's chips, set the <b>cooler</b> on top, and screw it down through the Pi into the N02's standoffs: <b>2 × M2.5 × 10</b> through the cooler's two thicker corners, <b>2 × M2.5 × 6</b> through the thin ones.",
     tip: "Peel both sides of each pad's film, and check every pad lands on its chip before the cooler goes down. Tighten the four screws a little at a time, corner to corner, so the cooler sits flat and doesn't rock." },
   { title: "Set it up on the bench", show: STACK, hi: STACK, cam: [150, 20, 1],
@@ -369,7 +369,7 @@ function initGuide(THREE, source, centre) {
     if (!o.isMesh) return;
     const group = ALL.find((g) => GROUPS[g](o.name)); if (!group) return;
     const node = new THREE.Group(); node.applyMatrix4(o.matrixWorld);
-    const fill = fillMat.clone(); node.add(new THREE.Mesh(o.geometry, fill));   // its own copy, so the part can fade
+    const fill = fillMat.clone(), fillMesh = new THREE.Mesh(o.geometry, fill); node.add(fillMesh);   // its own copy, so the part can fade
     const mat = new THREE.LineBasicMaterial({ color: C.line, transparent: true, opacity: 0.55 });
     const line = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 28), mat); node.add(line);
     // silhouette: a slightly inflated back-face copy in the line colour. Edge detection only finds sharp creases,
@@ -379,7 +379,7 @@ function initGuide(THREE, source, centre) {
     const hullMesh = new THREE.Mesh(o.geometry, hull); node.add(hullMesh);
     scene.add(node);
     const ax = o.userData && o.userData.axis, travel = (o.userData && o.userData.travel) || 12;
-    parts.push({ node, group, mat, hull, line, hullMesh, fill, fade: 1, fadeFrom: 1, fadeTo: 1, baseOp: 0.7, base: node.position.clone(), baseQ: node.quaternion.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
+    parts.push({ node, group, mat, hull, line, hullMesh, fill, fillMesh, start: new THREE.Vector3(), fade: 1, fadeFrom: 1, fadeTo: 1, baseOp: 0.7, base: node.position.clone(), baseQ: node.quaternion.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
       out: ax ? new THREE.Vector3(...ax).normalize().multiplyScalar(travel) : null });
   });
   // header pin tips in guide space (the copy is centred, so subtract the same centre)
@@ -469,7 +469,8 @@ function initGuide(THREE, source, centre) {
       return `<rect x="${x - k * 0.75}" y="${y - k * 0.75}" width="${k * 1.5}" height="${k * 1.5}" rx="2" fill="none" stroke="var(--ink)" stroke-width="1.5"/><text x="${x}" y="${y - k * 1.2}" text-anchor="middle" font-size="${k * 0.85}" font-family="Inter, sans-serif" font-weight="700" fill="var(--ink)">pin 1</text>`; })();
   };
 
-  let step = 0, t0 = 0, anim = false, rotFrom = 0, rotTo = 0, fadeStep = () => {};
+  let step = 0, t0 = 0, anim = false, rotFrom = 0, rotTo = 0, fadeStep = () => {}, orbFrom = null, orbTo = null;
+  const orbit = (cam, target) => { const v = cam.clone().sub(target), r = v.length() || 1; return { r, el: Math.asin(v.y / r), az: Math.atan2(v.x, v.z) }; };
   const dots = $("guideDots");
   dots.innerHTML = STEPS.map((s, i) => `<button type="button" role="tab" aria-label="Step ${i + 1}: ${s.title}"></button>`).join("");
   function go(i, instant) {
@@ -497,35 +498,45 @@ function initGuide(THREE, source, centre) {
       p.mat.color.copy(hi2 ? C.hi2 : hi ? C.hi : C.line); p.baseOp = hi ? 1 : 0.7;
       p.hull.color.copy(p.mat.color);
       // blue means "look here": draw it on top of everything, so a glue ridge or spring pin shows through what's in front
-      p.mat.depthTest = !hi2; p.line.renderOrder = hi2 ? 10 : 0;
-      p.from.copy(p.node.position);
+      p.mat.depthTest = !hi2; p.hi2 = hi2;
+      p.from.copy(p.node.position); p.start.copy(p.node.position);
       p.to.copy(p.base).add(new THREE.Vector3(...((s.off && s.off[p.group]) || [0, 0, 0])));
       p.node.quaternion.copy(p.baseQ);
       // screws and inserts slide in along their own axis; a board being "lowered" comes straight down onto its standoffs
       p.slide = s.lower && s.lower.includes(p.group) ? new THREE.Vector3(0, -0.259, -0.966).multiplyScalar(14) : p.out;
       p.drive = !!((s.hw && s.hw.includes(p.group) && p.out) || (s.lower && s.lower.includes(p.group)));
-      if (p.drive) { p.from.copy(p.to).add(p.slide); p.node.position.copy(p.from); }
+      if (p.drive) { p.from.copy(p.to).add(p.slide); if (p.state !== "stay") { p.node.position.copy(p.from); p.start.copy(p.from); } }   // one already in place backs out smoothly first
       else if (p.state === "enter") { p.from.copy(p.to).add(away); p.node.position.copy(p.from); }
       else if (p.state === "leave") { p.to.copy(p.node.position).add(away); }
       if (p.state === "enter" && p.drive) p.fadeFrom = 0;
+      // a step that lowers a part and then screws it down does them in that order: part first, screws second
+      p.seq = !(p.drive && s.lower && s.hw) ? 0 : s.lower.includes(p.group) ? 1 : 2;
     });
     const applyFade = () => parts.forEach((p) => {
       const f = p.fade; p.mat.opacity = p.baseOp * f; p.hull.opacity = p.baseOp * f;
-      p.fill.transparent = f < 0.999; p.fill.opacity = f; p.fill.depthWrite = f >= 0.999;
+      // A fading part draws after everything solid: its fill dims the lines behind it, then its own lines go on top.
+      // (Without this order, lines behind a half-faded part flicker through it as the draw order shuffles.)
+      const fading = f < 0.999;
+      p.fill.transparent = fading; p.fill.opacity = f;
+      p.fillMesh.renderOrder = fading ? 1 : 0; p.hullMesh.renderOrder = fading ? 2 : 0; p.line.renderOrder = p.hi2 ? 10 : fading ? 2 : 0;
       if (f <= 0.001 && p.fadeTo === 0) p.node.visible = false;
     });
     fadeStep = applyFade;
     camFrom.copy(camera.position); camTo.copy(pos); tgtFrom.copy(tgt); tgtTo.copy(c);
+    // the camera orbits to its new spot (angle and distance), so it never cuts straight through the model
+    orbFrom = orbit(camFrom, tgtFrom); orbTo = orbit(camTo, tgtTo);
+    orbTo.az = orbFrom.az + Math.atan2(Math.sin(orbTo.az - orbFrom.az), Math.cos(orbTo.az - orbFrom.az));   // shortest way round
     if (instant || reduceMotion) { parts.forEach((p) => { p.node.position.copy(p.to); p.fade = p.fadeTo; }); applyFade(); scene.rotation.x = rotTo; camera.position.copy(camTo); tgt.copy(tgtTo); draw(); return; }
     t0 = performance.now(); if (!anim) { anim = true; requestAnimationFrame(tick); }
   }
+  const ss = (x) => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
   function tick(now) {
     const k = Math.min(1, (now - t0) / 650), e = 1 - Math.pow(1 - k, 3);
     parts.forEach((p) => { p.fade = p.fadeFrom + (p.fadeTo - p.fadeFrom) * e; }); fadeStep();
     // hardware goes in after the camera settles, three times over (go in, hold, pop back out), then stays in
-    const LOOPS = 3, MOVE = 900, HOLD = 700, el = now - t0 - 500, cyc = Math.floor(el / (MOVE + HOLD));
+    const LOOPS = 3, MOVE = STEPS[step].lower && STEPS[step].hw ? 1700 : 900, HOLD = 700, el = now - t0 - 500, cyc = Math.floor(el / (MOVE + HOLD));
     const kh = el <= 0 ? 0 : cyc >= LOOPS ? 1 : Math.min(1, (el - cyc * (MOVE + HOLD)) / MOVE), eh = kh * kh * (3 - 2 * kh);
-    parts.forEach((p) => p.node.position.lerpVectors(p.from, p.to, p.drive ? eh : e));
+    parts.forEach((p) => { if (p.drive && el <= 0) p.node.position.lerpVectors(p.start, p.from, e); else p.node.position.lerpVectors(p.from, p.to, !p.drive ? e : p.seq === 1 ? ss(kh / 0.45) : p.seq === 2 ? ss((kh - 0.55) / 0.45) : eh); });
     const ins = STEPS[step].insert && rig;
     if (ins) {   // drive: slide in at an angle, pivot down, then the screw goes in; three times over
       const CYC = 2800, c = Math.floor(Math.max(0, el) / CYC), u = c >= LOOPS ? 1 : Math.max(0, el) % CYC / CYC;
@@ -537,7 +548,10 @@ function initGuide(THREE, source, centre) {
       });
     }
     scene.rotation.x = rotFrom + (rotTo - rotFrom) * e;
-    camera.position.lerpVectors(camFrom, camTo, e); tgt.lerpVectors(tgtFrom, tgtTo, e); draw();
+    tgt.lerpVectors(tgtFrom, tgtTo, e);
+    { const r = orbFrom.r + (orbTo.r - orbFrom.r) * e, el2 = orbFrom.el + (orbTo.el - orbFrom.el) * e, az = orbFrom.az + (orbTo.az - orbFrom.az) * e;
+      camera.position.set(Math.sin(az) * Math.cos(el2), Math.sin(el2), Math.cos(az) * Math.cos(el2)).multiplyScalar(r).add(tgt); }
+    draw();
     const looping = (parts.some((p) => p.drive) && el < LOOPS * (MOVE + HOLD)) || (STEPS[step].insert && rig && el < LOOPS * 2800);
     if (k < 1 || kh < 1 || looping) requestAnimationFrame(tick); else { anim = false; draw(); }
   }
