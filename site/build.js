@@ -96,8 +96,7 @@ async function start() {
     geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
   };
   const petg = new THREE.MeshPhysicalMaterial({
-    color: 0x121212, roughness: 0.78, metalness: 0, bumpMap: stipple, bumpScale: 0.35, roughnessMap: stipple,
-    sheen: 0.25, sheenRoughness: 0.9, sheenColor: 0x3a3a3a,
+    color: 0x0e0e0f, roughness: 0.82, metalness: 0, bumpMap: stipple, bumpScale: 0.22,
   });
   const blackOxide = new THREE.MeshStandardMaterial({ color: 0x17181a, roughness: 0.38, metalness: 0.85 });
   const MATS = {
@@ -180,7 +179,7 @@ async function start() {
   initGuide(THREE, pristine, centre);
   $("modelReset").hidden = false;
 
-  const wiring = root.children.filter((o) => o.name.startsWith("wire_") || o.name.startsWith("hw_dupont"));
+  const wiring = root.children.filter((o) => o.name.startsWith("wire_") || o.name.startsWith("hw_dupont") || o.name.startsWith("usbc_"));   // cables span parts that come apart
   // exploded view: the shell lifts straight off, the base (with the radar in its holder) drops away,
   // and the electronics stack stays put. Parts are matched by their names in the GLB.
   // Two-stage exploded view. Stage 1 opens the case: shell up, base (with the radar and its screws) down, the
@@ -198,7 +197,7 @@ async function start() {
     [(n) => n.startsWith("screen_"), [0, STACK_DROP, 0], 0],
     [(n) => n.startsWith("nvme_"), [0, STACK_DROP, 0], 1],
     [(n) => n.startsWith("n02_"), [0, STACK_DROP, 0], 2],
-    [(n) => n.startsWith("pi4_") || n === "dsi_ribbon" || n === "usbc_power_plug", [0, STACK_DROP, 0], 3],
+    [(n) => n.startsWith("pi4_") || n === "dsi_ribbon", [0, STACK_DROP, 0], 3],
     [(n) => n.startsWith("armor_lite"), [0, STACK_DROP, 0], 4],
     [(n) => n === "retainer", [0, STACK_DROP, 0], 5],
     [(n) => n.startsWith("hw_m25x25"), [0, STACK_DROP, 0], 5, 0.45],
@@ -271,7 +270,7 @@ const GROUPS = {
   shell: (n) => n === "shell", base: (n) => n === "base", retainer: (n) => n === "retainer",
   screen: (n) => n.startsWith("screen_"), n02: (n) => n.startsWith("n02_") || n.startsWith("nvme_"),
   pi: (n) => n.startsWith("pi4_") || n.startsWith("armor_lite_") || n === "dsi_ribbon",
-  radar: (n) => n.startsWith("radar_"), plug: (n) => n === "usbc_power_plug", bridge: (n) => n.startsWith("usb_bridge"),
+  radar: (n) => n.startsWith("radar_"), plug: (n) => n.startsWith("usbc_"), bridge: (n) => n.startsWith("usb_bridge"),
   inserts: (n) => n.startsWith("hw_insert"), m3: (n) => n.startsWith("hw_m3"),
   m25l: (n) => n.startsWith("hw_m25x25"), m25s: (n) => n.startsWith("hw_m25x10"),
   wires: (n) => n.startsWith("wire_") || n.startsWith("hw_dupont"),
