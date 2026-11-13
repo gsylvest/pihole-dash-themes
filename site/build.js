@@ -339,7 +339,7 @@ const STEPS = [
   { title: "Set it up on the bench", show: STACK, hi: STACK, cam: [150, 20, 1],
     text: "Before anything goes in the case, do the software. With the stack on the bench, plug in Ethernet and power, then follow <a href=\"#install\">Start from a fresh Pi and Install</a>: flash the card, install Pi-hole and the dashboard and, if you added the SSD, copy the card to it and set it to boot from NVMe. You're done when the dashboard is showing on the screen.",
     tip: "Don't skip this one. Once the shell is on, the microSD slot and HDMI ports are sealed in, so flashing and the SD-to-SSD copy have to happen now. It's also far easier to reseat a ribbon or a missed spring pin out here than inside the case. Unplug everything before you carry on." },
-  { title: "Seat the radar", show: ["base", "radar", "glue"], hi: ["radar"], hi2: ["glue"], off: { radar: [0, 16, 0] }, cam: [25, 26, 0.7],
+  { title: "Seat the radar", show: ["base", "radar", "glue"], hi: ["radar"], hi2: ["glue"], slide: { radar: [0, 15.5, -4.1] }, cam: [25, 26, 0.7],
     text: "Push the five jumper wires onto the radar's pins, then stand the board in the cradle on the base, pin row at the top. Lead the wires back through the slot in the block.",
     tip: "Glue goes on the <b>ridges of the cradle</b> (blue), a tiny dab on each. Dry-fit first; less is more, because too much wicks onto the board and you might want it out one day." },
   { title: "Screw on the retainer", show: [...STACK, "retainer", "m25l"], hi: ["retainer", "m25l"], hw: ["m25l"], cam: [205, 22, 1],
@@ -544,8 +544,8 @@ function initGuide(THREE, source, centre) {
       p.to.copy(p.base).add(new THREE.Vector3(...((s.off && s.off[p.group]) || [0, 0, 0])));
       p.node.quaternion.copy(p.baseQ);
       // screws and inserts slide in along their own axis; a board being "lowered" comes straight down onto its standoffs
-      p.slide = s.lower && s.lower.includes(p.group) ? new THREE.Vector3(0, -0.259, -0.966).multiplyScalar(14) : p.out;
-      p.drive = !!((s.hw && s.hw.includes(p.group) && p.out) || (s.lower && s.lower.includes(p.group)));
+      p.slide = s.slide && s.slide[p.group] ? new THREE.Vector3(...s.slide[p.group]) : s.lower && s.lower.includes(p.group) ? new THREE.Vector3(0, -0.259, -0.966).multiplyScalar(14) : p.out;   // or a step's own direction (the radar slides down its cradle)
+      p.drive = !!((s.hw && s.hw.includes(p.group) && p.out) || (s.lower && s.lower.includes(p.group)) || (s.slide && s.slide[p.group]));
       if (p.drive) { p.from.copy(p.to).add(p.slide); if (p.state !== "stay") { p.node.position.copy(p.from); p.start.copy(p.from); } }   // one already in place backs out smoothly first
       else if (p.state === "enter") { p.from.copy(p.to).add(away); p.node.position.copy(p.from); }
       else if (p.state === "leave") { p.to.copy(p.node.position).add(away); }
