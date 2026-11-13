@@ -158,8 +158,18 @@ async function start() {
   // and the electronics stack stays put. Parts are matched by their names in the GLB.
   const LIFT = { shell: 0.95, base: -0.45, radar_board: -0.45, radar_dupont_plug: -0.45,
     radar_pcb: -0.45, radar_laminate: -0.45, radar_antenna: -0.45, radar_chips: -0.45, radar_gold: -0.45 };   // the radar stands in the base
-  const parts = root.children.filter((o) => o.name in LIFT)
-    .map((o) => ({ o, base: o.position.clone(), dir: new THREE.Vector3(0, LIFT[o.name], 0) }));
+  // Fasteners ride with the part they hold, then back a little way out of their hole along their own axis,
+  // so you can see where each one goes: inserts below the shell's bosses, base screws below the base,
+  // retainer screws just behind their posts.
+  const HW = [["hw_insert", "shell", 0.6], ["hw_m3", "base", 0.9], ["hw_m25x25", null, 0.45], ["hw_m25x10", null, 0.6]];
+  const parts = root.children.map((o) => {
+    if (o.name in LIFT) return { o, base: o.position.clone(), off: new THREE.Vector3(0, LIFT[o.name] * size.y, 0) };
+    const hw = HW.find(([pre]) => o.name.startsWith(pre)), ax = o.userData && o.userData.axis;
+    if (!hw || !ax) return null;
+    const off = new THREE.Vector3(...ax).normalize().multiplyScalar((o.userData.travel || 10) * hw[2]);
+    if (hw[1]) off.y += LIFT[hw[1]] * size.y;
+    return { o, base: o.position.clone(), off };
+  }).filter(Boolean);
   let explode = 0, explodeTo = 0;
   const explodeBtn = $("modelExplode");
   explodeBtn.hidden = parts.length < 2;
@@ -191,7 +201,7 @@ async function start() {
       // pull the camera back as the parts separate, so everything stays in frame
       const k = (1 + 0.8 * explode) / (1 + 0.8 * was);
       camera.position.sub(controls.target).multiplyScalar(k).add(controls.target);
-      parts.forEach((p) => p.o.position.copy(p.base).addScaledVector(p.dir, explode * size.y));
+      parts.forEach((p) => p.o.position.copy(p.base).addScaledVector(p.off, explode));
     }
     controls.update(); renderer.render(scene, camera);
   });
@@ -208,35 +218,14 @@ const GROUPS = {
 };
 const STACK = ["screen", "n02", "pi"];
 const ALL = Object.keys(GROUPS);
-// Pi 4 header, pins 1–20, drawn upright (pin 1 top-left, square pad). Each pin we use gets a coloured lead and a label.
-function wiringSVG() {
-  const used = {
-    2: ["Radar VCC", "5V", "#E5484D"], 4: ["Fan +", "5V", "#F2994A"], 6: ["Fan −", "GND", "#9AA0A6"],
-    7: ["Fan speed", "GPIO 4", "#4C8DF6"], 8: ["Radar RX", "GPIO 14 · TX", "#F2C94C"], 10: ["Radar TX", "GPIO 15 · RX", "#3CCB7F"],
-    14: ["Radar GND", "GND", "#9AA0A6"], 16: ["Radar OUT", "GPIO 23", "#B57BFF"],
-  };
-  const y = (n) => 34 + Math.floor((n - 1) / 2) * 32, x = (n) => (n % 2 ? 300 : 340);
-  let pins = "", leads = "";
-  for (let n = 1; n <= 20; n++) {
-    const u = used[n], cx = x(n), cy = y(n), odd = n % 2;
-    const r = 11, fill = u ? u[2] : "none", stroke = u ? u[2] : "var(--muted)";
-    pins += n === 1
-      ? `<rect x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}" rx="3" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`
-      : `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2" opacity="${u ? 1 : 0.6}"/>`;
-    pins += `<text x="${cx}" y="${cy + 3.8}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${u ? "#111" : "var(--muted)"}">${n}</text>`;
-    if (!u) continue;
-    const ex = odd ? 236 : 404, bx = odd ? 16 : 408, w = 216;
-    leads += `<path d="M${cx} ${cy} H${ex}" stroke="${u[2]}" stroke-width="3" stroke-linecap="round"/>`;
-    leads += `<rect x="${bx}" y="${cy - 13}" width="${w}" height="26" rx="13" fill="var(--surface)" stroke="${u[2]}" stroke-width="1.5"/>`;
-    leads += `<circle cx="${bx + 14}" cy="${cy}" r="4.5" fill="${u[2]}"/>`;
-    leads += `<text x="${bx + 26}" y="${cy + 4}" font-size="12.5" font-weight="700" fill="var(--ink)">${u[0]}<tspan font-weight="500" fill="var(--muted)"> · ${u[1]}</tspan></text>`;
-  }
-  return `<svg viewBox="0 0 640 360" role="img" aria-label="Wiring: Pi header pins 2, 8, 10, 14 and 16 to the radar; pins 4, 6 and 7 to the cooler fan" font-family="Inter, system-ui, sans-serif">
-    <rect x="270" y="14" width="100" height="332" rx="10" fill="var(--bg)" stroke="var(--line)"/>
-    <text x="320" y="356" text-anchor="middle" font-size="10.5" fill="var(--muted)">↓ toward the USB ports</text>
-    <text x="320" y="10" text-anchor="middle" font-size="10.5" fill="var(--muted)">pins 1–20 · pin 1 has the square pad</text>
-    ${leads}${pins}</svg>`;
-}
+// Pi 4 GPIO header in model space (mm, Y-up), measured from the model's header pins (their tips):
+// pin 1 on the inner row at the end away from the USB ports; pin 2 beside it on the edge row; columns step along +X.
+const HEADER = { pin1: [-25.745, 23.956, -3.961], pin2: [-25.745, 21.503, -3.303], col: [2.54, 0, 0] };
+const WIRES = {
+  2: ["Radar VCC", "5V", "#E5484D"], 4: ["Fan +", "5V", "#F2994A"], 6: ["Fan −", "GND", "#9AA0A6"],
+  7: ["Fan speed", "GPIO 4", "#4C8DF6"], 8: ["Radar RX", "GPIO 14 TX", "#F2C94C"], 10: ["Radar TX", "GPIO 15 RX", "#3CCB7F"],
+  14: ["Radar GND", "GND", "#9AA0A6"], 16: ["Radar OUT", "GPIO 23", "#B57BFF"],
+};
 
 const STEPS = [
   { title: "Fit the threaded inserts", show: ["shell", "inserts"], hi: ["inserts"], hw: ["inserts"], cam: [35, -48, 1],
@@ -250,7 +239,7 @@ const STEPS = [
     text: "Screw the retainer to the screen with the <b>4 M2.5 × 25</b> screws, through its posts into the screen's corner posts. Don't use longer screws: they can reach the panel." },
   { title: "Stand it on the base", show: [...STACK, "retainer", "m25l", "base", "radar", "m25s"], hi: ["base", "m25s"], hw: ["m25s"], cam: [150, 20, 1],
     text: "Stand the stack on the base with the retainer's bottom bar against the block, and fix it with the <b>2 M2.5 × 10</b> screws." },
-  { title: "Wire it up", svg: wiringSVG,
+  { title: "Wire it up", show: [...STACK], hi: [], pins: true, cam: [180, -15, 1],
     text: "With the power unplugged, push the jumper wires onto the Pi's header. <b>Radar:</b> VCC → 2, GND → 14, RX → 8, TX → 10, OUT → 16 (RX and TX cross over: the radar's RX goes to the Pi's TX). <b>Cooler fan:</b> red → 4, black → 6, blue → 7. Then plug the right-angle USB-C cable into the doorway in the retainer's top bar.",
     warn: "The N02 board's spring pins touch the underside of pins 2, 4 and 6. Wires on top of those pins are fine." },
   { title: "Lower the shell", show: ["shell", "inserts", ...STACK, "retainer", "m25l", "m25s", "base", "radar", "plug"], hi: ["shell"], off: { shell: [0, 44, 4], inserts: [0, 44, 4] }, cam: [35, 20, 1],
@@ -288,6 +277,11 @@ function initGuide(THREE, source, centre) {
     parts.push({ node, group, mat, base: node.position.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
       out: ax ? new THREE.Vector3(...ax).normalize().multiplyScalar(travel) : null });
   });
+  // header pin tips in guide space (the copy is centred, so subtract the same centre)
+  const pinPos = (n) => {
+    const base = new THREE.Vector3(...(n % 2 ? HEADER.pin1 : HEADER.pin2)).sub(centre);
+    return base.addScaledVector(new THREE.Vector3(...HEADER.col), Math.floor((n - 1) / 2));
+  };
   const box = new THREE.Box3(); parts.forEach((p) => box.expandByObject(p.node));
   const radius = box.getSize(new THREE.Vector3()).length() / 2;
   gmsg.hidden = true;
@@ -295,6 +289,14 @@ function initGuide(THREE, source, centre) {
   const camFrom = new THREE.Vector3(), camTo = new THREE.Vector3(), tgt = new THREE.Vector3(), tgtFrom = new THREE.Vector3(), tgtTo = new THREE.Vector3();
   // frame what this step shows: aim at the middle of its visible parts and back off until they fit
   const frame = (s) => {
+    if (s.pins) {   // zoom in on pins 1–20 of the header
+      const hb = new THREE.Box3().setFromPoints([pinPos(1), pinPos(2), pinPos(19), pinPos(20)]).expandByScalar(2.5);
+      const c = hb.getCenter(new THREE.Vector3()), r = hb.getSize(new THREE.Vector3()).length() / 2;
+      c.y -= 4;   // aim a little low so the header sits above the colour key
+      const fit = r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 0.95 * s.cam[2];
+      const a = THREE.MathUtils.degToRad(s.cam[0]), e = THREE.MathUtils.degToRad(s.cam[1]);
+      return [c, c.clone().add(new THREE.Vector3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e)).multiplyScalar(fit))];
+    }
     const b = new THREE.Box3(), keep = [];
     parts.forEach((p) => { if (!s.show.includes(p.group)) return; keep.push([p, p.node.position.clone()]); p.node.position.copy(p.to); b.expandByObject(p.node); });
     keep.forEach(([p, pos]) => p.node.position.copy(pos));
@@ -306,10 +308,24 @@ function initGuide(THREE, source, centre) {
   const resize = () => {
     const w = view.clientWidth, h = view.clientHeight; if (!w || !h) return;
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-    if (parts.length && !STEPS[step].svg) { const [c, pos] = frame(STEPS[step]); if (!anim) { camera.position.copy(pos); tgt.copy(c); } }
+    if (parts.length) { const [c, pos] = frame(STEPS[step]); if (!anim) { camera.position.copy(pos); tgt.copy(c); } }
     draw();
   };
-  const draw = () => { camera.lookAt(tgt); renderer.render(scene, camera); };
+  const pinsSvg = $("guidePins");
+  const draw = () => {
+    camera.lookAt(tgt); renderer.render(scene, camera);
+    // pin markers follow the drawing: project each used pin onto the canvas
+    if (!STEPS[step] || !STEPS[step].pins || anim) { pinsSvg.innerHTML = ""; return; }
+    const w = view.clientWidth, h = view.clientHeight;
+    const pitch = pinPos(1).project(camera).distanceTo(pinPos(3).project(camera)) * w / 2, k = Math.max(6, Math.min(13, pitch * 0.42));
+    pinsSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    pinsSvg.innerHTML = Object.entries(WIRES).map(([n, wv]) => {
+      const v = pinPos(+n).project(camera), x = (v.x + 1) / 2 * w, y = (1 - v.y) / 2 * h;
+      return `<circle cx="${x}" cy="${y}" r="${k}" fill="${wv[2]}" stroke="var(--sunk)" stroke-width="2"/>` +
+        `<text x="${x}" y="${y + k * 0.36}" text-anchor="middle" font-size="${k}" font-family="Inter, sans-serif" font-weight="800" fill="#111">${n}</text>`;
+    }).join("") + (() => { const v = pinPos(1).project(camera), x = (v.x + 1) / 2 * w, y = (1 - v.y) / 2 * h;
+      return `<rect x="${x - k * 0.75}" y="${y - k * 0.75}" width="${k * 1.5}" height="${k * 1.5}" rx="2" fill="none" stroke="var(--ink)" stroke-width="1.5"/><text x="${x}" y="${y - k * 1.2}" text-anchor="middle" font-size="${k * 0.85}" font-family="Inter, sans-serif" font-weight="700" fill="var(--ink)">pin 1</text>`; })();
+  };
 
   let step = 0, t0 = 0, anim = false;
   const dots = $("guideDots");
@@ -321,9 +337,8 @@ function initGuide(THREE, source, centre) {
     $("guideTitle").textContent = s.title;
     $("guideText").innerHTML = s.text + (s.warn ? `<br><span class="warn">${s.warn}</span>` : "");
     [...dots.children].forEach((d, k) => d.setAttribute("aria-selected", k === step ? "true" : "false"));
-    const svgBox = $("guideSvg");
-    if (s.svg) { svgBox.innerHTML = s.svg(); svgBox.hidden = false; canvas.style.visibility = "hidden"; return; }
-    svgBox.hidden = true; canvas.style.visibility = "";
+    $("guideLegend").hidden = !s.pins;
+    if (s.pins) $("guideLegend").innerHTML = Object.entries(WIRES).map(([n, w]) => `<li><i style="background:${w[2]}"></i><b>${n}</b>${w[0]} · ${w[1]}</li>`).join("");
     parts.forEach((p) => {
       p.node.visible = s.show.includes(p.group);
       const hi = s.hi.includes(p.group);
@@ -343,7 +358,7 @@ function initGuide(THREE, source, centre) {
     const kh = Math.min(1, Math.max(0, (now - t0 - 500) / 900)), eh = kh * kh * (3 - 2 * kh);   // hardware goes in after the camera settles
     parts.forEach((p) => p.node.position.lerpVectors(p.from, p.to, p.drive ? eh : e));
     camera.position.lerpVectors(camFrom, camTo, e); tgt.lerpVectors(tgtFrom, tgtTo, e); draw();
-    if (k < 1 || kh < 1) requestAnimationFrame(tick); else anim = false;
+    if (k < 1 || kh < 1) requestAnimationFrame(tick); else { anim = false; draw(); }
   }
 
   $("guidePrev").addEventListener("click", () => go(step - 1));
