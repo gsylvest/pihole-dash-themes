@@ -208,6 +208,36 @@ const GROUPS = {
 };
 const STACK = ["screen", "n02", "pi"];
 const ALL = Object.keys(GROUPS);
+// Pi 4 header, pins 1–20, drawn upright (pin 1 top-left, square pad). Each pin we use gets a coloured lead and a label.
+function wiringSVG() {
+  const used = {
+    2: ["Radar VCC", "5V", "#E5484D"], 4: ["Fan +", "5V", "#F2994A"], 6: ["Fan −", "GND", "#9AA0A6"],
+    7: ["Fan speed", "GPIO 4", "#4C8DF6"], 8: ["Radar RX", "GPIO 14 · TX", "#F2C94C"], 10: ["Radar TX", "GPIO 15 · RX", "#3CCB7F"],
+    14: ["Radar GND", "GND", "#9AA0A6"], 16: ["Radar OUT", "GPIO 23", "#B57BFF"],
+  };
+  const y = (n) => 34 + Math.floor((n - 1) / 2) * 32, x = (n) => (n % 2 ? 300 : 340);
+  let pins = "", leads = "";
+  for (let n = 1; n <= 20; n++) {
+    const u = used[n], cx = x(n), cy = y(n), odd = n % 2;
+    const r = 11, fill = u ? u[2] : "none", stroke = u ? u[2] : "var(--muted)";
+    pins += n === 1
+      ? `<rect x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}" rx="3" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`
+      : `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2" opacity="${u ? 1 : 0.6}"/>`;
+    pins += `<text x="${cx}" y="${cy + 3.8}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${u ? "#111" : "var(--muted)"}">${n}</text>`;
+    if (!u) continue;
+    const ex = odd ? 236 : 404, bx = odd ? 16 : 408, w = 216;
+    leads += `<path d="M${cx} ${cy} H${ex}" stroke="${u[2]}" stroke-width="3" stroke-linecap="round"/>`;
+    leads += `<rect x="${bx}" y="${cy - 13}" width="${w}" height="26" rx="13" fill="var(--surface)" stroke="${u[2]}" stroke-width="1.5"/>`;
+    leads += `<circle cx="${bx + 14}" cy="${cy}" r="4.5" fill="${u[2]}"/>`;
+    leads += `<text x="${bx + 26}" y="${cy + 4}" font-size="12.5" font-weight="700" fill="var(--ink)">${u[0]}<tspan font-weight="500" fill="var(--muted)"> · ${u[1]}</tspan></text>`;
+  }
+  return `<svg viewBox="0 0 640 360" role="img" aria-label="Wiring: Pi header pins 2, 8, 10, 14 and 16 to the radar; pins 4, 6 and 7 to the cooler fan" font-family="Inter, system-ui, sans-serif">
+    <rect x="270" y="14" width="100" height="332" rx="10" fill="var(--bg)" stroke="var(--line)"/>
+    <text x="320" y="356" text-anchor="middle" font-size="10.5" fill="var(--muted)">↓ toward the USB ports</text>
+    <text x="320" y="10" text-anchor="middle" font-size="10.5" fill="var(--muted)">pins 1–20 · pin 1 has the square pad</text>
+    ${leads}${pins}</svg>`;
+}
+
 const STEPS = [
   { title: "Fit the threaded inserts", show: ["shell", "inserts"], hi: ["inserts"], hw: ["inserts"], cam: [35, -48, 1],
     text: "Turn the shell upside down and press the <b>4 M3 heat-set inserts</b> into the bosses with a soldering iron. Each hole has a small bevel to centre the insert." },
@@ -220,8 +250,9 @@ const STEPS = [
     text: "Screw the retainer to the screen with the <b>4 M2.5 × 25</b> screws, through its posts into the screen's corner posts. Don't use longer screws: they can reach the panel." },
   { title: "Stand it on the base", show: [...STACK, "retainer", "m25l", "base", "radar", "m25s"], hi: ["base", "m25s"], hw: ["m25s"], cam: [150, 20, 1],
     text: "Stand the stack on the base with the retainer's bottom bar against the block, and fix it with the <b>2 M2.5 × 10</b> screws." },
-  { title: "Wire it up", show: [...STACK, "retainer", "m25l", "m25s", "base", "radar", "plug"], hi: ["radar", "plug"], cam: [185, 32, 1],
-    text: "Radar to the Pi's header: <b>5 V → pin 2</b>, <b>GND → 14</b>, <b>RX → 8</b>, <b>TX → 10</b>, <b>OUT → 16</b>. Plug the right-angle USB-C cable into the doorway in the retainer's top bar and run it down the back." },
+  { title: "Wire it up", svg: wiringSVG,
+    text: "With the power unplugged, push the jumper wires onto the Pi's header. <b>Radar:</b> VCC → 2, GND → 14, RX → 8, TX → 10, OUT → 16 (RX and TX cross over: the radar's RX goes to the Pi's TX). <b>Cooler fan:</b> red → 4, black → 6, blue → 7. Then plug the right-angle USB-C cable into the doorway in the retainer's top bar.",
+    warn: "The N02 board's spring pins touch the underside of pins 2, 4 and 6. Wires on top of those pins are fine." },
   { title: "Lower the shell", show: ["shell", "inserts", ...STACK, "retainer", "m25l", "m25s", "base", "radar", "plug"], hi: ["shell"], off: { shell: [0, 44, 4], inserts: [0, 44, 4] }, cam: [35, 20, 1],
     text: "Lower the shell over the stack, starting about <b>3 mm forward</b> so the front bosses pass in front of the glass. Once they're below the glass, slide it back and down the rest of the way." },
   { title: "Screw the base on", show: ["shell", "inserts", ...STACK, "retainer", "base", "radar", "plug", "m3"], hi: ["m3"], hw: ["m3"], cam: [30, -42, 1],
@@ -275,7 +306,7 @@ function initGuide(THREE, source, centre) {
   const resize = () => {
     const w = view.clientWidth, h = view.clientHeight; if (!w || !h) return;
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-    if (parts.length) { const [c, pos] = frame(STEPS[step]); if (!anim) { camera.position.copy(pos); tgt.copy(c); } }
+    if (parts.length && !STEPS[step].svg) { const [c, pos] = frame(STEPS[step]); if (!anim) { camera.position.copy(pos); tgt.copy(c); } }
     draw();
   };
   const draw = () => { camera.lookAt(tgt); renderer.render(scene, camera); };
@@ -290,6 +321,9 @@ function initGuide(THREE, source, centre) {
     $("guideTitle").textContent = s.title;
     $("guideText").innerHTML = s.text + (s.warn ? `<br><span class="warn">${s.warn}</span>` : "");
     [...dots.children].forEach((d, k) => d.setAttribute("aria-selected", k === step ? "true" : "false"));
+    const svgBox = $("guideSvg");
+    if (s.svg) { svgBox.innerHTML = s.svg(); svgBox.hidden = false; canvas.style.visibility = "hidden"; return; }
+    svgBox.hidden = true; canvas.style.visibility = "";
     parts.forEach((p) => {
       p.node.visible = s.show.includes(p.group);
       const hi = s.hi.includes(p.group);
