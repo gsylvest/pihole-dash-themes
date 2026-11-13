@@ -106,17 +106,21 @@ Fasteners:
 |---|---|---|
 | 4 | M2.5 x 25 machine screw, pan or cap head | Retainer posts into the screen's corner posts |
 | 2 | M2.5 x 10 machine screw, pan or cap head | Retainer's bottom bar into the base block. They cut their own thread in 2.0 mm printed holes. |
+| 2 | M2.5 x 10 machine screw | The cooler's two thicker corners, through the Pi's mounting holes into the N02's brass standoffs |
+| 2 | M2.5 x 6 machine screw | The cooler's two thin corners, the same way |
 | 4 | M3 x 8 countersunk screw with a hex socket (2 mm key), head about 5.5 mm | Base into the shell, from underneath |
 | 4 | M3 heat-set insert, 5.7 mm long, 4.6 mm outside diameter (ruthex RX-M3x5.7) | The four bosses inside the shell. The holes are 4.0 mm wide and 7.0 mm deep. |
 
+In all the build takes 4 M2.5 x 25, 4 M2.5 x 10 and 2 M2.5 x 6.
+
 Do not use corner screws longer than 25 mm. A 25 mm screw goes 3 mm into a 3.9 mm post, and a longer one can reach the display panel.
 
-The Pi, the N02 and the screen are joined by the standoffs that come with the screen and the N02: one on each of the screen's four inner posts up to the N02, then the N02's brass ones up to the Pi. Four M2.5 screws go down through the cooler and the Pi's mounting holes into the brass standoffs. The case is built round a stack that measures, from the front of the glass: 9.6 mm to the back of the screen's board, 20.4 mm to the N02's Pi-side face, 28.8 mm to the Pi's component side, and 45.1 mm to the tops of the USB ports. Check your stack against these before printing.
+The Pi, the N02 and the screen are joined by the standoffs that come with the screen and the N02: one on each of the screen's four inner posts up to the N02, then the N02's brass ones up to the Pi. Four M2.5 screws go down through the cooler and the Pi's mounting holes into the brass standoffs: the Armor Lite cooler has two thicker corners, which take M2.5 x 10, and two thin ones, which take M2.5 x 6. The case is built round a stack that measures, from the front of the glass: 9.6 mm to the back of the screen's board, 20.4 mm to the N02's Pi-side face, 28.8 mm to the Pi's component side, and 45.1 mm to the tops of the USB ports. Check your stack against these before printing.
 
 ## Assembly
 
 1. Press the four M3 inserts into the shell's bosses from underneath with a soldering iron. Each hole has a small bevel to centre the insert.
-2. Build the stack. Fit the NVMe drive to the N02 with its screw; a 1 mm heat pad on the drive's controller is optional. Screw a standoff onto each of the screen's four inner posts and stand the N02 on them with the drive facing the screen. Screw the N02's brass standoffs on top. Lower the Pi on so that the N02's three spring pins line up with the solder joints of header pins 2, 4 and 6 and press on them. Fit the fan cooler and fix it and the Pi with four M2.5 screws through the Pi's mounting holes into the brass standoffs. Connect the display ribbon. Leave the USB bridge off for now.
+2. Build the stack. Fit the NVMe drive to the N02 with its screw; a 1 mm heat pad on the drive's controller is optional. Screw a standoff onto each of the screen's four inner posts and stand the N02 on them with the drive facing the screen. Screw the N02's brass standoffs on top. Lower the Pi on so that the N02's three spring pins line up with the solder joints of header pins 2, 4 and 6 and press on them. Fit the fan cooler and fix it and the Pi with four M2.5 screws through the Pi's mounting holes into the brass standoffs: M2.5 x 10 at the cooler's two thicker corners, M2.5 x 6 at the other two. Connect the display ribbon. Leave the USB bridge off for now.
 3. Radar (optional): push the five jumper wires onto the radar's pins and stand the board in the holder on the base with its pin row at the top and the pins pointing back. Put a small drop of super glue in the holder's grooves first so the board can't rattle loose. Lead the wires back through the slot in the base block.
 4. Screw the retainer to the screen with the four M2.5 x 25 screws, through its posts into the screen's silver corner posts.
 5. Stand the stack on the base with the retainer's bottom bar against the block, and fix it with the two M2.5 x 10 screws.

@@ -303,7 +303,7 @@ const STEPS = [
   { title: "Standoffs on the screen", show: ["screen", "standA"], hi: ["standA"], hw: ["standA"], cam: [170, 28, 1],
     text: "Lay the screen face down on something soft and screw <b>four M2.5 brass standoffs</b> into the Pi mounting posts on the back of the display.",
     tip: "Finger-tight is plenty. They're brass into small posts, and you'll be pushing a board onto them, not hanging weight off them." },
-  { title: "Fit the NVMe drive", show: ["n02", "nvme", "pad", "nvmeScrew"], hi: ["nvme", "nvmeScrew"], hi2: ["pad"], hw: ["nvmeScrew"], cam: [200, 38, 0.85],
+  { title: "Fit the NVMe drive", show: ["n02", "nvme", "pad", "nvmeScrew"], hi: ["nvme", "nvmeScrew"], hi2: ["pad"], insert: true, cam: [25, 32, 0.85],
     text: "Slide the <b>NVMe drive</b> into the N02's M.2 slot at a slight angle, press it flat and fix it with the little screw at the end. <i>Optional:</i> stick a <b>thermal pad</b> on the drive's controller chip first.",
     tip: "The drive only goes in one way: the notch in its gold fingers lines up with the key in the slot. If it won't seat, flip it rather than push harder." },
   { title: "N02 onto the screen", show: ["screen", "standA", "nvme", "pad", "nvmeScrew", "n02", "standB"], hi: ["n02", "standB"], hw: ["standB"], cam: [160, 22, 1],
@@ -379,13 +379,30 @@ function initGuide(THREE, source, centre) {
     const hullMesh = new THREE.Mesh(o.geometry, hull); node.add(hullMesh);
     scene.add(node);
     const ax = o.userData && o.userData.axis, travel = (o.userData && o.userData.travel) || 12;
-    parts.push({ node, group, mat, hull, line, hullMesh, base: node.position.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
+    parts.push({ node, group, mat, hull, line, hullMesh, base: node.position.clone(), baseQ: node.quaternion.clone(), from: new THREE.Vector3(), to: new THREE.Vector3(),
       out: ax ? new THREE.Vector3(...ax).normalize().multiplyScalar(travel) : null });
   });
   // header pin tips in guide space (the copy is centred, so subtract the same centre)
   const pinPos = (n) => {
     const base = new THREE.Vector3(...(n % 2 ? HEADER.pin1 : HEADER.pin2)).sub(centre);
     return base.addScaledVector(new THREE.Vector3(...HEADER.col), Math.floor((n - 1) / 2));
+  };
+  // NVMe insertion, like the real thing: in at ~20°, pivot down flat on the gold fingers, then the screw.
+  const rig = (() => {
+    const pick = (re) => { let o = null; source.traverse((m) => { if (m.isMesh && re.test(m.name)) o = m; }); return o; };
+    const goldMesh = pick(/^nvme_gold$/), pcbMesh = pick(/^nvme_pcb$/);
+    if (!goldMesh || !pcbMesh) return null;
+    const ctr = (m) => new THREE.Box3().setFromObject(m).getCenter(new THREE.Vector3());
+    const pivot = ctr(goldMesh), along = ctr(pcbMesh).sub(pivot).normalize();      // from the slot out along the drive
+    const lift = new THREE.Vector3(0, 0.259, 0.966);                                  // off the N02, toward the screen
+    const axis = new THREE.Vector3().crossVectors(along, lift).normalize();
+    return { pivot, along, axis, angle: THREE.MathUtils.degToRad(20), back: 7 };
+  })();
+  const insertPose = (p, slide, tilt) => {   // slide: mm still out of the slot; tilt: 0..1 of the start angle
+    const q = new THREE.Quaternion().setFromAxisAngle(rig.axis, rig.angle * tilt);
+    const rel = p.base.clone().sub(rig.pivot).applyQuaternion(q);
+    p.node.position.copy(rig.pivot).add(rel).addScaledVector(rig.along.clone().applyQuaternion(q), slide);
+    p.node.quaternion.copy(q).multiply(p.baseQ);
   };
   const box = new THREE.Box3(); parts.forEach((p) => box.expandByObject(p.node));
   const radius = box.getSize(new THREE.Vector3()).length() / 2;
@@ -454,9 +471,10 @@ function initGuide(THREE, source, centre) {
       p.mat.color.copy(hi2 ? C.hi2 : hi ? C.hi : C.line); p.mat.opacity = hi ? 1 : 0.7;
       p.hull.color.copy(p.mat.color); p.hull.opacity = p.mat.opacity;
       // blue means "look here": draw it on top of everything, so a glue ridge or spring pin shows through what's in front
-      p.mat.depthTest = p.hull.depthTest = !hi2; p.line.renderOrder = p.hullMesh.renderOrder = hi2 ? 10 : 0;
+      p.mat.depthTest = !hi2; p.line.renderOrder = hi2 ? 10 : 0;
       p.from.copy(p.node.position);
       p.to.copy(p.base).add(new THREE.Vector3(...((s.off && s.off[p.group]) || [0, 0, 0])));
+      p.node.quaternion.copy(p.baseQ);
       p.drive = !!(s.hw && s.hw.includes(p.group) && p.out);   // screws and inserts slide in along their axis
       if (p.drive) { p.from.copy(p.to).add(p.out); p.node.position.copy(p.from); }
     });
@@ -472,9 +490,19 @@ function initGuide(THREE, source, centre) {
     const LOOPS = 3, MOVE = 900, HOLD = 700, el = now - t0 - 500, cyc = Math.floor(el / (MOVE + HOLD));
     const kh = el <= 0 ? 0 : cyc >= LOOPS ? 1 : Math.min(1, (el - cyc * (MOVE + HOLD)) / MOVE), eh = kh * kh * (3 - 2 * kh);
     parts.forEach((p) => p.node.position.lerpVectors(p.from, p.to, p.drive ? eh : e));
+    const ins = STEPS[step].insert && rig;
+    if (ins) {   // drive: slide in at an angle, pivot down, then the screw goes in; three times over
+      const CYC = 2800, c = Math.floor(Math.max(0, el) / CYC), u = c >= LOOPS ? 1 : Math.max(0, el) % CYC / CYC;
+      const sm = (a, b) => { const x = Math.min(1, Math.max(0, (u - a) / (b - a))); return x * x * (3 - 2 * x); };
+      const slide = rig.back * (1 - sm(0, 0.28)), tilt = 1 - sm(0.32, 0.55), screw = sm(0.6, 0.85);
+      parts.forEach((p) => {
+        if (p.group === "nvme" || p.group === "pad") insertPose(p, slide, tilt);
+        if (p.group === "nvmeScrew" && p.out) p.node.position.copy(p.base).addScaledVector(p.out, 1 - screw);
+      });
+    }
     scene.rotation.x = rotFrom + (rotTo - rotFrom) * e;
     camera.position.lerpVectors(camFrom, camTo, e); tgt.lerpVectors(tgtFrom, tgtTo, e); draw();
-    const looping = parts.some((p) => p.drive) && el < LOOPS * (MOVE + HOLD);
+    const looping = (parts.some((p) => p.drive) && el < LOOPS * (MOVE + HOLD)) || (STEPS[step].insert && rig && el < LOOPS * 2800);
     if (k < 1 || kh < 1 || looping) requestAnimationFrame(tick); else { anim = false; draw(); }
   }
 
