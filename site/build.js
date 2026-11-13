@@ -106,6 +106,11 @@ async function start() {
     usb_bridge_black: new THREE.MeshStandardMaterial({ color: 0x141416, roughness: 0.5, metalness: 0.1 }),
     pi4_metal: new THREE.MeshStandardMaterial({ color: 0xc4c8ce, roughness: 0.28, metalness: 1 }),
     pi4_gold: new THREE.MeshStandardMaterial({ color: 0xd9a845, roughness: 0.3, metalness: 1 }),
+    n02_gold: new THREE.MeshStandardMaterial({ color: 0xd9a845, roughness: 0.3, metalness: 1 }),
+    nvme_gold: new THREE.MeshStandardMaterial({ color: 0xd9a845, roughness: 0.3, metalness: 1 }),
+    radar_gold: new THREE.MeshStandardMaterial({ color: 0xd9a845, roughness: 0.3, metalness: 1 }),
+    n02_metal: new THREE.MeshStandardMaterial({ color: 0xc4c8ce, roughness: 0.28, metalness: 1 }),
+    usb_bridge_metal: new THREE.MeshStandardMaterial({ color: 0xc4c8ce, roughness: 0.28, metalness: 1 }),
     pi4_pcb: new THREE.MeshStandardMaterial({ color: 0x1f6b3a, roughness: 0.45, metalness: 0 }),
     armor_lite_heatsink: new THREE.MeshStandardMaterial({ color: 0x1a1b1e, roughness: 0.42, metalness: 0.7 }),
     dsi_ribbon: new THREE.MeshStandardMaterial({ color: 0xc87a2a, roughness: 0.55, metalness: 0, side: THREE.DoubleSide }),
@@ -149,7 +154,8 @@ async function start() {
 
   // exploded view: the shell lifts straight off, the base (with the radar in its holder) drops away,
   // and the electronics stack stays put. Parts are matched by their names in the GLB.
-  const LIFT = { shell: 0.95, base: -0.45, radar_board: -0.45, radar_dupont_plug: -0.45 };
+  const LIFT = { shell: 0.95, base: -0.45, radar_board: -0.45, radar_dupont_plug: -0.45,
+    radar_pcb: -0.45, radar_laminate: -0.45, radar_antenna: -0.45, radar_chips: -0.45, radar_gold: -0.45 };   // the radar stands in the base
   const parts = root.children.filter((o) => o.name in LIFT)
     .map((o) => ({ o, base: o.position.clone(), dir: new THREE.Vector3(0, LIFT[o.name], 0) }));
   let explode = 0, explodeTo = 0;
