@@ -99,6 +99,15 @@ async function start() {
     color: 0x0e0e0f, roughness: 0.82, metalness: 0, bumpMap: stipple, bumpScale: 0.22,
   });
   const blackOxide = new THREE.MeshStandardMaterial({ color: 0x17181a, roughness: 0.38, metalness: 0.85 });
+  // Ethernet plug: black boot, with only the connector end (the part that goes into the jack) gold-plated.
+  const ethPlug = new THREE.MeshStandardMaterial({ color: 0x101012, roughness: 0.6, metalness: 0 });
+  ethPlug.onBeforeCompile = (sh) => {
+    sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying float vPlugX;").replace("#include <begin_vertex>", "#include <begin_vertex>\n  vPlugX = position.x;");
+    sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying float vPlugX;")
+      .replace("#include <color_fragment>", "#include <color_fragment>\n  float plugGold = step(vPlugX, 65.0);\n  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.69, 0.39, 0.06), plugGold);")
+      .replace("#include <metalnessmap_fragment>", "#include <metalnessmap_fragment>\n  metalnessFactor = mix(metalnessFactor, 1.0, plugGold);")
+      .replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\n  roughnessFactor = mix(roughnessFactor, 0.35, plugGold);");
+  };
   const MATS = {
     shell: petg, base: petg, retainer: petg,
     screen_glass: new THREE.MeshPhysicalMaterial({ color: 0x050608, roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.03 }),
@@ -115,7 +124,7 @@ async function start() {
     pi4_pcb: new THREE.MeshStandardMaterial({ color: 0x1f6b3a, roughness: 0.45, metalness: 0 }),
     armor_lite_heatsink: new THREE.MeshStandardMaterial({ color: 0x1a1b1e, roughness: 0.42, metalness: 0.7 }),
     eth_cable: new THREE.MeshStandardMaterial({ color: 0x101012, roughness: 0.6, metalness: 0 }),   // black patch lead, gold-plated plug
-    eth_plug: new THREE.MeshStandardMaterial({ color: 0xd9a845, roughness: 0.3, metalness: 1 }),
+    eth_plug: ethPlug,
     dsi_ribbon: new THREE.MeshStandardMaterial({ color: 0xc87a2a, roughness: 0.55, metalness: 0, side: THREE.DoubleSide }),
   };
   root.traverse((o) => {
