@@ -1,0 +1,12 @@
+# /etc/default/pihole-presence: settings for the touchscreen sleep/wake service.
+# After editing: sudo systemctl restart pihole-presence
+
+# 1 = sleep the screen when nobody is around; 0 = screen always on
+PRESENCE_ENABLED=1
+
+# Seconds with no presence (and no touch) before the screen sleeps
+PRESENCE_SLEEP_AFTER_SECONDS=120
+
+# LD2410C OUT pin (BCM numbering) and display output
+PRESENCE_GPIO_PIN=23
+PRESENCE_OUTPUT=DSI-1

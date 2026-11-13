@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Pi-hole dashboard kiosk
+Comment=Full-screen Pi-hole dashboard on the touchscreen
+Exec=/usr/local/bin/pihole-dash-kiosk run
+Terminal=false
+X-GNOME-Autostart-enabled=true

@@ -1,0 +1,52 @@
+/* ============ BONSAI (themes/bonsai.js) ============ */
+.skin-bonsai { --bz-bg: #000; --bz-mint: #9FECC2; --bz-dot: #6EE7A6; --bz-cream: #E9E1CC; --bz-grey: #D9D9D6; --bz-line: rgba(159, 236, 194, .38);
+  --bz-amber: #FFAE4A; --bz-bad: #FF6B5E; --bz-mono: "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  background: var(--bz-bg); color: var(--bz-grey); font-family: var(--bz-mono); overflow: hidden; }
+.bz-plate { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; object-position: left center; display: block;
+  user-select: none; pointer-events: none; transition: opacity .8s ease; }
+.bz-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.skin-bonsai.paused .bz-plate { opacity: .5; }
+.skin-bonsai.stale .bz-plate { opacity: .65; }
+
+/* top bar */
+.bz-top { position: absolute; left: 18px; right: 10px; top: 0; height: 48px; display: flex; align-items: center; gap: 0; }
+.bz-title { font-size: 17px; font-weight: 400; color: var(--bz-grey); white-space: nowrap; letter-spacing: .01em; }
+.bz-bar { width: 1px; height: 20px; background: rgba(217, 217, 214, .55); margin: 0 18px 0 22px; flex: none; }
+.bz-state { display: flex; align-items: center; gap: 10px; font-size: 17px; color: var(--bz-mint); white-space: nowrap; overflow: hidden; min-width: 0; --dot: #5E6B63; }
+.bz-state::before { content: ""; width: 11px; height: 11px; border-radius: 50%; background: var(--dot); flex: none; }
+.bz-state.ok { --dot: var(--bz-dot); }
+.bz-state.warn { --dot: var(--bz-amber); color: var(--bz-amber); }
+.bz-state.bad { --dot: var(--bz-bad); color: var(--bz-bad); }
+.bz-sp { flex: 1; }
+.bz-ctl { height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 0 0 22px; color: var(--bz-grey); font-size: 13px; white-space: nowrap; }
+.bz-ck { letter-spacing: .02em; }
+.bz-box { height: 26px; min-width: 56px; box-sizing: border-box; padding: 0 9px 0 10px; display: flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(217, 217, 214, .7); border-radius: 5px; font-size: 13px; color: #EDEDEA; }
+.bz-caret { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #EDEDEA; flex: none; }
+.bz-ctl:active .bz-box { background: rgba(237, 237, 234, .9); color: #000; }
+.bz-ctl:active .bz-caret { border-top-color: #000; }
+
+/* domain labels beside the fallen leaves */
+.bz-labels { position: absolute; inset: 0; pointer-events: none; }
+.bz-tag { position: absolute; box-sizing: border-box; max-width: 170px; padding: 3px 6px 6px 0; pointer-events: auto; font-size: 12px; line-height: 15px;
+  color: var(--bz-cream); white-space: nowrap; transition: opacity .6s ease; }
+.bz-tag b { display: block; font-weight: 400; overflow: hidden; text-overflow: ellipsis; }
+.bz-tag span { display: block; }
+.bz-tag.hid { opacity: 0; }
+.bz-tag.out { opacity: 0; pointer-events: none; transition-duration: 1.2s; }
+.skin-bonsai.paused .bz-tag:not(.out):not(.hid) { opacity: .5; }
+
+/* stats column over the black side of the plate */
+.bz-col { position: absolute; left: 612px; right: 0; top: 54px; bottom: 0; padding: 14px 12px 22px 20px; display: flex; flex-direction: column; min-width: 0;
+  border-left: 1px solid var(--bz-line); box-sizing: border-box; margin-bottom: 40px; }
+.bz-stat { margin-bottom: 20px; min-width: 0; }
+.bz-v { font-size: 38px; line-height: 44px; color: var(--bz-mint); white-space: nowrap; overflow: hidden; width: 100%; letter-spacing: -.01em; }
+.bz-k { font-size: 15px; line-height: 20px; color: var(--bz-cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .02em; }
+.bz-k.alert { color: var(--bz-bad); }
+.skin-bonsai.stale .bz-v { color: #7FA892; }
+.bz-pause { height: 52px; width: 100%; box-sizing: border-box; border: 1.5px solid var(--bz-mint); border-radius: 9px; color: var(--bz-grey); font-size: 17px;
+  white-space: nowrap; overflow: hidden; font-family: var(--bz-mono); }
+.bz-pause:active { background: var(--bz-mint); color: #000; }
+.bz-pause.resume { border-color: var(--bz-amber); background: var(--bz-amber); color: #1A1206; font-weight: 700; }
+.bz-pause:disabled { opacity: .45; }
+.bz-meta { position: absolute; right: 14px; bottom: -28px; font-size: 13px; color: var(--bz-grey); white-space: nowrap; }

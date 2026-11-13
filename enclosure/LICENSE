@@ -1,0 +1,36 @@
+Pi-hole dashboard enclosure: the 3D models, print files and documentation in
+this folder (enclosure/).
+
+Copyright (c) 2026 Gary Sylvester
+
+This work is licensed under the Creative Commons Attribution 4.0 International
+License (CC BY 4.0).
+
+You are free to:
+
+  Share - copy and redistribute the material in any medium or format, for any
+          purpose, even commercially.
+  Adapt - remix, transform, and build upon the material for any purpose, even
+          commercially.
+
+Under the following terms:
+
+  Attribution - You must give appropriate credit, provide a link to the
+                license, and indicate if changes were made. You may do so in
+                any reasonable manner, but not in any way that suggests the
+                licensor endorses you or your use.
+
+  No additional restrictions - You may not apply legal terms or technological
+                measures that legally restrict others from doing anything the
+                license permits.
+
+Suggested credit: "Pi-hole dashboard enclosure by Gary Sylvester, CC BY 4.0".
+
+The summary above is not the license. The full legal code is at:
+https://creativecommons.org/licenses/by/4.0/legalcode
+
+The material is offered as-is, with no warranties of any kind, to the extent
+possible under that license.
+
+This license covers the contents of this folder only. The rest of the
+repository is licensed separately (see the LICENSE file at its root).

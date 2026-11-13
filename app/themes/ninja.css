@@ -1,0 +1,59 @@
+/* ============ ASCII NINJA (themes/ninja.js) ============ */
+.skin-ninja { --nj-bg: #020403; --nj-mint: #A6F2C8; --nj-dim: #5E8F74; --nj-amber: #F5B54A; --nj-coral: #FF7468;
+  --nj-mono: "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  background: var(--nj-bg); color: var(--nj-mint); font-family: var(--nj-mono); overflow: hidden; }
+.skin-ninja .nj-sp { flex: 1; }
+
+.nj-top { position: absolute; left: 12px; right: 4px; top: 0; height: 46px; display: flex; align-items: center; white-space: nowrap; }
+.nj-brand { font-size: 27px; font-weight: 700; color: var(--nj-mint); letter-spacing: .01em; flex: none; }
+.nj-bar { margin: 0 12px; font-size: 20px; color: var(--nj-mint); flex: none; }
+.nj-sub { font-size: 15px; letter-spacing: .03em; min-width: 0; overflow: hidden; text-overflow: clip; }
+.nj-filter { font-size: 17px; font-weight: 700; color: var(--nj-amber); flex: none; }
+.nj-filter.off, .nj-filter.bad { color: var(--nj-coral); }
+.nj-btn { height: 48px; padding: 0 3px; font-size: 16px; color: var(--nj-mint); font-family: var(--nj-mono); white-space: nowrap; flex: none; }
+.nj-btn:active { background: var(--nj-mint); color: var(--nj-bg); }
+
+.nj-rule { position: absolute; left: 12px; right: 8px; height: 14px; font-size: 15px; line-height: 14px; letter-spacing: -.02em;
+  color: var(--nj-mint); white-space: nowrap; overflow: hidden; pointer-events: none; }
+.nj-rule.t { top: 44px; } .nj-rule.b { top: 432px; }
+
+.nj-scene { position: absolute; left: 6px; top: 62px; width: 604px; height: 366px; overflow: hidden; }
+.nj-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.nj-labels { position: absolute; inset: 0; pointer-events: none; }
+.nj-tag { position: absolute; left: 0; top: 0; height: 22px; line-height: 20px; padding: 0 2px; font-size: 16px; color: var(--nj-mint);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: auto; }
+.nj-tag.cut { color: var(--nj-coral); }
+.skin-ninja.paused .nj-tag { color: var(--nj-amber); }
+
+.nj-vl { position: absolute; left: 618px; top: 58px; width: 2px; height: 368px; background: var(--nj-mint); }
+
+.nj-col { position: absolute; left: 634px; right: 8px; top: 64px; bottom: 54px; display: flex; flex-direction: column; min-width: 0; }
+.nj-stat { min-width: 0; }
+.nj-v { font-size: 36px; line-height: 40px; font-weight: 700; color: var(--nj-mint); white-space: nowrap; overflow: hidden; width: 100%; }
+.nj-v.c { color: var(--nj-coral); }
+.nj-k { font-size: 16px; line-height: 20px; color: var(--nj-mint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nj-k.alert { color: var(--nj-coral); }
+.nj-dash { height: 26px; line-height: 26px; font-size: 15px; color: var(--nj-mint); white-space: nowrap; overflow: hidden; letter-spacing: .02em; }
+.skin-ninja.paused .nj-v.c { color: var(--nj-dim); }
+
+.nj-cd { display: none; align-items: baseline; justify-content: space-between; margin-bottom: 6px; color: var(--nj-amber); white-space: nowrap; }
+.nj-cd span { font-size: 15px; font-weight: 700; letter-spacing: .1em; }
+.nj-cd b { font-size: 26px; line-height: 30px; }
+.skin-ninja.paused .nj-cd { display: flex; }
+.nj-pause { height: 60px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+  border: 2px solid var(--nj-amber); outline: 1px solid var(--nj-amber); outline-offset: -6px;
+  color: var(--nj-amber); font-family: var(--nj-mono); white-space: nowrap; overflow: hidden; }
+.nj-pause i { font-style: normal; font-size: 24px; font-weight: 400; }
+.nj-pause .one { font-size: 19px; font-weight: 700; letter-spacing: .03em; }
+.nj-pause .two { font-size: 15px; line-height: 17px; font-weight: 700; text-align: left; }
+.nj-pause:active { background: var(--nj-amber); color: var(--nj-bg); }
+.nj-pause.resume { background: var(--nj-amber); color: var(--nj-bg); outline-color: var(--nj-bg); }
+.nj-pause:disabled { opacity: .5; }
+
+.nj-bot { position: absolute; left: 12px; right: 10px; top: 446px; height: 34px; display: flex; align-items: center; font-size: 17px; white-space: nowrap; }
+.nj-prompt { flex: none; }
+.nj-last { margin-left: 10px; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--nj-mint); line-height: 34px; }
+.nj-cur { font-style: normal; margin-left: 8px; flex: none; animation: nj-blink 1s steps(1) infinite; }
+.nj-meta { flex: none; margin-left: 16px; }
+.skin-ninja.paused .nj-prompt { color: var(--nj-amber); }
+@keyframes nj-blink { 50% { opacity: 0; } }

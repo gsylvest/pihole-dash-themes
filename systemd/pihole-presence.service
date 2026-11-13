@@ -1,0 +1,35 @@
+[Unit]
+Description=Pi-hole touchscreen presence sleep/wake (LD2410C + touch)
+Documentation=file:///opt/pihole-dash/README.md
+# Needs the desktop session for DPMS; retries until it's there. Never touches pihole-FTL.
+After=graphical.target pihole-dash.service
+
+[Service]
+Type=simple
+# Runs as the desktop user: needs its Wayland session (wlopm), and groups gpio, input, video.
+User=@USER@
+Group=@USER@
+SupplementaryGroups=gpio input video
+Environment=XDG_RUNTIME_DIR=/run/user/@UID@ WAYLAND_DISPLAY=wayland-0
+EnvironmentFile=-/etc/default/pihole-presence
+RuntimeDirectory=pihole-presence
+RuntimeDirectoryMode=0755
+# lgpio writes small notification pipes into its working dir (LG_WD); keep them in the runtime dir.
+WorkingDirectory=/run/pihole-presence
+Environment=LG_WD=/run/pihole-presence
+ExecStart=/usr/bin/python3 -I /opt/pihole-dash/presence/pihole_presence.py
+# If the service stops for any reason the script turns the screen back on (fail open).
+Restart=always
+RestartSec=5
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+MemoryMax=48M
+
+[Install]
+WantedBy=graphical.target

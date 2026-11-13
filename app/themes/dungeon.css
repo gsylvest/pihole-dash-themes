@@ -1,0 +1,63 @@
+/* ============ DUNGEON GATE (themes/dungeon.js) ============ */
+.skin-dungeon { --dg-bg: #0E0E12; --dg-panel: #16161B; --dg-box: #1B1B21; --dg-line: #3A3A46; --dg-text: #ECE4D0; --dg-muted: #BDB5A2;
+  --dg-green: #5CFF8A; --dg-amber: #FFB347; --dg-red: #FF6A5A;
+  background: var(--dg-bg); color: var(--dg-text); font-family: "DejaVu Sans Mono", Menlo, monospace;
+  display: grid; grid-template-columns: minmax(0, 1fr) 200px; grid-template-rows: 56px minmax(0, 1fr); }
+
+.dg-top { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; padding: 0 8px 0 6px; background: var(--dg-panel);
+  border-bottom: 3px solid #2A2A32; box-shadow: 0 1px 0 #44444F; min-width: 0; }
+.dg-title { flex: 1 1 auto; min-width: 0; height: 46px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 6px;
+  background: linear-gradient(#25252D, #1A1A20); border: 2px solid var(--dg-line); border-radius: 4px; box-shadow: inset 0 0 0 2px #121216; }
+.dg-title b { font-family: PiPixel, "DejaVu Sans Mono", monospace; font-weight: 400; font-size: 24px; letter-spacing: 1px; color: var(--dg-text);
+  white-space: nowrap; overflow: hidden; -webkit-font-smoothing: none; text-shadow: 3px 3px 0 #000; }
+.dg-tur { width: 28px; height: 32px; flex: none; shape-rendering: crispEdges; }
+.dg-pill { flex: none; height: 46px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 2px solid #2FA85A; border-radius: 4px;
+  background: #0E2216; color: var(--dg-green); font-weight: 700; font-size: 17px; white-space: nowrap; }
+.dg-pill i { width: 12px; height: 12px; border-radius: 50%; background: currentColor; flex: none; }
+.dg-pill.warn { border-color: #C98426; background: #2A1C0A; color: var(--dg-amber); }
+.dg-pill.warn i { animation: dg-blink 1s steps(1) infinite; }
+.dg-pill.bad { border-color: #B8443A; background: #2A0E0C; color: var(--dg-red); }
+@keyframes dg-blink { 50% { opacity: .2; } }
+.dg-btn { flex: none; height: 48px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border: 2px solid #4A4A56; border-radius: 4px;
+  background: #1C1C22; color: #DCD6C8; font-weight: 700; font-size: 16px; white-space: nowrap; }
+.dg-btn:active { background: #2A2A32; }
+.dg-btn .n { color: var(--dg-green); }
+.dg-ic-list { width: 18px; height: 14px; flex: none; background:
+  linear-gradient(currentColor, currentColor) 0 0 / 3px 3px no-repeat, linear-gradient(currentColor, currentColor) 6px 0 / 12px 3px no-repeat,
+  linear-gradient(currentColor, currentColor) 0 5.5px / 3px 3px no-repeat, linear-gradient(currentColor, currentColor) 6px 5.5px / 12px 3px no-repeat,
+  linear-gradient(currentColor, currentColor) 0 11px / 3px 3px no-repeat, linear-gradient(currentColor, currentColor) 6px 11px / 12px 3px no-repeat; }
+.dg-ic-gear { width: 18px; height: 18px; flex: none; border-radius: 50%; border: 4px dotted currentColor; box-shadow: inset 0 0 0 2px currentColor; }
+
+.dg-scene { position: relative; overflow: hidden; background: #1E2A16; }
+.dg-plate { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; pointer-events: none; }
+.dg-cv { position: absolute; left: 0; top: 0; display: block; pointer-events: none; image-rendering: pixelated; image-rendering: crisp-edges; }
+.dg-calls { position: absolute; inset: 0; pointer-events: none; }
+.dg-call { position: absolute; max-width: 150px; padding: 4px 8px 5px; background: rgba(12,12,16,.9); border: 2px solid #D8D3C4; border-radius: 3px;
+  box-shadow: 2px 2px 0 rgba(0,0,0,.6); color: #F2EEE4; font-size: 11px; font-weight: 700; line-height: 1.2; pointer-events: auto; min-height: 40px;
+  display: flex; flex-direction: column; justify-content: center; }
+.dg-call[hidden] { display: none; }
+.dg-call .d { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dg-call .t { color: #FFB0A0; }
+.dg-call.c0 { border-color: #FF8A7A; }
+.dg-call:active { background: #2A1414; }
+.dg-gate { position: absolute; right: 12px; top: 10px; display: none; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 16px 7px; background: rgba(20,10,6,.9); border: 3px solid var(--dg-amber); border-radius: 4px; box-shadow: 3px 3px 0 #000; pointer-events: none; }
+.dg-gate.on { display: flex; }
+.dg-gate > div { display: flex; align-items: center; gap: 12px; }
+.dg-gate b { font-family: PiPixel, monospace; font-weight: 400; font-size: 24px; color: var(--dg-amber); white-space: nowrap; -webkit-font-smoothing: none; }
+.dg-gate i { font-style: normal; font-weight: 700; font-size: 26px; color: #FFE0A0; }
+.dg-gate span { font-family: PiPixel, monospace; font-size: 16px; color: #FF9A6A; -webkit-font-smoothing: none; }
+
+.dg-side { display: flex; flex-direction: column; gap: 8px; padding: 8px 8px 6px; background: var(--dg-panel); border-left: 3px solid #2A2A32; min-width: 0; }
+.dg-stat { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--dg-box);
+  border: 2px solid var(--dg-line); border-radius: 5px; box-shadow: inset 0 0 0 2px #111114; padding: 0 8px; min-width: 0; }
+.dg-v { font-family: "DejaVu Sans Mono", Menlo, monospace; font-weight: 700; font-size: 38px; line-height: 1.05; letter-spacing: -1px; color: #F6F1E4; white-space: nowrap;
+  overflow: hidden; max-width: 100%; width: 100%; text-align: center; text-shadow: 2px 2px 0 #000; }
+.dg-v.g { color: var(--dg-green); }
+.skin-dungeon.paused .dg-v.g { color: var(--dg-amber); }
+.dg-k { margin-top: 5px; font-size: 15px; color: var(--dg-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.dg-pause { flex: none; height: 64px; margin-top: 4px; border-radius: 6px; border: 3px solid #5A2A06; color: #2A1404; font-size: 20px; font-weight: 700;
+  background: linear-gradient(#FFD27A, #FFAE3A 45%, #E8841C); box-shadow: inset 0 2px 0 #FFE6A8, inset 0 -4px 0 #B85E10, 0 3px 0 #000; white-space: nowrap; }
+.dg-pause:active { transform: translateY(2px); box-shadow: inset 0 2px 0 #FFE6A8, inset 0 -2px 0 #B85E10, 0 1px 0 #000; }
+.dg-pause.resume { border-color: #0E4A22; color: #062A12; background: linear-gradient(#B8FFC8, #5CE88A 45%, #2EB45E); box-shadow: inset 0 2px 0 #DAFFE2, inset 0 -4px 0 #1E8A44, 0 3px 0 #000; }
+.dg-meta { flex: none; height: 28px; display: flex; align-items: center; justify-content: center; border-top: 2px solid #2A2A32; font-size: 13px; color: var(--dg-muted); white-space: pre; overflow: hidden; }

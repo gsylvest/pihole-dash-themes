@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Pi-hole dashboard kiosk: Chromium full-screen on the Pi's display.
+# Installed to /usr/local/bin/pihole-dash-kiosk. Runs as the desktop user (not root).
+#
+#   pihole-dash-kiosk run       start the kiosk loop (used by desktop autostart)
+#   pihole-dash-kiosk restart   reload: quit Chromium; the loop relaunches it
+#   pihole-dash-kiosk off       stop the kiosk and keep it off (also across reboots)
+#   pihole-dash-kiosk on        turn it back on and start it now
+#   pihole-dash-kiosk status    show whether it's on and running
+set -u
+
+URL="http://127.0.0.1:8088/"
+PROFILE="$HOME/.local/share/pihole-dash/chromium"
+FLAG="$HOME/.config/pihole-dash/kiosk-disabled"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+LOCK="$XDG_RUNTIME_DIR/pihole-dash-kiosk.lock"
+PROFILE_PATTERN="user-data-dir=$PROFILE"
+
+chromium_pids() { pgrep -u "$(id -u)" -f -- "$PROFILE_PATTERN"; }
+loop_pids() { pgrep -u "$(id -u)" -f -- "pihole-dash-kiosk run$"; }
+
+# When called from SSH, find the running Wayland session so Chromium opens on the screen.
+use_desktop_session() {
+  if [ -z "${WAYLAND_DISPLAY:-}" ]; then
+    for s in "$XDG_RUNTIME_DIR"/wayland-[0-9]; do [ -S "$s" ] && { export WAYLAND_DISPLAY="${s##*/}"; break; }; done
+  fi
+  [ -n "${WAYLAND_DISPLAY:-}" ] || { echo "No Wayland desktop session found; is the desktop logged in?" >&2; return 1; }
+  export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=$XDG_RUNTIME_DIR/bus}"
+}
+
+run() {
+  [ -e "$FLAG" ] && exit 0
+  exec 9>"$LOCK"; flock -n 9 || exit 0          # only one kiosk loop
+  mkdir -p "$PROFILE"
+  # wait up to 60 s for the backend; the page itself handles Pi-hole being down
+  for _ in $(seq 60); do curl -fsS -o /dev/null --max-time 1 "${URL}healthz" && break; sleep 1; done
+  while [ ! -e "$FLAG" ]; do
+    # mark the last exit as clean so Chromium never shows a "restore pages" bubble
+    sed -i 's/"exited_cleanly":false/"exited_cleanly":true/; s/"exit_type":"[^"]*"/"exit_type":"Normal"/' \
+      "$PROFILE/Default/Preferences" 2>/dev/null || true
+    chromium \
+      --kiosk "$URL" \
+      --user-data-dir="$PROFILE" \
+      --ozone-platform=wayland \
+      --noerrdialogs --disable-infobars --no-first-run --no-default-browser-check \
+      --disable-session-crashed-bubble --disable-features=Translate,TranslateUI,MediaRouter \
+      --password-store=basic --check-for-update-interval=31536000 \
+      --disable-pinch --overscroll-history-navigation=0 \
+      >/dev/null 2>&1
+    sleep 3
+  done
+}
+
+case "${1:-run}" in
+  run) run ;;
+  restart)
+    if chromium_pids >/dev/null; then pkill -u "$(id -u)" -f -- "$PROFILE_PATTERN"; echo "Kiosk restarting."
+    else "$0" on; fi ;;
+  off)
+    mkdir -p "$(dirname "$FLAG")"; touch "$FLAG"
+    pkill -u "$(id -u)" -f -- "$PROFILE_PATTERN" || true
+    echo "Kiosk off (stays off after reboot). Turn on with: pihole-dash-kiosk on" ;;
+  on)
+    rm -f "$FLAG"
+    if loop_pids >/dev/null; then echo "Kiosk already running."; exit 0; fi
+    use_desktop_session || exit 1
+    setsid -f "$0" run >/dev/null 2>&1 < /dev/null
+    echo "Kiosk on." ;;
+  status)
+    [ -e "$FLAG" ] && echo "setting: off" || echo "setting: on"
+    loop_pids >/dev/null && echo "loop: running" || echo "loop: not running"
+    chromium_pids >/dev/null && echo "chromium: running" || echo "chromium: not running" ;;
+  *) echo "usage: pihole-dash-kiosk [run|restart|off|on|status]" >&2; exit 2 ;;
+esac

@@ -1,0 +1,72 @@
+/* ============ NETWORK EXPRESS (subway) ============ */
+.skin-subway { --sx-paper: #F6EFE4; --sx-ink: #111; --sx-black: #0E0E0E; --sx-blue: #1F5FE0; --sx-orange: #F7941D; --sx-red: #E52E2E; --sx-grey: #B9B2A6; --sx-ok: #2EE05A; --sx-warn: #FFC21A;
+  background: var(--sx-paper); color: var(--sx-ink); font-family: Inter, "DejaVu Sans", sans-serif; letter-spacing: -0.01em; }
+.skin-subway .sx-top { position: absolute; left: 0; right: 0; top: 0; height: 64px; background: var(--sx-black); color: #fff; display: flex; align-items: center; gap: 14px; padding: 0 10px 0 16px; }
+.skin-subway .sx-brand { font-size: 33px; font-weight: 800; letter-spacing: -0.025em; white-space: nowrap; }
+.skin-subway .sx-vr { width: 2px; height: 30px; background: #fff; flex: none; }
+.skin-subway .sx-pi { font-size: 21px; font-weight: 600; white-space: nowrap; }
+.skin-subway .sx-state { display: flex; align-items: center; gap: 9px; font-size: 21px; font-weight: 600; white-space: nowrap; overflow: hidden; min-width: 0; --dot: #777; }
+.skin-subway .sx-state::before { content: ""; width: 20px; height: 20px; border-radius: 50%; background: var(--dot); flex: none; }
+.skin-subway .sx-state.ok { --dot: var(--sx-ok); }
+.skin-subway .sx-state.warn { --dot: var(--sx-warn); color: var(--sx-warn); }
+.skin-subway .sx-state.bad { --dot: var(--sx-red); color: #FF7A7A; }
+.skin-subway .sx-sp { flex: 1; }
+.skin-subway .sx-btn { height: 48px; padding: 0 12px; border: 2px solid #fff; font-size: 19px; font-weight: 600; white-space: nowrap; }
+.skin-subway .sx-btn:active { background: #fff; color: var(--sx-black); }
+
+.skin-subway .sx-map { position: absolute; left: 0; top: 64px; width: 584px; height: 416px; overflow: hidden; }
+.skin-subway .sx-svg { position: absolute; inset: 0; display: block; }
+.skin-subway .sx-ln { fill: none; stroke-width: 11; stroke-linejoin: miter; stroke-linecap: butt; }
+.skin-subway .sx-ln.home, .skin-subway .sx-ln.net { stroke: var(--sx-blue); }
+.skin-subway .sx-ln.dev { stroke: var(--sx-orange); }
+.skin-subway .sx-ln.red { stroke: var(--sx-red); transition: stroke .4s; }
+.skin-subway.paused .sx-ln.red { stroke: var(--sx-grey); stroke-dasharray: 14 8; }
+.skin-subway .sx-st { fill: #fff; stroke: var(--sx-ink); stroke-width: 3.5; }
+.skin-subway .sx-st.hub { stroke-width: 4; }
+.skin-subway .sx-st.stop.off { opacity: .35; }
+.skin-subway .sx-ring { fill: none; stroke: var(--sx-red); stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.skin-subway .sx-ring.go { animation: sx-ring 1.4s ease-out; }
+@keyframes sx-ring { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(2.6); } }
+.skin-subway .sx-bul circle { stroke: none; }
+.skin-subway .sx-bul.home circle { fill: var(--sx-blue); }
+.skin-subway .sx-bul.red circle { fill: var(--sx-red); transition: fill .4s; }
+.skin-subway.paused .sx-bul.red circle { fill: var(--sx-grey); }
+.skin-subway .sx-bul text { fill: #fff; font: 800 22px Inter, sans-serif; text-anchor: middle; }
+.skin-subway .sx-train rect { fill: var(--sx-ink); stroke: #fff; stroke-width: 1.5; }
+.skin-subway .sx-train rect.w { fill: #FFE9A8; stroke: none; }
+
+.skin-subway .sx-name { position: absolute; font-size: 25px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; line-height: 1; }
+.skin-subway .sx-name.home { left: 58px; top: 34px; }
+.skin-subway .sx-name.dev { left: 24px; top: 168px; }
+.skin-subway .sx-name.hub { left: 226px; top: 96px; font-size: 27px; }
+.skin-subway .sx-name.net { right: 36px; top: 98px; }
+.skin-subway .sx-name.end { left: 429px; top: 359px; }
+.skin-subway.paused .sx-name.end { color: #8E887D; }
+.skin-subway .sx-stop { position: absolute; line-height: 1.1; white-space: nowrap; overflow: hidden; }
+.skin-subway .sx-stop b { display: block; font-size: 20px; font-weight: 700; letter-spacing: -0.015em; overflow: hidden; text-overflow: ellipsis; }
+.skin-subway .sx-stop span { display: block; font-size: 15px; font-weight: 500; margin-top: 1px; }
+.skin-subway .sx-stop.s0 { left: 276px; top: 180px; max-width: 296px; }
+.skin-subway .sx-stop.s1 { left: 320px; top: 242px; max-width: 254px; }
+.skin-subway .sx-stop.s2 { left: 362px; top: 300px; max-width: 214px; }
+.skin-subway .sx-stop:active { color: var(--sx-red); }
+.skin-subway.paused .sx-stop { color: #8E887D; }
+.skin-subway .sx-meta { position: absolute; left: 16px; bottom: 14px; font-size: 17px; font-weight: 600; white-space: pre; }
+.skin-subway .sx-notice { display: none; }
+.skin-subway.paused .sx-notice { display: block; position: absolute; left: 14px; top: 252px; width: 236px; background: var(--sx-black); color: #fff; padding: 9px 12px 10px; border-left: 10px solid var(--sx-warn); }
+.skin-subway .sx-nh { font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--sx-warn); }
+.skin-subway .sx-nb { font-size: 21px; font-weight: 800; line-height: 1.12; margin-top: 3px; font-variant-numeric: tabular-nums; }
+.skin-subway .sx-ns { font-size: 15px; font-weight: 500; margin-top: 4px; color: #DDD; }
+
+.skin-subway .sx-side { position: absolute; left: 584px; right: 0; top: 64px; bottom: 0; background: var(--sx-black); color: #fff; padding: 12px 16px 0 18px; display: flex; flex-direction: column; }
+.skin-subway .sx-lab { font-size: 23px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 9px; border-bottom: 2px solid #fff; }
+.skin-subway .sx-lab.warn { color: var(--sx-warn); } .skin-subway .sx-lab.alert { color: #FF7A7A; }
+.skin-subway .sx-stat { padding: 8px 0 6px; border-bottom: 2px solid #fff; }
+.skin-subway .sx-vw { overflow: hidden; }
+.skin-subway .sx-v { font-size: 50px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; white-space: nowrap; overflow: hidden; }
+.skin-subway .sx-k { font-size: 19px; font-weight: 600; margin-top: 1px; }
+.skin-subway.paused .sx-stat:nth-child(2) .sx-v { color: #8E887D; }
+.skin-subway .sx-pause { margin: auto 0 14px; height: 58px; border: 2.5px solid #fff; font-size: 24px; font-weight: 700; white-space: nowrap; }
+.skin-subway .sx-pause:active { background: #fff; color: var(--sx-black); }
+.skin-subway .sx-pause.resume { background: var(--sx-warn); border-color: var(--sx-warn); color: var(--sx-black); }
+.skin-subway.paused .sx-pi, .skin-subway.paused .sx-pi + .sx-vr { display: none; }
+.skin-subway.paused .sx-lab { font-size: 21px; padding-top: 2px; padding-bottom: 11px; }

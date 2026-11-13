@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pi-hole Screen Themes</title>
+<meta name="description" content="22 touchscreen dashboard designs for Pi-hole on a Raspberry Pi. Try them live in your browser.">
+<link rel="stylesheet" href="site/site.css">
+<script type="importmap">{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }</script>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <a class="logo" href="#top" aria-label="Screen themes for Pi-hole, top of page"><span class="logo-mark" aria-hidden="true"></span>Screen themes <span class="logo-for">for Pi-hole</span></a>
+    <nav class="bar-nav" aria-label="Page">
+      <a href="#features">Features</a>
+      <a href="#build">Build</a>
+      <a href="#install">Install</a>
+      <a href="#make">Make your own</a>
+      <a class="gh" id="repoLink" href="#" hidden>GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="studio" aria-label="Try the designs">
+    <div class="intro">
+      <h1>A touchscreen dashboard for your Pi-hole</h1>
+      <p><span data-count>22</span> designs, free and open source. Pick one and try it right here: it runs live, on made-up numbers.</p>
+    </div>
+
+    <div class="stage">
+      <div class="viewer">
+        <div class="device-slot" id="slot">
+          <div class="device" id="device" aria-label="Live preview">
+            <div class="screen" id="screen">
+              <iframe id="demo" title="Live dashboard demo" src="app/index.html?demo&amp;theme=monolith"></iframe>
+            </div>
+            <button class="close" id="close" type="button" aria-label="Close expanded preview" hidden>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="viewer-bar">
+            <div class="now">
+              <div class="now-name" id="liveName" aria-live="polite">Monolith</div>
+              <div class="now-desc" id="liveDesc">One giant number</div>
+            </div>
+            <span class="count" id="count">1 / 16</span>
+            <div class="nav">
+              <button class="nav-btn expand" id="expand" type="button" aria-label="Expand preview" title="Expand"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12 3.5h4.5V8M8 16.5H3.5V12M16.5 3.5 11.5 8.5M3.5 16.5l5-5"/></svg><span>Expand</span></button>
+              <button class="nav-btn" id="prev" type="button" aria-label="Previous design"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>
+              <button class="nav-btn" id="next" type="button" aria-label="Next design"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
+            </div>
+          </div>
+          <p class="try"><b>Try:</b> Pause · tap a blocked domain · Allowed · Style. <span class="keys">Arrow keys switch designs.</span> <a id="fullLink" href="app/index.html?demo&amp;theme=monolith" target="_blank" rel="noopener">Open in a new tab ↗</a></p>
+        </div>
+      </div>
+
+      <aside class="picker" aria-label="Designs">
+        <div class="chips" role="group" aria-label="Filter designs" id="chips"></div>
+        <div class="list" id="list" role="listbox" aria-label="Choose a design" tabindex="0"></div>
+      </aside>
+    </div>
+  </section>
+
+  <div class="scrim" id="scrim" hidden></div>
+
+  <section class="band" id="features" aria-labelledby="featTitle">
+    <div class="wrap">
+      <h2 id="featTitle">What it does</h2>
+      <ul class="feats">
+        <li><b>The numbers at a glance</b><span>Blocked in the last 24 h, the blocked share, total queries and the domains just blocked.</span></li>
+        <li><b>Pause with one tap</b><span>Blocking pauses for 5 minutes, with a countdown and Resume.</span></li>
+        <li><b>Let a site through</b><span>Tap a blocked domain to see which list caught it. Allow it for an hour or for good, with press and hold and Undo.</span></li>
+        <li><b>Safe by design</b><span>The Pi-hole password never reaches the browser. The service listens on the Pi only and never changes Pi-hole’s settings.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" id="build" aria-labelledby="buildTitle">
+    <div class="wrap">
+      <div class="build-head">
+        <h2 id="buildTitle">Build the screen</h2>
+        <p class="muted">The hardware this runs on: a Raspberry Pi 4 behind a 4.3" touchscreen in a 3D-printed case. About an afternoon to put together, plus a six-hour print in PETG.</p>
+      </div>
+      <div class="build">
+        <div class="model-card">
+          <div class="model" id="model" role="img" aria-label="3D model of the enclosure. Drag to turn it, scroll or pinch to zoom.">
+            <div class="model-msg" id="modelMsg">Loading the 3D model…</div>
+            <div class="model-tools">
+              <span class="badge" id="modelRev">Shell rev 6 · not yet printed</span>
+              <button class="tool" id="modelExplode" type="button" aria-pressed="false" hidden>Exploded</button>
+              <button class="tool" id="modelReset" type="button" hidden>Reset view</button>
+            </div>
+          </div>
+          <div class="model-foot">
+            <p class="muted small">Drag to turn, scroll or pinch to zoom. The Pi, screen and boards are stand-ins to show the fit.</p>
+            <p class="muted small"><b>Print status:</b> the base and retainer (rev 4) and the rev 5 shell are printed and in use. Rev 6 only raises the bottom edge of the screen window 1 mm to even out the border, and hasn’t been printed yet.</p>
+            <div class="downloads" id="downloads"></div>
+            <p class="muted small">Enclosure files: <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank">CC BY 4.0</a>, print and remix freely with credit. Print settings and assembly steps are in <code>enclosure/README.md</code>.</p>
+          </div>
+        </div>
+
+        <div class="parts">
+          <div class="part-group">
+            <h3>You need</h3>
+            <ul class="part-list">
+              <li><span class="pn">Raspberry Pi 4 Model B</span><span class="pd">2 GB is plenty for Pi-hole and the screen</span><a class="buy" href="https://www.amazon.com/dp/B09TTNPB4J" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">Waveshare 4.3" DSI touchscreen</span><span class="pd">800×480 capacitive, ribbon to the Pi's DSI port, no driver needed</span><a class="buy" href="https://www.amazon.com/dp/B083Q8YLVP" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">GeeekPi Armor Lite cooler</span><span class="pd">Heatsink with a built-in fan; wires to pins 4, 6 and 7. The case is sized for it</span><a class="buy" href="https://www.amazon.com/dp/B091L1XKL6" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">USB-C power supply, 5.1 V 3 A, right-angle plug</span><span class="pd">The socket sits just under the case roof, so a straight plug won’t fit. The official supply works with a 90° USB-C adapter</span><a class="buy" href="https://www.amazon.com/dp/B07Z8P61DQ" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">microSD card, 16 GB or more</span><span class="pd">To install Raspberry Pi OS (and to keep as a spare if you boot from SSD)</span></li>
+            </ul>
+          </div>
+          <div class="part-group">
+            <h3>To assemble the case</h3>
+            <ul class="part-list">
+              <li><span class="pn">4 × M3 heat-set inserts, 5.7 mm</span><span class="pd">Pressed into the shell with a soldering iron (ruthex RX-M3x5.7)</span><a class="buy" href="https://www.amazon.com/dp/B08BCRZZS3" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">4 × M3 × 8 countersunk screws</span><span class="pd">Base into the shell, from underneath (DIN 965)</span></li>
+              <li><span class="pn">4 × M2.5 × 25 and 2 × M2.5 × 10 screws</span><span class="pd">Pan or cap head. Don’t go longer than 25 mm: it can reach the display panel</span></li>
+            </ul>
+          </div>
+          <div class="part-group">
+            <h3>Optional: boot from an SSD</h3>
+            <ul class="part-list">
+              <li><span class="pn">52Pi / GeeekPi N02 NVMe board for Pi 4</span><span class="pd">Mounts under the Pi, powered by pogo pins on the header</span><a class="buy" href="https://www.amazon.com/dp/B0CBJYWKJ1" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+              <li><span class="pn">M.2 2280 NVMe SSD, 256 GB</span><span class="pd">A low-power drive such as the Patriot P300</span><a class="buy" href="https://www.amazon.com/dp/B082BWY2C2" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+            </ul>
+          </div>
+          <div class="part-group">
+            <h3>Optional: screen sleeps when you walk away</h3>
+            <ul class="part-list">
+              <li><span class="pn">HLK-LD2410C radar sensor</span><span class="pd">Sees people even sitting still; this pack includes Dupont wires</span><a class="buy" href="https://www.amazon.com/dp/B0CLRNCBF7" target="_blank" rel="noopener nofollow">Amazon ↗</a></li>
+            </ul>
+            <table class="pins">
+              <caption>Radar wiring (Pi header pins)</caption>
+              <thead><tr><th>LD2410C</th><th>Pi pin</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>VCC</td><td>2</td><td class="muted">5 V</td></tr>
+                <tr><td>GND</td><td>14</td><td class="muted">ground</td></tr>
+                <tr><td>OUT</td><td>16</td><td class="muted">GPIO 23</td></tr>
+                <tr><td>RX / TX</td><td>8 / 10</td><td class="muted">optional, for tuning over serial</td></tr>
+              </tbody>
+            </table>
+            <p class="muted small">Install with <code>sudo PRESENCE=1 ./install.sh</code>. Without a sensor the screen just stays on. Tune the range in Hi-Link’s phone app if it sees too far.</p>
+          </div>
+          <p class="muted small">Plain Amazon links, no affiliate tags. Listings change, so check the model before you buy.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt" id="install" aria-labelledby="installTitle">
+    <div class="wrap two">
+      <div>
+        <h2 id="installTitle">Install on your Pi</h2>
+        <h3>You need</h3>
+        <ul class="plain">
+          <li>A Raspberry Pi running <b>Pi-hole v6</b></li>
+          <li>Raspberry Pi OS with the desktop (Bookworm or later)</li>
+          <li>An <b>800×480</b> touchscreen</li>
+        </ul>
+        <p class="muted">The installer adds a small Python service and a full-screen Chromium window. Python standard library only, nothing loaded from the internet.</p>
+      </div>
+      <ol class="steps">
+        <li><span>Get the code on the Pi</span><code>git clone https://github.com/gsylvest/pihole-dash-themes.git &amp;&amp; cd pihole-dash-themes</code></li>
+        <li><span>Run the installer as your desktop user</span><code>sudo ./install.sh</code></li>
+        <li><span>In Pi-hole’s web admin, create an <b>app password</b></span><em>Settings → Web interface / API (switch to Expert if you don’t see it)</em></li>
+        <li><span>Save it on the Pi and paste it when asked</span><code>read -rs -p "Paste app password: " P; echo; printf '%s' "$P" | sudo tee /etc/pihole-dash/app-password &gt;/dev/null; unset P; sudo chmod 600 /etc/pihole-dash/app-password; sudo systemctl restart pihole-dash</code></li>
+        <li><span>Pick a design on the screen under <b>Style</b></span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" id="make" aria-labelledby="makeTitle">
+    <div class="wrap two">
+      <div>
+        <h2 id="makeTitle">Make your own design</h2>
+        <p class="muted">A design is two files in <code>app/themes/</code>: a JavaScript file that draws it and a CSS file that styles it. Copy <code>hifi</code> to start; it’s about 70 lines. Test it in any browser with <code>?demo&amp;theme=yourid</code>, no Pi needed.</p>
+      </div>
+<pre class="code"><code>window.PiSkins.add("myid", {
+  mount(el)     { /* build it once */ },
+  render(el, m) { /* every second: m.data.blocked,
+                     m.ticker, m.paused … */ },
+  unmount()     { /* stop animations */ },
+}, "My Design", "One-line description", thumb);</code></pre>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>MIT licensed. Fonts: Inter (SIL Open Font License) and an original pixel font.</p>
+    <p>Not affiliated with or endorsed by the Pi-hole project. Pi-hole is a registered trademark of Pi-hole LLC.</p>
+  </div>
+</footer>
+<script src="site/site.js"></script>
+<script type="module" src="site/build.js"></script>
+</body>
+</html>

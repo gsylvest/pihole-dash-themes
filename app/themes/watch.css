@@ -1,0 +1,62 @@
+/* ============ LIVE TERMINAL (watch) ============ */
+.skin-watch { --wt-bg: #131415; --wt-ink: #E4E4E2; --wt-hi: #F6F6F4; --wt-sub: #BDBDBB; --wt-ts: #8E9196; --wt-rule: #7C7C7A;
+  --wt-cyan: #45CFE3; --wt-green: #5BD16B; --wt-amber: #F2B33D; --wt-red: #F2675A; --wt-dim: #7D8084;
+  background: var(--wt-bg); color: var(--wt-ink); font-family: "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  padding: 0 14px; display: grid; grid-template-rows: 54px 2px 42px 2px minmax(0, 1fr) 2px 64px; }
+
+.wt-rule { display: block; height: 2px; background: repeating-linear-gradient(90deg, var(--wt-rule) 0 11px, transparent 11px 17px); }
+
+/* header */
+.wt-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.wt-title { font-size: 26px; font-weight: 700; color: var(--wt-hi); white-space: pre; overflow: hidden; min-width: 0; letter-spacing: .01em; }
+.wt-dollar { color: var(--wt-ink); }
+.wt-sp { flex: 1; }
+.wt-state { display: flex; align-items: center; gap: 9px; font-size: 22px; font-weight: 700; white-space: nowrap; flex: none; margin-right: 10px; color: var(--wt-sub); }
+.wt-state::before { content: ""; width: 13px; height: 13px; border-radius: 50%; background: currentColor; flex: none; }
+.wt-state.ok { color: var(--wt-green); } .wt-state.warn { color: var(--wt-amber); } .wt-state.bad { color: var(--wt-red); }
+.wt-btn { height: 48px; padding: 0 6px; font-size: 21px; color: var(--wt-ink); white-space: nowrap; flex: none; }
+.wt-btn:active { background: #2A2C2E; }
+
+/* summary line */
+.wt-sum { font-size: 21px; line-height: 42px; color: var(--wt-ink); white-space: pre; overflow: hidden; min-width: 0; }
+.wt-sum.alert { color: var(--wt-red); }
+
+/* the log: newest at the bottom, older entries pushed up and clipped at the top */
+.wt-log { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 17px; padding: 4px 0 12px; min-height: 0; }
+.wt-log::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 30px; background: linear-gradient(var(--wt-bg) 0 9px, rgba(19, 20, 21, 0)); z-index: 1; pointer-events: none; }
+.wt-e { flex: none; }
+.wt-e[data-domain]:active { background: #1E2022; }
+.wt-l { display: flex; font-size: 20px; line-height: 25px; white-space: pre; color: var(--wt-sub); }
+.wt-ts { width: 118px; flex: none; color: var(--wt-ts); }
+.wt-tx { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.wt-in { color: var(--wt-cyan); font-weight: 700; }
+.wt-d { color: var(--wt-ink); }
+.wt-e:last-child .wt-d { color: var(--wt-hi); font-weight: 700; }
+.wt-ok { color: var(--wt-green); }
+.wt-am { color: var(--wt-amber); }
+.wt-al { color: var(--wt-dim); }
+.wt-chk.run { color: var(--wt-amber); }
+.wt-e.dim .wt-l { color: var(--wt-dim); }
+.wt-e.pas .wt-l:last-child { color: var(--wt-amber); }
+.wt-e.pz .wt-l { color: var(--wt-amber); }
+.wt-wait .wt-l { color: var(--wt-dim); }
+
+/* block cursor: blinks when idle, solid while typing */
+.wt-cur { display: inline-block; width: 11px; height: 21px; margin-left: 5px; vertical-align: -4px; background: #ECECEA; animation: wt-blink 1.06s steps(1) infinite; }
+.wt-cur.typing { animation: none; }
+@keyframes wt-blink { 0% { opacity: 1; } 50% { opacity: 0; } }
+
+/* footer */
+.wt-foot { display: flex; align-items: center; gap: 12px; min-width: 0; font-size: 20px; }
+.wt-live { white-space: nowrap; flex: 1 1 0; min-width: 0; overflow: hidden; }
+.wt-live.warn { color: var(--wt-amber); } .wt-live.bad { color: var(--wt-red); }
+.wt-meta { white-space: pre; flex: 1 1 0; min-width: 0; overflow: hidden; text-align: center; }
+.wt-pause { flex: 0 0 auto; margin-left: auto; min-width: 158px; height: 50px; padding: 0 12px; border: 2px solid #DADAD8; font-size: 21px; white-space: pre; color: var(--wt-hi); }
+.wt-pause:active { background: #2A2C2E; }
+.wt-pause.resume { border-color: var(--wt-amber); color: var(--wt-amber); }
+.wt-foot > span:first-child { flex: 0 1 auto; }
+.wt-foot .wt-meta { flex: 1 1 auto; }
+
+/* paused: the whole shell turns amber-edged */
+.skin-watch.paused .wt-dollar { color: var(--wt-amber); }
+.skin-watch.paused .wt-rule { background: repeating-linear-gradient(90deg, #8A6A2A 0 11px, transparent 11px 17px); }

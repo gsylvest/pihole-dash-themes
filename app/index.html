@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pi-hole</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="skins.css">
+<link rel="stylesheet" href="themes/hifi.css">
+<link rel="stylesheet" href="themes/mission.css">
+<link rel="stylesheet" href="themes/sonar.css">
+<link rel="stylesheet" href="themes/signalbox.css">
+<link rel="stylesheet" href="themes/subway.css">
+<link rel="stylesheet" href="themes/dungeon.css">
+<link rel="stylesheet" href="themes/freighter.css">
+<link rel="stylesheet" href="themes/departures.css">
+<link rel="stylesheet" href="themes/echo.css">
+<link rel="stylesheet" href="themes/pachinko.css">
+<link rel="stylesheet" href="themes/ninja.css">
+<link rel="stylesheet" href="themes/watch.css">
+<link rel="stylesheet" href="themes/filterops.css">
+<link rel="stylesheet" href="themes/whack.css">
+<link rel="stylesheet" href="themes/bonsai.css">
+<link rel="stylesheet" href="themes/pinball.css">
+<script src="theme.js"></script>
+</head>
+<body class="is-loading">
+<div class="stage">
+  <header>
+    <div class="brand">Pi-hole <span class="pill" id="pill">Connecting…</span></div>
+    <div class="right">
+      <div class="vitals"><span>CPU <b class="num" id="temp">–</b></span><span>Up <b class="num" id="uptime">–</b></span></div>
+      <button class="allowed-btn" id="openAllowed" type="button" hidden>Allowed <b class="num" id="allowedCount">0</b></button>
+      <button class="style-btn" id="openStyle" type="button" aria-label="Style"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg></button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="label" id="heroLabel">Blocked · last 24 h</div>
+      <div class="big num" id="blocked">–</div>
+    </div>
+    <div>
+      <div class="rate" id="rateRow"><span class="pct num" id="pct">–</span><span>of <span class="num" id="total">–</span> queries</span></div>
+      <div class="bar"><i id="barFill"></i></div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="ticker">
+      <div class="label">Just blocked</div>
+      <ol id="list"></ol>
+    </div>
+    <button class="pause" id="pauseBtn" type="button"></button>
+  </aside>
+
+  <aside class="status">
+    <dl>
+      <dt>CPU</dt><dd class="num" id="temp2">–</dd>
+      <dt>Uptime</dt><dd class="num" id="uptime2">–</dd>
+      <dt>Blocklist</dt><dd class="num" id="gravity">–</dd>
+    </dl>
+    <button class="pause" id="pauseBtn2" type="button"></button>
+  </aside>
+
+  <!-- recently allowed page -->
+  <section class="page" id="page" aria-label="Recently allowed">
+    <header>
+      <button class="back" id="back" type="button"><span class="chev">‹</span> Dashboard</button>
+      <div class="label">Recently allowed</div>
+    </header>
+    <ol class="rows" id="rows"></ol>
+    <div class="page-foot">Only entries added from this screen are listed. Others are in the web admin under Domains.</div>
+  </section>
+
+  <!-- alternative designs draw here (skins.js); Monolith is the markup above -->
+  <div id="alt" hidden></div>
+
+  <!-- style picker -->
+  <section class="page" id="stylePage" aria-label="Style">
+    <header>
+      <button class="back" id="styleBack" type="button"><span class="chev">‹</span> Dashboard</button>
+      <div class="label">Style</div>
+    </header>
+    <div class="styles" id="styles"></div>
+  </section>
+
+  <div class="scrim" id="scrim"></div>
+  <aside class="sheet" id="sheet" aria-label="Blocked domain">
+    <div class="sheet-top">
+      <div class="eyebrow" id="sheetChip"></div>
+      <button class="icon-btn" id="sheetClose" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="dom" id="sheetDom"></div>
+    <div class="stats" id="sheetStats"></div>
+    <div class="why" id="sheetWhy"></div>
+    <div class="actions" id="sheetActions"></div>
+  </aside>
+
+  <div class="toast" id="toast"><div class="msg" id="toastMsg"></div><button id="toastBtn" type="button">Undo</button><i class="timer"></i></div>
+
+  <div class="wake-shield" id="wakeShield" hidden></div>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="overlay-card">
+      <div class="overlay-title" id="overlayTitle"></div>
+      <div class="overlay-body" id="overlayBody"></div>
+    </div>
+  </div>
+</div>
+<script src="demo.js"></script>
+<script src="skins.js"></script>
+<script src="themes/hifi.js"></script>
+<script src="themes/mission.js"></script>
+<script src="themes/sonar.js"></script>
+<script src="themes/signalbox.js"></script>
+<script src="themes/subway.js"></script>
+<script src="themes/dungeon.js"></script>
+<script src="themes/freighter.js"></script>
+<script src="themes/departures.js"></script>
+<script src="themes/echo.js"></script>
+<script src="themes/pachinko.js"></script>
+<script src="themes/ninja.js"></script>
+<script src="themes/watch.js"></script>
+<script src="themes/filterops.js"></script>
+<script src="themes/whack.js"></script>
+<script src="themes/bonsai.js"></script>
+<script src="themes/pinball.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

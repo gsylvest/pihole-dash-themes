@@ -1,0 +1,37 @@
+[
+  {
+    "name": "All parts, one plate",
+    "file": "enclosure/print/plate-all-parts.3mf",
+    "note": "Bambu 3MF \u00b7 6 h 21 min \u00b7 171 g"
+  },
+  {
+    "name": "Shell",
+    "file": "enclosure/print/shell.3mf",
+    "note": "3MF \u00b7 face down, tree supports"
+  },
+  {
+    "name": "Base",
+    "file": "enclosure/print/base.3mf",
+    "note": "3MF \u00b7 flat, 4 walls"
+  },
+  {
+    "name": "Retainer",
+    "file": "enclosure/print/retainer.3mf",
+    "note": "3MF \u00b7 flat"
+  },
+  {
+    "name": "Shell STL",
+    "file": "enclosure/print/shell.stl",
+    "note": "any slicer"
+  },
+  {
+    "name": "Base STL",
+    "file": "enclosure/print/base.stl",
+    "note": "any slicer"
+  },
+  {
+    "name": "Retainer STL",
+    "file": "enclosure/print/retainer.stl",
+    "note": "any slicer"
+  }
+]
