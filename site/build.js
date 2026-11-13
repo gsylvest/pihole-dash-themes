@@ -114,6 +114,8 @@ async function start() {
     usb_bridge_metal: new THREE.MeshStandardMaterial({ color: 0xc4c8ce, roughness: 0.28, metalness: 1 }),
     pi4_pcb: new THREE.MeshStandardMaterial({ color: 0x1f6b3a, roughness: 0.45, metalness: 0 }),
     armor_lite_heatsink: new THREE.MeshStandardMaterial({ color: 0x1a1b1e, roughness: 0.42, metalness: 0.7 }),
+    eth_cable: new THREE.MeshStandardMaterial({ color: 0x101012, roughness: 0.6, metalness: 0 }),   // black patch lead, gold-plated plug
+    eth_plug: new THREE.MeshStandardMaterial({ color: 0xd9a845, roughness: 0.3, metalness: 1 }),
     dsi_ribbon: new THREE.MeshStandardMaterial({ color: 0xc87a2a, roughness: 0.55, metalness: 0, side: THREE.DoubleSide }),
   };
   root.traverse((o) => {
