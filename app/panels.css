@@ -1,0 +1,399 @@
+/* Shared panels in every design's own style.
+   The domain sheet, undo toast, Allowed page, Style page and setup card are one piece of markup (index.html) styled
+   in app.css through CSS variables. Each block below sets those variables for one design, then adds the few
+   touches variables can't express. Monolith's colours are the defaults in app.css.
+   Every block is keyed on [data-theme], so the Style page's preview tiles pick up their own design's colours too. */
+
+/* press-and-hold feedback: a translucent wash in the button's own colour, so the label never needs blend tricks */
+[data-theme]:not([data-theme="monolith"]) {
+  --hold-blend: normal; --hold-lbl: currentColor; --hold-fill: color-mix(in srgb, currentColor 26%, transparent);
+  --danger-fill: color-mix(in srgb, var(--bad) 30%, transparent);
+  --btn-fill: color-mix(in srgb, var(--btn-ink, var(--bg)) 26%, transparent);
+}
+html:not([data-theme="monolith"]) .ring .t { stroke: color-mix(in srgb, var(--text) 22%, transparent); }
+html:not([data-theme="monolith"]) .why { border-left-color: color-mix(in srgb, var(--text) 30%, transparent); }
+html:not([data-theme="monolith"]) .why.special { border-left-color: var(--warn); }
+
+/* ---------- Monolith: the orange button from its home screen ---------- */
+:root, [data-theme="monolith"] { --r-btn: 10px; --r-sm: 8px; --btn-bg: #FF6A3D; --btn-ink: #0E0D0C; --btn-fill: rgba(14, 13, 12, .26); }
+
+/* ---------- Swiss: paper, black rules, one red ---------- */
+[data-theme="swiss"] {
+  --bg: #F2F0EA; --line: #111111; --text: #111111; --muted: #55534E; --faint: #8A8880;
+  --accent: #E2231A; --ok: #1A7F37; --warn: #B86E00; --bad: #E2231A; --panel: #F2F0EA; --press: #E4E1D8;
+  --font-ui: Inter, system-ui, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 0px; --r-sm: 0px; --r-chip: 0px; --r-pill: 0px; --r-card: 0px; --bw: 2px;
+  --sheet-bd: 2px solid #111; --head-bd: 2px solid #111; --title-w: 700; --title-ls: -0.02em; --btn-w: 700;
+  --btn-bg: #E2231A; --btn-ink: #FFFFFF; --toast-bg: #111111; --toast-ink: #F2F0EA; --scrim: rgba(242, 240, 234, .7);
+}
+html[data-theme="swiss"] .chip { background: #E2231A; color: #fff; font-weight: 700; }
+html[data-theme="swiss"] .chip.allowed { background: #111; color: #F2F0EA; }
+html[data-theme="swiss"] .stats { gap: 0; border-top: 2px solid #111; border-bottom: 2px solid #111; }
+html[data-theme="swiss"] .stats > div { padding: 10px 0; }
+html[data-theme="swiss"] .stats > div + div { border-left: 2px solid #111; padding-left: 16px; }
+html[data-theme="swiss"] .stats .v { font-weight: 700; letter-spacing: -0.02em; }
+html[data-theme="swiss"] .rows li { border-bottom-width: 2px; }
+
+/* ---------- Bauhaus: paper, primaries, heavy caps ---------- */
+[data-theme="bauhaus"] {
+  --bg: #EEE6D3; --line: #141414; --text: #141414; --muted: #5A5246; --faint: #9A9080;
+  --accent: #D52B1E; --ok: #1D4F9B; --warn: #B98C00; --bad: #D52B1E; --panel: #EEE6D3; --press: #E2D8C2;
+  --font-ui: Inter, system-ui, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 0px; --r-sm: 0px; --r-chip: 0px; --r-pill: 0px; --r-card: 0px; --bw: 3px;
+  --sheet-bd: 10px solid #1D4F9B; --head-bd: 3px solid #141414; --title-w: 800; --title-ls: -0.02em;
+  --btn-w: 800; --btn-tt: uppercase; --btn-ls: .04em; --lbl-tt: uppercase; --lbl-ls: .08em;
+  --btn-bg: #F4C21B; --btn-ink: #141414; --toast-bg: #141414; --toast-ink: #EEE6D3; --scrim: rgba(20, 20, 20, .45);
+}
+html[data-theme="bauhaus"] .chip { background: #D52B1E; color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; font-size: 16px; }
+html[data-theme="bauhaus"] .chip.allowed { background: #1D4F9B; color: #fff; }
+html[data-theme="bauhaus"] .stats .v { font-weight: 800; }
+html[data-theme="bauhaus"] .eyebrow, html[data-theme="bauhaus"] .stats .k, html[data-theme="bauhaus"] .page header .label { font-weight: 800; font-size: 16px; }
+html[data-theme="bauhaus"] .always { border-radius: 0; background: #1D4F9B; color: #fff; }
+html[data-theme="bauhaus"] .toast .timer { background: #F4C21B; }
+
+/* ---------- 8-bit: pixel type, cyan frames, yellow button ---------- */
+[data-theme="arcade"] {
+  --bg: #0A0A1F; --line: #27C4E8; --text: #F2F2F2; --muted: #9AA0D0; --faint: #555A8A;
+  --accent: #F8C630; --ok: #4BE36B; --warn: #F8C630; --bad: #E8574F; --panel: #0A0A1F; --press: #14143A;
+  --font-ui: PiPixel, "DejaVu Sans Mono", Menlo, monospace; --font-num: PiPixel, "DejaVu Sans Mono", Menlo, monospace;
+  --r-btn: 4px; --r-sm: 4px; --r-chip: 0px; --r-pill: 4px; --r-card: 4px; --bw: 3px;
+  --sheet-bd: 3px solid #27C4E8; --sheet-shadow: inset 6px 0 0 #0A0A1F, inset 9px 0 0 #27C4E8; --head-bd: 3px solid #27C4E8;
+  --title-w: 400; --title-ls: 0; --title-tt: uppercase; --btn-w: 400; --btn-tt: uppercase; --lbl-tt: uppercase;
+  --btn-bg: #F8C630; --btn-ink: #0A0A1F; --btn2-bd: #F2F2F2; --toast-bg: #0A0A1F; --toast-ink: #F2F2F2; --toast-bd: 3px solid #F8C630;
+}
+html[data-theme="arcade"] .sheet, html[data-theme="arcade"] .page, html[data-theme="arcade"] .toast, html[data-theme="arcade"] .overlay { -webkit-font-smoothing: none; text-transform: uppercase; }
+html[data-theme="arcade"] .sheet { padding-left: 34px; }
+html[data-theme="arcade"] .dom { font-size: 24px; line-height: 1.3; }
+html[data-theme="arcade"] .dom .sub { color: #27C4E8; }
+html[data-theme="arcade"] .stats .v { color: #F8C630; font-weight: 400; }
+html[data-theme="arcade"] .why { font: 17px/1.4 "DejaVu Sans Mono", Menlo, monospace; text-transform: none; -webkit-font-smoothing: antialiased; }
+html[data-theme="arcade"] .chip { background: #E8574F; color: #0A0A1F; font-weight: 400; }
+html[data-theme="arcade"] .chip.allowed { background: #4BE36B; color: #0A0A1F; }
+html[data-theme="arcade"] .hold { font-size: 22px; }
+html[data-theme="arcade"] .hold .meta { display: none; }
+html[data-theme="arcade"] .rows .s, html[data-theme="arcade"] .page-foot { font: 16px/1.3 "DejaVu Sans Mono", Menlo, monospace; text-transform: none; -webkit-font-smoothing: antialiased; }
+html[data-theme="arcade"] .toast .msg { font-size: 18px; }
+
+/* ---------- Flow: deep teal glass, soft corners ---------- */
+[data-theme="flow"] {
+  --bg: #0C1620; --line: #22303F; --text: #F2F5F8; --muted: #9FB0C0; --faint: #5C6B7A;
+  --accent: #FF8A3D; --ok: #5EE6CF; --warn: #F2B544; --bad: #FF6B5E; --panel: #101C28; --press: #172634;
+  --font-ui: Inter, system-ui, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 12px; --r-sm: 10px; --r-chip: 999px; --r-pill: 999px; --r-card: 14px; --bw: 1.5px;
+  --sheet-bg: linear-gradient(180deg, #132231 0%, #0D1822 100%); --sheet-bd: 1px solid #2A3B4C; --sheet-shadow: -24px 0 60px rgba(0, 0, 0, .5);
+  --btn-bg: #5EE6CF; --btn-ink: #06231F; --btn2-bd: #5EE6CF; --btn2-ink: #5EE6CF;
+  --toast-bg: #1B2B3A; --toast-ink: #F2F5F8; --toast-bd: 1px solid #2F4356;
+}
+html[data-theme="flow"] .page { background: linear-gradient(180deg, #0F1C29 0%, #0A131C 100%); }
+html[data-theme="flow"] .stats > div { padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, .04); border: 1px solid #22303F; }
+html[data-theme="flow"] .stats { gap: 12px; }
+html[data-theme="flow"] .toast .timer { background: #5EE6CF; }
+
+/* ---------- Terminal: green phosphor, dashed boxes, bracket buttons ---------- */
+[data-theme="terminal"] {
+  --bg: #080F0A; --line: #2E7A47; --text: #84F0A0; --muted: #8AA894; --faint: #4E7A5C;
+  --accent: #F5B85A; --ok: #84F0A0; --warn: #F5B85A; --bad: #FF6B5E; --panel: #080F0A; --press: #0F1F12;
+  --font-ui: "DejaVu Sans Mono", Menlo, ui-monospace, monospace; --font-num: "DejaVu Sans Mono", Menlo, ui-monospace, monospace;
+  --r-btn: 0px; --r-sm: 0px; --r-chip: 0px; --r-pill: 0px; --r-card: 0px; --bw: 2px;
+  --sheet-bg: radial-gradient(ellipse at 50% 45%, #0D1A11 0%, #080F0A 75%); --sheet-bd: 2px dashed #5FC27D; --head-bd: 2px dashed #5FC27D;
+  --title-w: 700; --title-ls: 0; --btn-w: 700; --btn-tt: uppercase;
+  --btn-bg: transparent; --btn-ink: #F5B85A; --btn-bd: #F5B85A; --btn2-bd: #5FC27D;
+  --toast-bg: #0D1A11; --toast-ink: #84F0A0; --toast-bd: 2px dashed #5FC27D;
+}
+html[data-theme="terminal"] .sheet, html[data-theme="terminal"] .page, html[data-theme="terminal"] .toast { text-shadow: 0 0 6px rgba(132, 240, 160, .3); }
+html[data-theme="terminal"] .rows li { border-bottom-style: dashed; }
+html[data-theme="terminal"] .dom::before { content: "> "; color: #8AA894; }
+
+/* bracket buttons and tags for the four console designs */
+html:is([data-theme="terminal"], [data-theme="ninja"], [data-theme="watch"], [data-theme="filterops"]) :is(.hold .lbl, .toast button, .error button)::before { content: "[ "; }
+html:is([data-theme="terminal"], [data-theme="ninja"], [data-theme="watch"], [data-theme="filterops"]) :is(.hold .lbl, .toast button, .error button)::after { content: " ]"; }
+html:is([data-theme="terminal"], [data-theme="ninja"], [data-theme="watch"], [data-theme="filterops"]) .chip { background: none; padding: 0; font-weight: 700; text-transform: uppercase; }
+html:is([data-theme="terminal"], [data-theme="ninja"], [data-theme="watch"], [data-theme="filterops"]) .chip::before { content: "["; }
+html:is([data-theme="terminal"], [data-theme="ninja"], [data-theme="watch"], [data-theme="filterops"]) .chip::after { content: "]"; }
+html:is([data-theme="terminal"], [data-theme="ninja"], [data-theme="watch"], [data-theme="filterops"]) .hold .meta { display: none; }
+html:is([data-theme="terminal"], [data-theme="ninja"], [data-theme="watch"], [data-theme="filterops"]) .hold { font-size: 22px; }
+html:is([data-theme="terminal"], [data-theme="ninja"], [data-theme="watch"], [data-theme="filterops"]) .always { border-radius: 0; background: none; border: 2px solid var(--ok); }
+html:is([data-theme="terminal"], [data-theme="ninja"], [data-theme="watch"], [data-theme="filterops"]) .back .chev { font-size: 22px; }
+
+/* ---------- Hi-Fi (called Braun on the Pi): warm grey, thin numerals, one orange ---------- */
+[data-theme="hifi"], [data-theme="braun"] {
+  --bg: #DEDAD2; --line: #ABA69B; --text: #1C1C1A; --muted: #6F6B63; --faint: #9A958B;
+  --accent: #EE6A2C; --ok: #4E9438; --warn: #B8740F; --bad: #C8452F; --panel: #E6E2DA; --press: #D2CEC5;
+  --font-ui: Inter, system-ui, sans-serif; --font-num: Inter, system-ui, sans-serif;
+  --r-btn: 8px; --r-sm: 6px; --r-chip: 4px; --r-pill: 8px; --r-card: 8px; --bw: 1.5px;
+  --sheet-bd: 1px solid #ABA69B; --sheet-shadow: -18px 0 40px rgba(28, 28, 26, .12); --title-w: 400; --title-ls: -0.01em; --btn-w: 500;
+  --btn-bg: #EE6A2C; --btn-ink: #1C1C1A; --btn2-bd: #6F6B63; --toast-bg: #1C1C1A; --toast-ink: #DEDAD2; --scrim: rgba(28, 28, 26, .28);
+}
+html:is([data-theme="hifi"], [data-theme="braun"]) .stats .v { font-weight: 300; font-size: 38px; letter-spacing: -0.02em; }
+html:is([data-theme="hifi"], [data-theme="braun"]) .stats { border-top: 1px solid #ABA69B; padding-top: 12px; }
+html:is([data-theme="hifi"], [data-theme="braun"]) .rows .d { font-weight: 400; }
+
+/* ---------- Mission: charcoal, ivory rules, condensed caps ---------- */
+[data-theme="mission"] {
+  --bg: #1B1B1A; --line: #CFC9BC; --text: #EFEADF; --muted: #A8A297; --faint: #6A665F;
+  --accent: #F0662A; --ok: #4ED36A; --warn: #F0B53A; --bad: #E5675A; --panel: #1B1B1A; --press: #2A2928;
+  --font-ui: "Inter Tight", Inter, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 0px; --r-sm: 0px; --r-chip: 0px; --r-pill: 0px; --r-card: 0px; --bw: 1.5px;
+  --sheet-bd: 1.5px solid #CFC9BC; --head-bd: 1.5px solid #CFC9BC; --title-w: 800; --title-ls: 0;
+  --btn-w: 800; --btn-tt: uppercase; --btn-ls: .03em; --lbl-tt: uppercase; --lbl-ls: .06em;
+  --btn-bg: #F0662A; --btn-ink: #EFEADF; --btn2-bd: #CFC9BC; --toast-bg: #EFEADF; --toast-ink: #1B1B1A;
+}
+html[data-theme="mission"] .chip { background: none; color: #F0662A; padding: 0; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+html[data-theme="mission"] .chip.allowed { color: #4ED36A; }
+html[data-theme="mission"] .chip::before { content: ""; display: inline-block; width: 14px; height: 14px; margin-right: 8px; background: currentColor; vertical-align: -1px; }
+html[data-theme="mission"] .stats { gap: 10px; }
+html[data-theme="mission"] .stats > div { border: 1.5px solid #CFC9BC; padding: 10px 12px; }
+html[data-theme="mission"] .stats .v { font-weight: 800; font-size: 34px; }
+html[data-theme="mission"] .eyebrow, html[data-theme="mission"] .stats .k, html[data-theme="mission"] .page header .label { font-weight: 700; font-size: 17px; }
+html[data-theme="mission"] .always { border-radius: 0; }
+
+/* ---------- Sonar: deep navy, mint mono, hairlines ---------- */
+[data-theme="sonar"] {
+  --bg: #040D15; --line: #1C4A44; --text: #CFF8E6; --muted: #8FCBB4; --faint: #4F7F70;
+  --accent: #FFA82E; --ok: #6EF5C0; --warn: #FFA82E; --bad: #FF6B5E; --panel: #061520; --press: #0B2230;
+  --font-ui: "DejaVu Sans Mono", Menlo, Consolas, monospace; --font-num: "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  --r-btn: 4px; --r-sm: 4px; --r-chip: 3px; --r-pill: 4px; --r-card: 4px; --bw: 1px;
+  --sheet-bg: radial-gradient(ellipse at 0% 50%, #0A2230 0%, #040D15 70%); --sheet-bd: 1px solid #2E6F64;
+  --title-w: 400; --title-ls: 0; --btn-w: 400;
+  --btn-bg: rgba(110, 245, 192, .1); --btn-ink: #6EF5C0; --btn-bd: #6EF5C0; --btn2-bd: #3E7F70;
+  --toast-bg: #071B26; --toast-ink: #CFF8E6; --toast-bd: 1px solid #6EF5C0;
+}
+html[data-theme="sonar"] .stats .v { font-weight: 400; color: #6EF5C0; }
+html[data-theme="sonar"] .dom .sub { color: #8FCBB4; }
+html[data-theme="sonar"] .hold { font-size: 22px; }
+
+/* ---------- Signal Box: cream paper, ink lines, mono ---------- */
+[data-theme="signalbox"] {
+  --bg: #F4EEDC; --line: #1E1C19; --text: #1E1C19; --muted: #4A463F; --faint: #8A8474;
+  --accent: #E0362C; --ok: #1F8A38; --warn: #B5790A; --bad: #E0362C; --panel: #F4EEDC; --press: #E6DFC9;
+  --font-ui: "DejaVu Sans Mono", Menlo, monospace; --font-num: "DejaVu Sans Mono", Menlo, monospace;
+  --r-btn: 2px; --r-sm: 2px; --r-chip: 2px; --r-pill: 2px; --r-card: 2px; --bw: 2px;
+  --sheet-bd: 2px solid #1E1C19; --head-bd: 2px solid #1E1C19; --title-w: 700; --title-ls: 0; --btn-w: 700;
+  --btn-bg: #1E1C19; --btn-ink: #F4EEDC; --toast-bg: #1E1C19; --toast-ink: #F4EEDC; --scrim: rgba(30, 28, 25, .35);
+}
+html[data-theme="signalbox"] .chip { background: none; border: 2px solid currentColor; font-weight: 700; padding: 2px 10px; }
+html[data-theme="signalbox"] .chip::before { content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 8px; border-radius: 50%; background: currentColor; }
+html[data-theme="signalbox"] .stats > div { border-top: 2px solid #1E1C19; padding-top: 8px; }
+html[data-theme="signalbox"] .hold { font-size: 22px; }
+
+/* ---------- Subway: black signage, white type, route colours ---------- */
+[data-theme="subway"] {
+  --bg: #0E0E0E; --line: #3A3A3A; --text: #FFFFFF; --muted: #B9B2A6; --faint: #77726A;
+  --accent: #F7941D; --ok: #2EE05A; --warn: #FFC21A; --bad: #FF5A4E; --panel: #0E0E0E; --press: #1E1E1E;
+  --font-ui: Inter, "DejaVu Sans", sans-serif; --font-num: Inter, "DejaVu Sans", sans-serif;
+  --r-btn: 0px; --r-sm: 0px; --r-chip: 999px; --r-pill: 0px; --r-card: 0px; --bw: 2px;
+  --sheet-bd: 0; --head-bd: 2px solid #FFFFFF; --title-w: 800; --title-ls: -0.025em; --btn-w: 700;
+  --btn-bg: #FFFFFF; --btn-ink: #0E0E0E; --toast-bg: #F6EFE4; --toast-ink: #111111;
+}
+html[data-theme="subway"] .sheet { padding-left: 40px; }
+html[data-theme="subway"] .sheet::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 18px;
+  background: linear-gradient(90deg, #1F5FE0 0 6px, #F7941D 6px 12px, #E52E2E 12px 18px); }
+html[data-theme="subway"] .chip { background: #E52E2E; color: #fff; font-weight: 800; }
+html[data-theme="subway"] .chip.allowed { background: #2EE05A; color: #0E0E0E; }
+html[data-theme="subway"] .stats > div { border-top: 2px solid #fff; padding-top: 8px; }
+html[data-theme="subway"] .stats .v { font-weight: 800; font-size: 34px; letter-spacing: -0.025em; }
+html[data-theme="subway"] .rows .d { font-weight: 700; }
+html[data-theme="subway"] .toast .timer { background: #1F5FE0; }
+
+/* ---------- Dungeon Gate: stone panels, pixel bevels, amber button ---------- */
+[data-theme="dungeon"] {
+  --bg: #0E0E12; --line: #3A3A46; --text: #ECE4D0; --muted: #BDB5A2; --faint: #77705F;
+  --accent: #FFB347; --ok: #5CFF8A; --warn: #FFB347; --bad: #FF6A5A; --panel: #16161B; --press: #22222A;
+  --font-ui: "DejaVu Sans Mono", Menlo, monospace; --font-num: "DejaVu Sans Mono", Menlo, monospace;
+  --r-btn: 0px; --r-sm: 0px; --r-chip: 0px; --r-pill: 0px; --r-card: 0px; --bw: 2px;
+  --sheet-bd: 4px solid #3A3A46; --sheet-shadow: inset 4px 0 0 #0A0A0D; --head-bd: 4px solid #3A3A46;
+  --title-w: 700; --title-ls: -0.02em; --btn-w: 700;
+  --btn-bg: #FFB347; --btn-ink: #1B1206; --btn-bd: #1B1206; --btn-shadow: inset -4px -4px 0 #B8741A, inset 4px 4px 0 #FFD58A;
+  --btn2-bg: #1B1B21; --btn2-bd: #6A6A7A; --btn2-shadow: inset -3px -3px 0 #0A0A0D, inset 3px 3px 0 #2E2E38;
+  --toast-bg: #16161B; --toast-ink: #ECE4D0; --toast-bd: 3px solid #6A6A7A;
+}
+html[data-theme="dungeon"] .eyebrow, html[data-theme="dungeon"] .page header .label { font-family: PiPixel, monospace; -webkit-font-smoothing: none; text-transform: uppercase; }
+html[data-theme="dungeon"] .chip { font-family: PiPixel, monospace; font-weight: 400; background: #1B1B21; border: 2px solid #FF6A5A; color: #FF6A5A; }
+html[data-theme="dungeon"] .chip.allowed { border-color: #5CFF8A; color: #5CFF8A; }
+html[data-theme="dungeon"] .stats { gap: 10px; }
+html[data-theme="dungeon"] .stats > div { background: #1B1B21; border: 2px solid #3A3A46; padding: 10px 12px; box-shadow: inset -3px -3px 0 #0A0A0D; }
+html[data-theme="dungeon"] .stats .v { font-weight: 700; }
+html[data-theme="dungeon"] .hold { font-size: 22px; }
+html[data-theme="dungeon"] .always { border-radius: 0; }
+
+/* ---------- Space Freighter: navy cockpit, amber readouts, cyan ---------- */
+[data-theme="freighter"] {
+  --bg: #070A1C; --line: #33416F; --text: #F2F5FC; --muted: #9AA3C8; --faint: #5A648E;
+  --accent: #FFB43A; --ok: #47E3FF; --warn: #FFC02E; --bad: #FF5A4A; --panel: #0A0E22; --press: #141A3A;
+  --font-ui: "DejaVu Sans Mono", Menlo, monospace; --font-num: "DejaVu Sans Mono", Menlo, monospace;
+  --r-btn: 4px; --r-sm: 3px; --r-chip: 3px; --r-pill: 3px; --r-card: 4px; --bw: 1.5px;
+  --sheet-bd: 1.5px solid #33416F; --sheet-shadow: inset 5px 0 0 #070A1C, inset 6px 0 0 #33416F;
+  --title-w: 700; --title-ls: -0.02em; --btn-w: 700;
+  --btn-bg: #FFB43A; --btn-ink: #1A1000; --btn2-bd: #6C7BB5;
+  --toast-bg: #0A0E22; --toast-ink: #F2F5FC; --toast-bd: 1.5px solid #FFB43A;
+}
+html[data-theme="freighter"] .eyebrow, html[data-theme="freighter"] .page header .label { font-family: PiPixel, monospace; -webkit-font-smoothing: none; text-transform: uppercase; color: #FFB43A; }
+html[data-theme="freighter"] .chip { font-family: "DejaVu Sans Mono", Menlo, monospace; background: none; border: 1.5px solid #FF5A4A; color: #FF5A4A; }
+html[data-theme="freighter"] .chip.allowed { border-color: #47E3FF; color: #47E3FF; }
+html[data-theme="freighter"] .stats .v { color: #FFB43A; font-weight: 700; }
+html[data-theme="freighter"] .stats > div + div .v { color: #47E3FF; }
+html[data-theme="freighter"] .hold { font-size: 22px; }
+
+/* ---------- Network Departures: black board, yellow rules, wide caps ---------- */
+[data-theme="departures"] {
+  --bg: #0D0D0C; --line: #4A4844; --text: #F2E9D8; --muted: #A9A192; --faint: #6E6A62;
+  --accent: #F4C21B; --ok: #3BD16F; --warn: #F4C21B; --bad: #F0604D; --panel: #141413; --press: #22211F;
+  --font-ui: Inter, system-ui, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 6px; --r-sm: 5px; --r-chip: 3px; --r-pill: 5px; --r-card: 6px; --bw: 2px;
+  --sheet-bd: 2px solid #F4C21B; --head-bd: 2px solid #F4C21B; --title-w: 700; --title-ls: 0;
+  --btn-w: 700; --lbl-tt: uppercase; --lbl-ls: .14em;
+  --btn-bg: #F4C21B; --btn-ink: #0D0D0C; --btn2-bd: #F2E9D8; --toast-bg: #F4C21B; --toast-ink: #0D0D0C;
+}
+html[data-theme="departures"] .chip { background: #1D1C1A; color: #F4C21B; font: 700 18px "Inter Tight", Inter, sans-serif; text-transform: uppercase; letter-spacing: .14em; box-shadow: inset 0 -1px 0 #000, inset 0 1px 0 #3A3835; }
+html[data-theme="departures"] .chip.allowed { color: #3BD16F; }
+html[data-theme="departures"] .eyebrow, html[data-theme="departures"] .stats .k, html[data-theme="departures"] .page header .label { font: 700 16px "Inter Tight", Inter, sans-serif; }
+html[data-theme="departures"] .stats .v { font-weight: 700; font-size: 34px; }
+html[data-theme="departures"] .toast .timer { background: #0D0D0C; }
+
+/* ---------- Scope (echo): phosphor trace on a graticule ---------- */
+[data-theme="echo"] {
+  --bg: #030805; --line: #1F4A30; --text: #A6F5C2; --muted: #86D2A0; --faint: #4A7A5C;
+  --accent: #FFB840; --ok: #A6F5C2; --warn: #FFB840; --bad: #FF6B5E; --panel: #050D08; --press: #0B1A10;
+  --font-ui: "DejaVu Sans Mono", Menlo, Consolas, monospace; --font-num: "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  --r-btn: 6px; --r-sm: 5px; --r-chip: 4px; --r-pill: 6px; --r-card: 6px; --bw: 1.5px;
+  --sheet-bg: linear-gradient(rgba(166, 245, 194, .06) 1px, transparent 1px) 0 0 / 40px 40px, linear-gradient(90deg, rgba(166, 245, 194, .06) 1px, transparent 1px) 0 0 / 40px 40px, #050D08;
+  --sheet-bd: 1px solid #2B6A44; --title-w: 400; --title-ls: 0; --btn-w: 400;
+  --btn-bg: rgba(255, 184, 64, .08); --btn-ink: #FFB840; --btn-bd: #FFB840; --btn2-bd: #3F8A5C;
+  --toast-bg: #06120A; --toast-ink: #A6F5C2; --toast-bd: 1px solid #FFB840;
+}
+html[data-theme="echo"] .stats .v { font-weight: 400; font-size: 34px; }
+html[data-theme="echo"] .hold { font-size: 22px; }
+
+/* ---------- Pachinko: red lacquer, chrome trim, pill buttons ---------- */
+[data-theme="pachinko"] {
+  --bg: #2A0408; --line: #7A2A32; --text: #F4F4F6; --muted: #E0B4B8; --faint: #9A6268;
+  --accent: #FFB020; --ok: #2EE060; --warn: #FFB020; --bad: #FF7B7B; --panel: #1A0306; --press: #3A0A10;
+  --font-ui: "Inter Tight", Inter, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 999px; --r-sm: 999px; --r-chip: 999px; --r-pill: 999px; --r-card: 14px; --bw: 2px;
+  --sheet-bg: linear-gradient(180deg, #4A0A12 0%, #1F0408 100%); --sheet-bd: 4px solid #C8CED8; --sheet-shadow: inset 2px 0 0 #6A7080, -10px 0 40px rgba(0, 0, 0, .6);
+  --head-bg: linear-gradient(180deg, #E01828 0%, #9A0C18 100%); --head-bd: 3px solid #C8CED8; --head-ink: #FFFFFF; --head-lbl: #FFE2E4;
+  --title-w: 800; --title-ls: -0.01em; --btn-w: 800;
+  --btn-bg: linear-gradient(180deg, #FF4654 0%, #B80E1C 100%); --btn-ink: #FFFFFF; --btn-bd: #F2F4F8;
+  --btn-shadow: inset 0 2px 0 rgba(255, 255, 255, .45), 0 3px 0 #4A050A;
+  --btn2-bg: linear-gradient(180deg, #34343C 0%, #121216 100%); --btn2-bd: #C8CED8; --btn2-ink: #FFFFFF; --btn2-shadow: inset 0 2px 0 rgba(255, 255, 255, .18), 0 3px 0 #000;
+  --toast-bg: linear-gradient(180deg, #34343C 0%, #121216 100%); --toast-ink: #FFFFFF; --toast-bd: 2px solid #C8CED8;
+}
+html[data-theme="pachinko"] .hold, html[data-theme="pachinko"] .back, html[data-theme="pachinko"] .dom, html[data-theme="pachinko"] .toast button { font-style: italic; }
+html[data-theme="pachinko"] .stats { gap: 10px; }
+html[data-theme="pachinko"] .stats > div { padding: 8px 14px 10px; border-radius: 12px; background: linear-gradient(180deg, #17171B, #0A0A0C); border: 2px solid #C8CED8; }
+html[data-theme="pachinko"] .stats .v { color: #FFB020; font-style: italic; font-weight: 800; text-shadow: 0 0 8px rgba(255, 176, 32, .5); }
+html[data-theme="pachinko"] .chip { background: linear-gradient(180deg, #FF4654, #B80E1C); color: #fff; border: 2px solid #F2F4F8; font-style: italic; font-weight: 800; }
+html[data-theme="pachinko"] .chip.allowed { background: linear-gradient(180deg, #3BE86E, #128A34); }
+html[data-theme="pachinko"] .danger { --danger-bg: linear-gradient(180deg, #34343C 0%, #121216 100%); }
+html[data-theme="pachinko"] .actions { gap: 14px; padding-bottom: 4px; }
+html[data-theme="pachinko"] .rows li { border-bottom-color: #7A2A32; }
+
+/* ---------- ASCII Ninja: mint on black, ===== rules, amber double box ---------- */
+[data-theme="ninja"] {
+  --bg: #020403; --line: #2F5A46; --text: #A6F2C8; --muted: #7DB596; --faint: #4A705C;
+  --accent: #F5B54A; --ok: #A6F2C8; --warn: #F5B54A; --bad: #FF7468; --panel: #020403; --press: #0A1A12;
+  --font-ui: "DejaVu Sans Mono", Menlo, Consolas, monospace; --font-num: "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  --r-btn: 0px; --r-sm: 0px; --r-chip: 0px; --r-pill: 0px; --r-card: 0px; --bw: 2px;
+  --sheet-bd: 6px double #5E8F74; --head-bd: 6px double #5E8F74; --title-w: 700; --title-ls: 0; --btn-w: 700; --btn-tt: uppercase;
+  --btn-bg: transparent; --btn-ink: #F5B54A; --btn-bd: #F5B54A; --btn2-bd: #5E8F74;
+  --toast-bg: #020403; --toast-ink: #A6F2C8; --toast-bd: 6px double #F5B54A;
+}
+html[data-theme="ninja"] .hold.primary { border: 6px double #F5B54A; }
+html[data-theme="ninja"] .chip { color: #FF7468; }
+html[data-theme="ninja"] .chip.allowed { color: #A6F2C8; }
+html[data-theme="ninja"] .stats > div + div .v { color: #FF7468; }
+html[data-theme="ninja"] .rows li { border-bottom-style: dashed; }
+
+/* ---------- Live Terminal (watch): grey console, dashed rules, white brackets ---------- */
+[data-theme="watch"] {
+  --bg: #131415; --line: #7C7C7A; --text: #E4E4E2; --muted: #BDBDBB; --faint: #7D8084;
+  --accent: #45CFE3; --ok: #5BD16B; --warn: #F2B33D; --bad: #F2675A; --panel: #131415; --press: #202224;
+  --font-ui: "DejaVu Sans Mono", Menlo, Consolas, monospace; --font-num: "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  --r-btn: 0px; --r-sm: 0px; --r-chip: 0px; --r-pill: 0px; --r-card: 0px; --bw: 2px;
+  --sheet-bd: 2px dashed #7C7C7A; --head-bd: 2px dashed #7C7C7A; --title-w: 700; --title-ls: 0; --btn-w: 700; --btn-tt: uppercase;
+  --btn-bg: transparent; --btn-ink: #F6F6F4; --btn-bd: #F6F6F4; --btn2-bd: #7C7C7A; --btn2-ink: #BDBDBB;
+  --toast-bg: #1C1D1F; --toast-ink: #E4E4E2; --toast-bd: 2px solid #F6F6F4;
+}
+html[data-theme="watch"] .chip { color: #5BD16B; }
+html[data-theme="watch"] .chip.allowed { color: #45CFE3; }
+html[data-theme="watch"] .dom::before { content: "$ "; color: #8E9196; }
+html[data-theme="watch"] .rows li { border-bottom-style: dashed; }
+
+/* ---------- Filter Ops: navy console, box rules, cyan headings ---------- */
+[data-theme="filterops"] {
+  --bg: #070B16; --line: #C9CFDA; --text: #E6EAF2; --muted: #8A93A6; --faint: #5A6274;
+  --accent: #F5B935; --ok: #7BE07B; --warn: #F5B935; --bad: #F07A6E; --panel: #070B16; --press: #121A2E;
+  --font-ui: "DejaVu Sans Mono", Menlo, monospace; --font-num: "DejaVu Sans Mono", Menlo, monospace;
+  --r-btn: 0px; --r-sm: 0px; --r-chip: 0px; --r-pill: 0px; --r-card: 0px; --bw: 2px;
+  --sheet-bd: 2px solid #C9CFDA; --head-bd: 2px solid #C9CFDA; --title-w: 700; --title-ls: 0; --btn-w: 700; --btn-tt: uppercase; --lbl-tt: uppercase;
+  --btn-bg: transparent; --btn-ink: #4FD8E8; --btn-bd: #4FD8E8; --btn2-bd: #C9CFDA;
+  --toast-bg: #070B16; --toast-ink: #E6EAF2; --toast-bd: 2px solid #C9CFDA; --head-lbl: #4FD8E8;
+}
+html[data-theme="filterops"] .chip { color: #F07A6E; }
+html[data-theme="filterops"] .chip.allowed { color: #7BE07B; }
+html[data-theme="filterops"] .stats { gap: 0; border: 2px solid #C9CFDA; }
+html[data-theme="filterops"] .stats > div { padding: 10px 12px; }
+html[data-theme="filterops"] .stats > div + div { border-left: 2px dashed #C9CFDA; }
+html[data-theme="filterops"] .stats .k { color: #4FD8E8; font-weight: 700; }
+html[data-theme="filterops"] .rows li { border-bottom: 1px dashed #5A6274; }
+html[data-theme="filterops"] .sheet, html[data-theme="filterops"] .page { font-weight: 700; }
+
+/* ---------- Whack-an-Ad: navy board, cream cards, chunky outlined buttons ---------- */
+[data-theme="whack"] {
+  --bg: #1C2246; --line: #3A4178; --text: #FFF3D6; --muted: #C4C3EA; --faint: #7A7FB4;
+  --accent: #FF7A6B; --ok: #3CCB4A; --warn: #FFD43B; --bad: #FF7A6B; --panel: #1C2246; --press: #2A3160;
+  --font-ui: Inter, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 12px; --r-sm: 10px; --r-chip: 999px; --r-pill: 10px; --r-card: 12px; --bw: 3px;
+  --sheet-bd: 4px solid #11152E; --head-bg: #FBF1DC; --head-bd: 4px solid #11152E; --head-ink: #1C2246; --head-lbl: #1C2246;
+  --title-w: 900; --title-ls: 0; --btn-w: 800;
+  --btn-bg: #FFD43B; --btn-ink: #1C2246; --btn-bd: #11152E; --btn-shadow: 0 5px 0 #11152E;
+  --btn2-bg: #FBF1DC; --btn2-ink: #1C2246; --btn2-bd: #11152E; --btn2-shadow: 0 5px 0 #11152E; --danger-bg: #FBF1DC;
+  --toast-bg: #FBF1DC; --toast-ink: #1C2246; --toast-bd: 3px solid #11152E; --toast-shadow: 0 6px 0 #11152E;
+}
+html[data-theme="whack"] .actions { gap: 14px; padding-bottom: 6px; }
+html[data-theme="whack"] .chip { background: #FF7A6B; color: #1C2246; border: 3px solid #11152E; font-weight: 800; }
+html[data-theme="whack"] .chip.allowed { background: #3CCB4A; color: #11152E; }
+html[data-theme="whack"] .stats .v { font-weight: 900; font-size: 36px; }
+html[data-theme="whack"] .stats > div + div { border-left: 3px solid #9D9BE6; padding-left: 16px; }
+html[data-theme="whack"] .stats .k { font-weight: 700; color: #F2E8D0; }
+html[data-theme="whack"] .hold.danger { border-color: #11152E; color: #C73A2C; }
+html[data-theme="whack"] .rows li { border-bottom: 3px solid #3A4178; padding: 10px 0 14px; }
+html[data-theme="whack"] .rows .d { font-weight: 700; }
+html[data-theme="whack"] .page header .label { font-weight: 800; }
+
+/* ---------- Bonsai: black, mint hairlines, quiet mono ---------- */
+[data-theme="bonsai"] {
+  --bg: #000000; --line: #2A4A3A; --text: #D9D9D6; --muted: #9FB5A8; --faint: #5A6E64;
+  --accent: #FFAE4A; --ok: #9FECC2; --warn: #FFAE4A; --bad: #FF6B5E; --panel: #040705; --press: #0E1A14;
+  --font-ui: "DejaVu Sans Mono", Menlo, Consolas, monospace; --font-num: "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  --r-btn: 8px; --r-sm: 6px; --r-chip: 4px; --r-pill: 6px; --r-card: 8px; --bw: 1px;
+  --sheet-bd: 1px solid rgba(159, 236, 194, .38); --head-bd: 1px solid rgba(159, 236, 194, .38); --title-w: 400; --title-ls: 0; --btn-w: 400;
+  --btn-bg: rgba(159, 236, 194, .08); --btn-ink: #9FECC2; --btn-bd: #9FECC2; --btn2-bd: rgba(159, 236, 194, .38);
+  --toast-bg: #040705; --toast-ink: #D9D9D6; --toast-bd: 1px solid #9FECC2;
+}
+html[data-theme="bonsai"] .stats .v { font-weight: 400; font-size: 34px; color: #9FECC2; }
+html[data-theme="bonsai"] .hold { font-size: 22px; }
+html[data-theme="bonsai"] .rows .d { font-weight: 400; }
+
+/* ---------- Packet Pinball: navy cabinet, chrome frames, red button, amber dot-matrix ---------- */
+[data-theme="pinball"] {
+  --bg: #0A1430; --line: #2A3350; --text: #F3E6C4; --muted: #C2BBA6; --faint: #6A7286;
+  --accent: #FFA82A; --ok: #3BF06A; --warn: #FFB43C; --bad: #FF6A6A; --panel: #0A1430; --press: #14224C;
+  --font-ui: "Inter Tight", Inter, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 8px; --r-sm: 8px; --r-chip: 8px; --r-pill: 8px; --r-card: 8px; --bw: 2px;
+  --sheet-bg: linear-gradient(180deg, #0E1D44 0%, #070E24 100%); --sheet-bd: 3px solid #8C94A2; --sheet-shadow: inset 2px 0 0 #2A3350, -10px 0 40px rgba(0, 0, 0, .6);
+  --head-bg: linear-gradient(#0E1A3C, #070E24); --head-bd: 2px solid #8C94A2; --title-w: 800; --title-ls: 0; --btn-w: 800;
+  --btn-bg: linear-gradient(180deg, #FF4A52 0%, #B5121A 100%); --btn-ink: #FFFFFF; --btn-bd: #D8DCE4;
+  --btn-shadow: inset 0 2px 0 rgba(255, 255, 255, .35), 0 0 0 2px #4A5266;
+  --btn2-bg: linear-gradient(#0E1A3C, #070E24); --btn2-bd: #D8DCE4; --btn2-ink: #F3E6C4;
+  --toast-bg: linear-gradient(#12224E, #070E24); --toast-ink: #F3E6C4; --toast-bd: 2px solid #D8DCE4;
+}
+html[data-theme="pinball"] .dom { font-style: italic; }
+html[data-theme="pinball"] .back { font-style: italic; }
+html[data-theme="pinball"] .stats { gap: 10px; }
+html[data-theme="pinball"] .stats > div { padding: 8px 12px 10px; border-radius: 8px; border: 2px solid #5A6274; text-align: center;
+  background: radial-gradient(rgba(255, 168, 42, .12) 1px, transparent 1.4px) 0 0 / 4px 4px, #140B02; }
+html[data-theme="pinball"] .stats .v { font: 400 28px/32px PiPixel, "DejaVu Sans Mono", monospace; color: #FFBC3A; text-shadow: 0 0 6px rgba(255, 168, 42, .6); -webkit-font-smoothing: none; text-transform: uppercase; }
+html[data-theme="pinball"] .chip { background: #2A0808; border: 2px solid #FF5A5A; color: #FFD8D8; box-shadow: 0 0 8px rgba(255, 90, 90, .5); font-weight: 700; }
+html[data-theme="pinball"] .chip.allowed { background: #082414; border-color: #3BF06A; color: #F4F4F0; box-shadow: 0 0 8px rgba(59, 240, 106, .55); }
+html[data-theme="pinball"] .danger { --danger-bg: linear-gradient(#0E1A3C, #070E24); }
