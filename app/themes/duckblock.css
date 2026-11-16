@@ -31,6 +31,7 @@
 
 /* ---- scene */
 .dk-scene { position: relative; overflow: hidden; background: #52C24A; border-right: 2px solid #8FA8F5; }
+.dk-plate { position: absolute; left: 0; bottom: 0; height: 432px; width: auto; max-width: none; display: block; }
 .dk-cv { position: absolute; left: 0; bottom: 0; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
 .dk-calls { position: absolute; inset: 0; pointer-events: none; }
 .dk-call { position: absolute; left: 0; top: 0; height: 46px; min-width: 96px; padding: 0 12px; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -56,8 +57,8 @@
 .dk-card.dk-g { flex-grow: 1.15; gap: 10px; padding: 0 10px; }
 .dk-ico { flex: none; width: 34px; height: 38px; }
 .dk-col { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: center; }
-.dk-v { width: 100%; max-width: 100%; overflow: hidden; white-space: nowrap; text-align: center; font-family: PiPixel, "DejaVu Sans Mono", monospace; -webkit-font-smoothing: none;
-  font-size: 32px; line-height: 1.1; color: #FFF; }
+.dk-v { width: 100%; max-width: 100%; overflow: hidden; white-space: nowrap; text-align: center; font-family: "Inter Tight", Inter, sans-serif; font-weight: 800; letter-spacing: -.3px; font-variant-numeric: tabular-nums;
+  font-size: 34px; line-height: 1.1; color: #FFF; }
 .dk-l { margin-top: 1px; font-weight: 800; font-size: 14px; color: #E6ECFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .dk-l.alert { color: var(--dk-yel); }
 .dk-l.big { font-size: 20px; flex: 1 1 auto; text-align: center; margin: 0; }

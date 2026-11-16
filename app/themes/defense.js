@@ -355,7 +355,7 @@
       a.tw = j; a.zs = Math.max(a.s + 2, HOLD_S[j] - 12 - Math.random() * 14);
     },
     place(i, a) {
-      const S = this.s, b = S.bub[i], P = at(a.s), hw = S.host.clientWidth, sx = hw / LW, sy = S.host.clientHeight / LH;
+      const S = this.s, b = S.bub[i], P0 = at(a.s), tw = TOWERS[a.tw], P = { x: P0.x + (tw.x - P0.x) * 0.5, y: P0.y + (tw.y - 14 - P0.y) * 0.5 }, hw = S.host.clientWidth, sx = hw / LW, sy = S.host.clientHeight / LH;
       b.dataset.domain = a.item.domain; b.querySelector(".d").textContent = a.item.domain; b.querySelector(".t").textContent = S.m ? short(ago(S.m, a.item)) : "";
       const x = (P.x + 0.5) * sx, y = (P.y - 9) * sy, bw = b.offsetWidth, left = cl(x, bw / 2 + 4, hw - bw / 2 - 4);
       b.style.left = `${Math.round(left)}px`; b.style.top = `${Math.round(y)}px`; b.style.setProperty("--tx", `${Math.round(x - left)}px`);
@@ -370,7 +370,7 @@
       for (let i = 0; i < n; i++) { const an = Math.random() * 6.283, v = sp * (0.4 + Math.random() * 0.6); S.parts.push({ x, y, vx: Math.cos(an) * v, vy: Math.sin(an) * v - 8, g: 45, life: 0.35 + Math.random() * 0.4, c: SPARKS[i % SPARKS.length] }); }
     },
     zap(a, big) {
-      const S = this.s, P = at(a.s);
+      const S = this.s, P = a.st === "held" && a.px != null ? { x: a.px, y: a.py } : at(a.s);
       S.bolts.push({ tw: a.tw, x: P.x, y: P.y, t: big ? 0.3 : 0.2 }); S.tfl[a.tw] = 0.3; a.flash = big ? 0.3 : 0.18;
       this.burst(P.x, P.y, big ? 10 : 4, big ? 34 : 22);
     },
@@ -426,7 +426,13 @@
         for (let y = 0; y < 5; y++) g.fillRect(TUNNEL.x + 8 + k * 4 + CHEV[y].indexOf("#"), TUNNEL.y + 9 + y, 2, 1);
       }
       // actors, far to near
-      const list = S.actors; for (const a of list) { const P = at(a.s); a.px = P.x - P.dy * a.lat; a.py = P.y + P.dx * a.lat; a.dir = P.dx; }
+      const list = S.actors; for (const a of list) {
+        const P = at(a.s); a.px = P.x - P.dy * a.lat; a.py = P.y + P.dx * a.lat; a.dir = P.dx;
+        if (a.kind === "m") {   // a held monster is pulled off the path toward its tower, so packets pass beside it
+          const tw = TOWERS[a.tw], k = a.st === "held" ? 0.5 : 0, tx = (tw.x - P.x) * k, ty = (tw.y - 14 - P.y) * k;
+          a.ox = (a.ox || 0) + (tx - (a.ox || 0)) * 0.3; a.oy = (a.oy || 0) + (ty - (a.oy || 0)) * 0.3; a.px += a.ox; a.py += a.oy;
+        }
+      }
       list.sort((a, b) => a.py - b.py);
       for (const a of list) {
         const f = Math.floor((S.clock + a.ph) * (a.kind === "p" ? 7 : 5)) % 2, x = Math.round(a.px), y = Math.round(a.py);

@@ -13,7 +13,7 @@
   // grass, pond, reeds). To swap in an image plate later, draw it at 0,0 at this size and keep these positions.
   const PW = 185, PH = 144, SC = 3;      // logical scene size; one logical pixel = 3 screen px (555 x 432 on the panel)
   const HORIZON_Y = 100;                 // where sky meets grass
-  const DOG = { x: 74, y: 138 };         // centre of the dog's feet on the grass
+  const DOG = { x: 76, y: 136 };         // centre of the dog's feet on the grass
   const SIGN = { dx: 41, dy: -47 };      // centre of the raised sign relative to DOG
   const LANES = [                        // flight lanes for labelled ducks: y = duck centre, x = where it hovers
     { y: 19, x: 52 }, { y: 42, x: 66 }, { y: 65, x: 58 },
@@ -21,6 +21,9 @@
   const EXTRA_Y = [9, 76];               // unlabelled ducks fly anywhere in this band
   const CALL_DX = 21;                    // call-out starts this far right of a duck's centre
   const PONDS = [{ x: 152, y: 110, rx: 34, ry: 4.5 }, { x: 22, y: 117, rx: 22, ry: 3.5 }];
+  // Image plate (themes/duckblock/plate.webp, 1200x880) shown under the canvas at the scene's height, left-aligned:
+  // logical = plate px * PH / 880. WATER is the painted strip of water (for the glints); the tree mask keeps clouds behind the tree.
+  const PLATE = { w: 1200, h: 880 }, WATER = { y0: 107, y1: 110 }, TREE_MASK_W = 46;
   const TREE = { x: 5, top: 40 };        // trunk base x (left edge tree) and where the trunk meets the canopy
 
   const mk = (w, h) => { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; };
@@ -359,7 +362,7 @@
           <button class="dk-tb" data-act="allowed" data-k="allowed" type="button"><span>Allowed<span class="n"></span></span><i class="dk-chip"><svg viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.500 3.500L11 1.500" fill="none" stroke="currentColor" stroke-width="2.500"/></svg><u></u></i></button>
           <button class="dk-tb" data-act="style" type="button"><span>Style</span><i class="dk-chip">Duck<u></u></i></button>
         </div>
-        <div class="dk-scene"><canvas class="dk-cv" width="${PW}" height="${PH}"></canvas>
+        <div class="dk-scene"><img class="dk-plate" src="themes/duckblock/plate.webp" alt="" draggable="false"><canvas class="dk-cv" width="${PW}" height="${PH}"></canvas>
           <div class="dk-calls" data-k="calls"></div>
           <div class="dk-nap" data-k="nap"><b>PAUSED</b><span data-k="cd"></span></div>
         </div>
@@ -378,7 +381,7 @@
       const dR = ["up", "mid", "down"].map((w) => bake(duckRows(w), DUCK)), dogs = {};
       for (const f of ["open", "blink", "happy"]) dogs[f] = [bake(dogRows(f, 0), DOGP), bake(dogRows(f, 1), DOGP)];
       const S = this.s = {
-        m: null, ctx, host, back: paintBack(), front: paintFront(),
+        m: null, ctx, host, back: null, front: null, plateOk: false, treeMask: null,
         duckR: dR, duckL: dR.map(flip), puff: [0, 1, 2, 3].map((f) => bake(puffRows(f), PUFF)),
         dogs, tails: [0, 1, 2].map((f) => bake(tailRows(f), DOGP)), sleep: [bake(sleepRows(0), DOGP), bake(sleepRows(1), DOGP)],
         sign: tiltBake(signRows(), SIGNP, [16, 28, 40]), signFlat: bake(signRows(), SIGNP), stamp: tiltBake(stampRows(), SIGNP, [12, 22, 32]),
@@ -387,6 +390,17 @@
         rate: K.rateTracker(), news: K.newsTracker(), ducks: [], parts: [], queue: [], lanes: LANES.map(() => null), call: [...calls.children],
         acc: 0.6, gap: 0, clock: 0, cheer: 0, quiet: 0, pick: 0, seeded: false, hw: PW * SC, oy: 0,
       };
+      const pim = el.querySelector(".dk-plate"), noPlate = () => { if (this.s !== S) return; S.plateOk = false; S.back = paintBack(); S.front = paintFront(); pim.hidden = true; };
+      const gotPlate = () => {   // clouds must pass behind the painted tree: a mask of every non-sky pixel in the tree's corner
+        if (this.s !== S) return;
+        try {
+          const mc = mk(PW, PH), g = mc.getContext("2d"), dw = PLATE.w * PH / PLATE.h; g.drawImage(pim, 0, 0, dw, PH);
+          const id = g.getImageData(0, 0, PW, PH), d = id.data;
+          for (let i = 0; i < d.length; i += 4) { const x = (i / 4) % PW, sky = d[i + 2] > 140 && d[i + 2] > d[i] + 40; d[i + 3] = x < TREE_MASK_W && !sky ? 255 : 0; }
+          g.putImageData(id, 0, 0); S.treeMask = mc; S.plateOk = true;
+        } catch { noPlate(); }
+      };
+      if (pim.complete && pim.naturalWidth) gotPlate(); else { pim.addEventListener("load", gotPlate); pim.addEventListener("error", noPlate); }
       const size = () => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; S.hw = w; S.oy = h - PH * SC; };
       size(); this.ro = new ResizeObserver(size); this.ro.observe(host);
       this.stop = K.loop((dt, t) => this.frame(dt, t), 20);
@@ -403,7 +417,6 @@
       q(el, "cd").textContent = (m.pill.text.split("·")[1] || "").trim();
       for (const k of ["blocked", "total"]) {
         const v = q(el, k); v.textContent = num(d[k]); fit(v, 16);
-        if (v.style.fontSize) { v.style.fontSize = "24px"; if (v.scrollWidth > v.clientWidth) v.style.fontSize = "16px"; }   // keep the pixel font on its 8 px grid
       }
       const lab = q(el, "lab"); lab.textContent = heroLabel(m, "Blocked / 24h"); lab.classList.toggle("alert", !!m.labelAlert || m.paused);
       q(el, "pct").textContent = pct(d.percent_blocked);
@@ -461,7 +474,8 @@
         if (dk.lab) {   // the call-out rides along beside its duck
           const e = dk.el, vis = dk.x > -16;
           if (vis !== dk.shown) { dk.shown = vis; e.classList.toggle("on", vis); }
-          const px = Math.round((dk.x + CALL_DX) * SC), py = Math.round(S.oy + (dk.st === "puff" || dk.st === "stamp" ? dk.by : dk.y) * SC - 23);
+          if (vis && !dk.w) dk.w = e.offsetWidth;
+          const px = Math.min(Math.round((dk.x + CALL_DX) * SC), S.hw - (dk.w || 120) - 6), py = Math.round(S.oy + (dk.st === "puff" || dk.st === "stamp" ? dk.by : dk.y) * SC - 23);
           if (px !== dk.px || py !== dk.py) { dk.px = px; dk.py = py; e.style.transform = `translate(${px}px,${py}px)`; }
         }
         return true;
@@ -486,15 +500,21 @@
       if (S.cheer > 0) S.cheer -= dt;
       this.updDucks(dt, on);
 
-      ctx.drawImage(S.back, 0, 0);
+      if (!S.plateOk && !S.back) return;
+      if (S.plateOk) ctx.clearRect(0, 0, PW, PH); else ctx.drawImage(S.back, 0, 0);
       for (const k of S.sky) {
         const img = S.clouds[k.k]; k.x += k.v * dt; if (k.x > PW + 2) k.x = -img.width - 2;
         ctx.drawImage(img, Math.round(k.x), k.y);
       }
-      ctx.drawImage(S.front, 0, 0);
+      if (S.plateOk) { ctx.globalCompositeOperation = "destination-out"; ctx.drawImage(S.treeMask, 0, 0); ctx.globalCompositeOperation = "source-over"; }
+      else ctx.drawImage(S.front, 0, 0);
       // water glints
       ctx.fillStyle = "#EAF8FF";
-      for (let i = 0; i < 7; i++) {
+      if (S.plateOk) for (let i = 0; i < 6; i++) {
+        const ph = Math.floor(c * 1.6 + i * 0.37), gx = 16 + Math.floor(hash(i, ph, 5) * (PW - 20)), gy = WATER.y0 + Math.floor(hash(ph, i, 9) * (WATER.y1 - WATER.y0 + 1));
+        ctx.fillRect(gx, gy, (c * 1.6 + i * 0.37) % 1 < 0.5 ? 3 : 2, 1);
+      }
+      else for (let i = 0; i < 7; i++) {
         const p = PONDS[i % 2], ph = Math.floor(c * 1.6 + i * 0.37), gx = Math.round(p.x + (hash(i, ph, 5) - 0.5) * p.rx * 1.5), gy = Math.round(p.y + (hash(ph, i, 9) - 0.5) * p.ry);
         if (inPond(gx, gy, -1) && inPond(gx + 2, gy, -1) && !(gx < 14 && gy < HORIZON_Y + 12)) ctx.fillRect(gx, gy, (c * 1.6 + i * 0.37) % 1 < 0.5 ? 3 : 2, 1);
       }
