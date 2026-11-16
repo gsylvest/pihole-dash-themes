@@ -11,6 +11,9 @@
       ["ninja", "ASCII Ninja", "A ninja slashes incoming ad packets"],
       ["whack", "Whack-an-Ad", "A mallet bops ads back down their holes"],
       ["pinball", "Packet Pinball", "Ads bounce off the bumpers and drain"],
+      ["sorter", "Packet Works", "Factory workers toss ads in the furnace"],
+      ["defense", "Packet Defense", "Crystal towers zap ads on the path"],
+      ["duckblock", "Duck Block", "Ad-ducks get stamped out of the sky"],
     ]],
     ["Clean", [
       ["monolith", "Monolith", "One giant number"],

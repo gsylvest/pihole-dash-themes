@@ -1,7 +1,7 @@
 // Applies the saved dashboard style before first paint (separate file: the CSP allows no inline script).
 // ?theme=<name> in the URL overrides and is saved, for previews from a laptop.
 (() => {
-  const KEY = "pihole-dash:theme", THEMES = ["monolith", "swiss", "bauhaus", "arcade", "flow", "terminal", "hifi", "mission", "sonar", "signalbox", "subway", "dungeon", "freighter", "departures", "echo", "pachinko", "ninja", "watch", "filterops", "whack", "bonsai", "pinball"];
+  const KEY = "pihole-dash:theme", THEMES = ["monolith", "swiss", "bauhaus", "arcade", "flow", "terminal", "hifi", "mission", "sonar", "signalbox", "subway", "dungeon", "freighter", "departures", "echo", "pachinko", "ninja", "watch", "filterops", "whack", "bonsai", "pinball", "duckblock", "defense", "sorter"];
   let t = null;
   try { t = new URLSearchParams(location.search).get("theme"); } catch { /* ignore */ }
   if (THEMES.includes(t)) { try { localStorage.setItem(KEY, t); } catch { /* ignore */ } }

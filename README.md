@@ -1,6 +1,6 @@
 # Sinkhole Screens
 
-Touchscreen dashboards for a Raspberry Pi running [Pi-hole](https://pi-hole.net) v6: 22 designs to pick from on the screen, and a printable case to put it in.
+Touchscreen dashboards for a Raspberry Pi running [Pi-hole](https://pi-hole.net) v6: 25 designs to pick from on the screen, and a printable case to put it in.
 
 New to Pi-hole? It's free software that blocks ads and trackers for every device in your home by acting as a *DNS sinkhole*: when a device looks up an ad or tracking address, it gets told "nowhere". It runs well on a Raspberry Pi. Sinkhole Screens adds a touchscreen so you can see it working.
 
@@ -13,7 +13,8 @@ New to Pi-hole? It's free software that blocks ads and trackers for every device
 | ![Echo](site/shots/echo.png) Echo | ![Airport Departures](site/shots/departures.png) Airport Departures | ![Network Express](site/shots/subway.png) Network Express | ![Signal Box](site/shots/signalbox.png) Signal Box |
 | ![Live Terminal](site/shots/watch.png) Live Terminal | ![Filter Ops](site/shots/filterops.png) Filter Ops | ![Bonsai](site/shots/bonsai.png) Bonsai | ![8-bit](site/shots/arcade.png) 8-bit |
 | ![Dungeon Gate](site/shots/dungeon.png) Dungeon Gate | ![Space Freighter](site/shots/freighter.png) Space Freighter | ![Pachinko](site/shots/pachinko.png) Pachinko | ![ASCII Ninja](site/shots/ninja.png) ASCII Ninja |
-| ![Whack-an-Ad](site/shots/whack.png) Whack-an-Ad | ![Packet Pinball](site/shots/pinball.png) Packet Pinball |  |  |
+| ![Whack-an-Ad](site/shots/whack.png) Whack-an-Ad | ![Packet Pinball](site/shots/pinball.png) Packet Pinball | ![Packet Works](site/shots/sorter.png) Packet Works | ![Packet Defense](site/shots/defense.png) Packet Defense |
+| ![Duck Block](site/shots/duckblock.png) Duck Block |  |  |  |
 
 ## What it does
 
@@ -21,14 +22,14 @@ New to Pi-hole? It's free software that blocks ads and trackers for every device
 - **Pause** blocking for 5 minutes with one tap, and resume early.
 - Tap a blocked domain to see why it was blocked (which list, exact or wildcard) and how often today. Then **allow it for 1 hour** or **always**, with a press and hold so it can't happen by accident, and an 8-second Undo.
 - **Allowed** lists what you let through from the screen, with countdowns, and lets you remove entries.
-- **Style** picks one of the 22 designs. The choice is saved on the Pi.
+- **Style** picks one of the 25 designs. The choice is saved on the Pi.
 - Keeps showing the last numbers (dimmed, with their age) if Pi-hole stops answering.
 
 It never changes Pi-hole's own settings or restarts it. The only things it writes are allow-list entries you ask for, each tagged `pihole-dash` so you can see them in the web admin.
 
 ## Live demo
 
-The repo is also a static website: `index.html` shows all 22 designs and runs one live. Open `app/index.html?demo` and the dashboard answers its own API calls in the browser with made-up numbers (`app/demo.js`). Pause, Allow and Undo all work on that fake data. The kiosk never uses `?demo`.
+The repo is also a static website: `index.html` shows all 25 designs and runs one live. Open `app/index.html?demo` and the dashboard answers its own API calls in the browser with made-up numbers (`app/demo.js`). Pause, Allow and Undo all work on that fake data. The kiosk never uses `?demo`.
 
 To run it locally: `python3 -m http.server 8000` in the repo folder, then open <http://localhost:8000/>.
 

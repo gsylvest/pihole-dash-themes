@@ -397,3 +397,59 @@ html[data-theme="pinball"] .stats .v { font: 400 28px/32px PiPixel, "DejaVu Sans
 html[data-theme="pinball"] .chip { background: #2A0808; border: 2px solid #FF5A5A; color: #FFD8D8; box-shadow: 0 0 8px rgba(255, 90, 90, .5); font-weight: 700; }
 html[data-theme="pinball"] .chip.allowed { background: #082414; border-color: #3BF06A; color: #F4F4F0; box-shadow: 0 0 8px rgba(59, 240, 106, .55); }
 html[data-theme="pinball"] .danger { --danger-bg: linear-gradient(#0E1A3C, #070E24); }
+
+/* ---------- Duck Block: navy panel, outlined cards, yellow arcade button, pixel titles ---------- */
+[data-theme="duckblock"] {
+  --bg: #0E1430; --line: #3D4E96; --text: #FFFFFF; --muted: #C5CCF0; --faint: #7C86BE;
+  --accent: #FFD21F; --ok: #3CE04A; --warn: #FFD21F; --bad: #FF5A5A; --panel: #0E1430; --press: #1C2552;
+  --font-ui: Inter, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 12px; --r-sm: 10px; --r-chip: 8px; --r-pill: 8px; --r-card: 12px; --bw: 3px;
+  --sheet-bd: 3px solid #5B6FCB; --head-bd: 3px solid #5B6FCB; --title-w: 800; --title-ls: 0; --btn-w: 800;
+  --btn-bg: #FFD21F; --btn-ink: #10142E; --btn-bd: #B88A00; --btn-shadow: 0 5px 0 #B88A00;
+  --btn2-bg: #0E1430; --btn2-ink: #FFFFFF; --btn2-bd: #5B6FCB; --btn2-shadow: 0 5px 0 #070A1C;
+  --toast-bg: #FBF1DC; --toast-ink: #10142E; --toast-bd: 3px solid #10142E; --toast-shadow: 0 5px 0 #070A1C;
+}
+html[data-theme="duckblock"] .eyebrow, html[data-theme="duckblock"] .page header .label { font-family: PiPixel, monospace; -webkit-font-smoothing: none; text-transform: uppercase; }
+html[data-theme="duckblock"] .chip { background: #FBF1DC; color: #D8262C; border: 3px solid #D8262C; font-weight: 800; }
+html[data-theme="duckblock"] .chip.allowed { color: #1E8F2B; border-color: #1E8F2B; }
+html[data-theme="duckblock"] .stats { gap: 10px; }
+html[data-theme="duckblock"] .stats > div { border: 3px solid #3D4E96; border-radius: 12px; padding: 10px 12px; }
+html[data-theme="duckblock"] .stats .v { font-weight: 800; }
+html[data-theme="duckblock"] .rows li { border-bottom: 3px solid #26315F; }
+
+/* ---------- Packet Defense: navy panel, outlined cards, green chips, yellow button ---------- */
+[data-theme="defense"] {
+  --bg: #0D1B33; --line: #34507E; --text: #FFFFFF; --muted: #B9C6E6; --faint: #7186AE;
+  --accent: #FFD21F; --ok: #4CE35A; --warn: #FFD21F; --bad: #FF5A4A; --panel: #0D1B33; --press: #1A2C4E;
+  --font-ui: Inter, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 12px; --r-sm: 10px; --r-chip: 8px; --r-pill: 8px; --r-card: 14px; --bw: 3px;
+  --sheet-bd: 3px solid #4A68A0; --head-bd: 3px solid #4A68A0; --title-w: 800; --title-ls: 0; --btn-w: 800;
+  --btn-bg: #FFD21F; --btn-ink: #0D1B33; --btn-bd: #B88A00; --btn-shadow: 0 5px 0 #B88A00;
+  --btn2-bg: #1F8F3A; --btn2-ink: #FFFFFF; --btn2-bd: #4CE35A; --btn2-shadow: 0 5px 0 #071224;
+  --toast-bg: #0D1B33; --toast-ink: #FFFFFF; --toast-bd: 3px solid #4CE35A; --toast-shadow: 0 5px 0 #071224;
+}
+html[data-theme="defense"] .eyebrow, html[data-theme="defense"] .page header .label { font-family: PiPixel, monospace; -webkit-font-smoothing: none; text-transform: uppercase; }
+html[data-theme="defense"] .chip { background: #101B30; color: #FF5A4A; border: 3px solid #FF5A4A; font-weight: 800; }
+html[data-theme="defense"] .chip.allowed { color: #4CE35A; border-color: #4CE35A; }
+html[data-theme="defense"] .stats { gap: 10px; }
+html[data-theme="defense"] .stats > div { border: 3px solid #34507E; border-radius: 14px; padding: 10px 12px; }
+html[data-theme="defense"] .stats .v { font-weight: 800; }
+html[data-theme="defense"] .hold.danger { background: #0D1B33; border-color: #FF5A4A; color: #FF5A4A; }
+html[data-theme="defense"] .rows li { border-bottom: 3px solid #223A60; }
+
+/* ---------- Packet Works: near-black, hairline dividers, rounded yellow button, cream tags ---------- */
+[data-theme="sorter"] {
+  --bg: #16181C; --line: #34373E; --text: #F4F1EA; --muted: #A9ABB0; --faint: #6E7178;
+  --accent: #FFC531; --ok: #6FD08C; --warn: #FFC531; --bad: #F2776B; --panel: #16181C; --press: #24272D;
+  --font-ui: Inter, sans-serif; --font-num: "Inter Tight", Inter, sans-serif;
+  --r-btn: 14px; --r-sm: 10px; --r-chip: 6px; --r-pill: 8px; --r-card: 10px; --bw: 1.5px;
+  --sheet-bd: 1px solid #34373E; --head-bd: 1px solid #34373E; --title-w: 800; --title-ls: 0; --btn-w: 700;
+  --btn-bg: #FFC531; --btn-ink: #16181C; --btn-bd: #FFC531;
+  --btn2-bg: transparent; --btn2-ink: #F4F1EA; --btn2-bd: #8A8D94;
+  --toast-bg: #F6EFDD; --toast-ink: #16181C; --toast-bd: 1px solid #16181C;
+}
+html[data-theme="sorter"] .chip { background: #F6EFDD; color: #C2463A; font-weight: 700; }
+html[data-theme="sorter"] .chip.allowed { color: #2E8A4E; }
+html[data-theme="sorter"] .stats > div + div { border-left: 1px solid #34373E; padding-left: 16px; }
+html[data-theme="sorter"] .stats .v { font-weight: 800; }
+html[data-theme="sorter"] .stats .k { color: #A9ABB0; }
