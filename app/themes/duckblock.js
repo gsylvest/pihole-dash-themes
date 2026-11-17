@@ -2,7 +2,10 @@
 // (domain + age). A BLOCKED stamp lands on it, it pops into a puff of feathers, and the spaniel in the grass lifts
 // its BLOCKED sign and wags. Extra unlabelled ducks are paced by the live block rate. Paused: the dog naps (Zzz), the sign
 // lies in the grass and the ducks cross the sky unbothered.
-// All art is original and drawn in code here: no third-party characters, logos or game trade dress.
+// The dog is a sprite sheet (themes/duckblock/dog.webp): it sits by its sign, watches labelled ducks come in, and on a
+// block does a backflip, waves the sign, cheers or hops. Between blocks it howls, bows or stands. If the sheet fails to
+// load, the code-drawn dog below is used instead.
+// All art is original: no third-party characters, logos or game trade dress.
 (() => {
   "use strict";
   const K = window.PiSkinKit; if (!K) return;
@@ -24,6 +27,12 @@
   // Image plate (themes/duckblock/plate.webp, 1200x880) shown under the canvas at the scene's height, left-aligned:
   // logical = plate px * PH / 880. WATER is the painted strip of water (for the glints); the tree mask keeps clouds behind the tree.
   const PLATE = { w: 1200, h: 880 }, WATER = { y0: 107, y1: 110 }, TREE_MASK_W = 46;
+  // Dog sprite atlas: name -> [x, y, w, h, footX] in dog.webp (footX = centre of the feet, from the sprite's left edge).
+  const DOGS = { sit: [1, 1, 50, 55, 25], blink: [70, 1, 49, 55, 24], happy: [139, 1, 49, 55, 25], wave: [208, 1, 53, 55, 25], look: [277, 1, 49, 55, 25], cheer: [346, 1, 53, 60, 26],
+    f0: [1, 63, 57, 38, 24], f1: [70, 63, 48, 53, 16], f2: [139, 63, 55, 54, 30], f3: [208, 63, 44, 54, 22], f4: [277, 63, 54, 53, 37], f5: [346, 63, 55, 41, 20],
+    stand: [1, 125, 54, 49, 23], jump: [70, 125, 50, 53, 26], bow: [139, 125, 61, 46, 31], howl: [208, 125, 46, 55, 24], sleep: [277, 125, 67, 31, 36], yawn: [346, 125, 67, 33, 36] };
+  const ACTS = ["flip", "wave", "cheer", "flip", "jump", "wave"], IDLES = ["howl", "bow", "stand"];   // on a block / when it's calm
+  const ACT_T = { flip: 1.05, wave: 1.5, cheer: 1.4, jump: 1, howl: 1.6, bow: 1.6, stand: 2 };
   const TREE = { x: 5, top: 40 };        // trunk base x (left edge tree) and where the trunk meets the canopy
 
   const mk = (w, h) => { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; };
@@ -389,7 +398,9 @@
         sky: [{ x: 14, y: 6, v: 1.6, k: 0 }, { x: 96, y: 12, v: 2.3, k: 1 }, { x: 138, y: 27, v: 1.2, k: 0 }, { x: 60, y: 50, v: 2.8, k: 1 }, { x: 20, y: 74, v: 2, k: 1 }],
         rate: K.rateTracker(), news: K.newsTracker(), ducks: [], parts: [], queue: [], lanes: LANES.map(() => null), call: [...calls.children],
         acc: 0.6, gap: 0, clock: 0, cheer: 0, quiet: 0, pick: 0, seeded: false, hw: PW * SC, oy: 0,
+        dogImg: new Image(), dogOk: false, act: null, actN: 0, idleN: 0, idleAt: 8,
       };
+      S.dogImg.onload = () => { if (this.s === S) S.dogOk = true; }; S.dogImg.src = "themes/duckblock/dog.webp";
       const pim = el.querySelector(".dk-plate"), noPlate = () => { if (this.s !== S) return; S.plateOk = false; S.back = paintBack(); S.front = paintFront(); pim.hidden = true; };
       const gotPlate = () => {   // clouds must pass behind the painted tree: a mask of every non-sky pixel in the tree's corner
         if (this.s !== S) return;
@@ -445,7 +456,43 @@
       const S = this.s; if (!dk.lab || S.lanes[dk.lane] !== dk) return;
       dk.el.classList.remove("on", "hit"); dk.el.removeAttribute("data-domain"); S.lanes[dk.lane] = null;
     },
-    hit(dk) { const S = this.s; dk.st = "stamp"; dk.tt = 0; S.cheer = 1.7; if (dk.lab) dk.el.classList.add("hit"); },
+    hit(dk) {
+      const S = this.s; dk.st = "stamp"; dk.tt = 0; S.cheer = 1.7; if (dk.lab) dk.el.classList.add("hit");
+      if (!S.act || S.act.idle) S.act = { k: ACTS[S.actN++ % ACTS.length], t: 0 };
+    },
+    // ---- sprite dog: g = feet on the ground (bottom-aligned on footX), m = centred on a point (mid-air)
+    g(n, cx, by) { const S = this.s, d = DOGS[n]; S.ctx.drawImage(S.dogImg, d[0], d[1], d[2], d[3], Math.round(cx - d[4]), Math.round(by - d[3]), d[2], d[3]); },
+    m(n, cx, cy) { const S = this.s, d = DOGS[n]; S.ctx.drawImage(S.dogImg, d[0], d[1], d[2], d[3], Math.round(cx - d[2] / 2), Math.round(cy - d[3] / 2), d[2], d[3]); },
+    dog(dt) {
+      const S = this.s, ctx = S.ctx, c = S.clock, dx = DOG.x, dy = DOG.y, beat = Math.floor(c * 7) % 2;
+      let a = S.act;
+      if (a) { a.t += dt; if (a.t >= ACT_T[a.k]) { a = S.act = null; S.idleAt = c + 9 + Math.random() * 8; } }
+      if (!a && S.cheer <= 0 && c >= S.idleAt && !S.lanes.some(Boolean)) a = S.act = { k: IDLES[S.idleN++ % IDLES.length], t: 0, idle: true };
+      const k = a ? a.k : "", t = a ? a.t : 0;
+      // how high the dog is off the grass, then its shadow, the planted sign, and the dog on top
+      const u = cl((t - 0.14) / 0.64, 0, 1), up = k === "flip" ? 24 * 4 * u * (1 - u) : k === "jump" ? Math.abs(Math.sin(t * Math.PI * 2)) * 13 : 0;
+      const sw = Math.round(21 - up * 0.45);
+      ctx.fillStyle = "rgba(16,64,30,.34)"; ctx.fillRect(dx - sw, dy - 2, sw * 2, 2); ctx.fillRect(dx - sw + 3, dy, sw * 2 - 6, 1);
+      const lift = k === "wave" ? (beat ? -4 : -1) : S.cheer > 1.5 ? -2 : 0, px = dx + 23;
+      ctx.fillStyle = "#C98A3C"; ctx.fillRect(px, dy - 40 + lift, 2, 37); ctx.fillStyle = "#8A5A22"; ctx.fillRect(px + 2, dy - 40 + lift, 1, 37);
+      ctx.drawImage(S.sign, Math.round(dx + SIGN.dx + 5 - S.sign.width / 2), Math.round(dy + SIGN.dy - S.sign.height / 2) + lift);
+      if (k === "flip") {
+        if (t < 0.14) this.g("f0", dx, dy);
+        else if (t < 0.3) this.g("f1", dx - 6, dy - up);
+        else if (t < 0.78) this.m(t < 0.46 ? "f2" : t < 0.62 ? "f3" : "f4", dx, dy - 23 - up);
+        else this.g("f5", dx + 4, dy);
+      } else if (k === "jump") this.g(up > 2.5 ? "jump" : "happy", dx, dy - up);
+      else if (k === "cheer") this.g("cheer", dx, dy - beat);
+      else if (k === "wave") this.g("wave", dx, dy - (beat ? 1 : 0));
+      else if (k) this.g(k, dx, dy);
+      else if (S.cheer > 0) this.g("happy", dx, dy);
+      else if (S.ducks.some((d) => d.lab && d.x > -10 && (d.st === "in" || d.st === "hover"))) this.g("look", dx, dy);
+      else this.g(c % 3.6 < 0.16 ? "blink" : "sit", dx, dy);
+      if ((k === "cheer" || k === "wave" || k === "jump") && Math.floor(c * 6) % 2) {   // happy sparks by its head
+        ctx.fillStyle = "#FFE14A"; const ox = dx - 27, oy = dy - 56 - Math.round(up);
+        ctx.fillRect(ox + 5, oy - 2, 1, 3); ctx.fillRect(ox, oy + 1, 3, 1); ctx.fillRect(ox + 2, oy - 1, 1, 1); ctx.fillRect(ox + 9, oy - 3, 1, 2);
+      }
+    },
     pop(dk) {
       const S = this.s; dk.st = "puff"; dk.tt = 0;
       const cols = [DUCK.p, DUCK.c, "#FFFFFF", DUCK.b];
@@ -525,7 +572,8 @@
         ctx.fillStyle = "#8A5A22"; ctx.fillRect(dx + 30, dy - 4, 24, 2); ctx.fillStyle = "#C98A3C"; ctx.fillRect(dx + 30, dy - 5, 24, 1);
         ctx.fillStyle = GR[0]; for (let i = 0; i < 26; i++) if (i % 2) ctx.fillRect(dx + 51 + i * 2, dy + 3, 2, 1);   // the sign lies in the grass
         ctx.drawImage(S.signFlat, dx + 50, dy - 13);
-        ctx.drawImage(S.sleep[Math.floor(c / 1.2) % 2], dx - 31, dy - 27);
+        if (S.dogOk) { S.act = null; this.g(c % 11 > 9.6 ? "yawn" : "sleep", dx - 5, dy + 1); }
+        else ctx.drawImage(S.sleep[Math.floor(c / 1.2) % 2], dx - 31, dy - 27);
         for (let i = 0; i < 3; i++) {   // Zzz drifting up
           const k = ((c * 0.45 + i / 3) % 1), z = ZED[Math.min(2, Math.floor(k * 3))], zx = Math.round(dx - 8 + k * 16 + Math.sin(k * 6 + i) * 2), zy = Math.round(dy - 30 - k * 22);
           if (k > 0.92) continue;
@@ -534,7 +582,8 @@
             z.forEach((row, yy) => { for (let xx = 0; xx < row.length; xx++) if (row[xx] === "X") ctx.fillRect(zx + xx + (pass ? 0 : 1), zy + yy + (pass ? 0 : 1), 1, 1); });
           }
         }
-      } else {
+      } else if (S.dogOk) this.dog(dt);
+      else {
         const hype = S.cheer > 0, up = hype && Math.floor(c * 7) % 2 ? 1 : 0, hop = hype && Math.floor(c * 7) % 2 ? -1 : 0;
         const face = hype ? "happy" : (c % 3.6 < 0.16 ? "blink" : "open");
         const tail = hype ? Math.floor(c * 11) % 3 : [0, 2, 0, 1][Math.floor(c * 2.6) % 4];
