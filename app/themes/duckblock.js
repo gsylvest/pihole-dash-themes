@@ -27,10 +27,11 @@
   // Image plate (themes/duckblock/plate.webp, 1200x880) shown under the canvas at the scene's height, left-aligned:
   // logical = plate px * PH / 880. WATER is the painted strip of water (for the glints); the tree mask keeps clouds behind the tree.
   const PLATE = { w: 1200, h: 880 }, WATER = { y0: 107, y1: 110 }, TREE_MASK_W = 46;
-  // Dog sprite atlas: name -> [x, y, w, h, footX] in dog.webp (footX = centre of the feet, from the sprite's left edge).
-  const DOGS = { sit: [1, 1, 50, 55, 25], blink: [70, 1, 49, 55, 24], happy: [139, 1, 49, 55, 25], wave: [208, 1, 53, 55, 25], look: [277, 1, 49, 55, 25], cheer: [346, 1, 53, 60, 26],
-    f0: [1, 63, 57, 38, 24], f1: [70, 63, 48, 53, 16], f2: [139, 63, 55, 54, 30], f3: [208, 63, 44, 54, 22], f4: [277, 63, 54, 53, 37], f5: [346, 63, 55, 41, 20],
-    stand: [1, 125, 54, 49, 23], jump: [70, 125, 50, 53, 26], bow: [139, 125, 61, 46, 31], howl: [208, 125, 46, 55, 24], sleep: [277, 125, 67, 31, 36], yawn: [346, 125, 67, 33, 36] };
+  // Dog sprite atlas: name -> [x, y, w, h, footX] in dog.webp, in SCREEN pixels (the dog has its own full-resolution canvas
+  // over the scene so it stays sharp; positions passed to g()/m() are still logical). footX = centre of the feet.
+  const DOGS = { sit: [1, 1, 150, 164, 75], blink: [203, 1, 148, 164, 74], happy: [405, 1, 148, 164, 74], wave: [607, 1, 158, 164, 75], look: [809, 1, 146, 164, 75], cheer: [1011, 1, 158, 181, 78],
+    f0: [1, 184, 171, 115, 71], f1: [203, 184, 143, 158, 50], f2: [405, 184, 164, 161, 92], f3: [607, 184, 131, 161, 64], f4: [809, 184, 162, 160, 112], f5: [1011, 184, 164, 122, 62],
+    stand: [1, 367, 163, 148, 70], jump: [203, 367, 150, 158, 77], bow: [405, 367, 182, 138, 91], howl: [607, 367, 138, 166, 72], sleep: [809, 367, 200, 93, 108], yawn: [1011, 367, 200, 98, 107] };
   const ACTS = ["flip", "wave", "cheer", "flip", "jump", "wave"], IDLES = ["howl", "bow", "stand"];   // on a block / when it's calm
   const ACT_T = { flip: 1.05, wave: 1.5, cheer: 1.4, jump: 1, howl: 1.6, bow: 1.6, stand: 2 };
   const TREE = { x: 5, top: 40 };        // trunk base x (left edge tree) and where the trunk meets the canopy
@@ -371,7 +372,7 @@
           <button class="dk-tb" data-act="allowed" data-k="allowed" type="button"><span>Allowed<span class="n"></span></span><i class="dk-chip"><svg viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.500 3.500L11 1.500" fill="none" stroke="currentColor" stroke-width="2.500"/></svg><u></u></i></button>
           <button class="dk-tb" data-act="style" type="button"><span>Style</span><i class="dk-chip">Duck<u></u></i></button>
         </div>
-        <div class="dk-scene"><img class="dk-plate" src="themes/duckblock/plate.webp" alt="" draggable="false"><canvas class="dk-cv" width="${PW}" height="${PH}"></canvas>
+        <div class="dk-scene"><img class="dk-plate" src="themes/duckblock/plate.webp" alt="" draggable="false"><canvas class="dk-cv" width="${PW}" height="${PH}"></canvas><canvas class="dk-dog" width="${PW * SC}" height="${PH * SC}"></canvas>
           <div class="dk-calls" data-k="calls"></div>
           <div class="dk-nap" data-k="nap"><b>PAUSED</b><span data-k="cd"></span></div>
         </div>
@@ -398,7 +399,7 @@
         sky: [{ x: 14, y: 6, v: 1.6, k: 0 }, { x: 96, y: 12, v: 2.3, k: 1 }, { x: 138, y: 27, v: 1.2, k: 0 }, { x: 60, y: 50, v: 2.8, k: 1 }, { x: 20, y: 74, v: 2, k: 1 }],
         rate: K.rateTracker(), news: K.newsTracker(), ducks: [], parts: [], queue: [], lanes: LANES.map(() => null), call: [...calls.children],
         acc: 0.6, gap: 0, clock: 0, cheer: 0, quiet: 0, pick: 0, seeded: false, hw: PW * SC, oy: 0,
-        dogImg: new Image(), dogOk: false, act: null, actN: 0, idleN: 0, idleAt: 8,
+        dogImg: new Image(), dogOk: false, dctx: el.querySelector(".dk-dog").getContext("2d"), act: null, actN: 0, idleN: 0, idleAt: 8,
       };
       S.dogImg.onload = () => { if (this.s === S) S.dogOk = true; }; S.dogImg.src = "themes/duckblock/dog.webp";
       const pim = el.querySelector(".dk-plate"), noPlate = () => { if (this.s !== S) return; S.plateOk = false; S.back = paintBack(); S.front = paintFront(); pim.hidden = true; };
@@ -461,8 +462,8 @@
       if (!S.act || S.act.idle) S.act = { k: ACTS[S.actN++ % ACTS.length], t: 0 };
     },
     // ---- sprite dog: g = feet on the ground (bottom-aligned on footX), m = centred on a point (mid-air)
-    g(n, cx, by) { const S = this.s, d = DOGS[n]; S.ctx.drawImage(S.dogImg, d[0], d[1], d[2], d[3], Math.round(cx - d[4]), Math.round(by - d[3]), d[2], d[3]); },
-    m(n, cx, cy) { const S = this.s, d = DOGS[n]; S.ctx.drawImage(S.dogImg, d[0], d[1], d[2], d[3], Math.round(cx - d[2] / 2), Math.round(cy - d[3] / 2), d[2], d[3]); },
+    g(n, cx, by) { const S = this.s, d = DOGS[n]; S.dctx.drawImage(S.dogImg, d[0], d[1], d[2], d[3], Math.round(cx * SC - d[4]), Math.round(by * SC - d[3]), d[2], d[3]); },
+    m(n, cx, cy) { const S = this.s, d = DOGS[n]; S.dctx.drawImage(S.dogImg, d[0], d[1], d[2], d[3], Math.round(cx * SC - d[2] / 2), Math.round(cy * SC - d[3] / 2), d[2], d[3]); },
     dog(dt) {
       const S = this.s, ctx = S.ctx, c = S.clock, dx = DOG.x, dy = DOG.y, beat = Math.floor(c * 7) % 2;
       let a = S.act;
@@ -568,6 +569,7 @@
 
       // the dog
       const dx = DOG.x, dy = DOG.y;
+      if (S.dogOk) S.dctx.clearRect(0, 0, PW * SC, PH * SC);
       if (!on) {
         ctx.fillStyle = "#8A5A22"; ctx.fillRect(dx + 30, dy - 4, 24, 2); ctx.fillStyle = "#C98A3C"; ctx.fillRect(dx + 30, dy - 5, 24, 1);
         ctx.fillStyle = GR[0]; for (let i = 0; i < 26; i++) if (i % 2) ctx.fillRect(dx + 51 + i * 2, dy + 3, 2, 1);   // the sign lies in the grass

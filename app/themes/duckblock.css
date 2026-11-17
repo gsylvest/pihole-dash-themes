@@ -32,6 +32,7 @@
 /* ---- scene */
 .dk-scene { position: relative; overflow: hidden; background: #52C24A; border-right: 2px solid #8FA8F5; }
 .dk-plate { position: absolute; left: 0; bottom: 0; height: 432px; width: auto; max-width: none; display: block; }
+.dk-dog { position: absolute; left: 0; bottom: 0; display: block; }
 .dk-cv { position: absolute; left: 0; bottom: 0; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
 .dk-calls { position: absolute; inset: 0; pointer-events: none; }
 .dk-call { position: absolute; left: 0; top: 0; height: 46px; min-width: 96px; padding: 0 12px; display: flex; flex-direction: column; align-items: center; justify-content: center;
